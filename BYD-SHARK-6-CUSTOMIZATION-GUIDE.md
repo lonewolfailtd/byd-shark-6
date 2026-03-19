@@ -1,6 +1,6 @@
 # BYD Shark 6 - Complete Customization & Apps Guide
 
-**Last Updated:** December 2025
+**Last Updated:** March 2026
 **Your Setup:** ADB via WiFi working, Downloader app installed
 
 ---
@@ -556,6 +556,9 @@ adb install firefox.apk
 # List installed packages
 adb shell pm list packages
 
+# List only sideloaded (third-party) apps
+adb shell pm list packages -3
+
 # Uninstall app
 adb uninstall com.package.name
 
@@ -567,7 +570,26 @@ adb shell pm clear com.package.name
 
 # Grant permission
 adb shell pm grant com.package.name android.permission.WRITE_EXTERNAL_STORAGE
+
+# Allow Aurora Store to install apps + storage access
+adb shell appops set com.aurora.store REQUEST_INSTALL_PACKAGES allow
+adb shell appops set com.aurora.store WRITE_EXTERNAL_STORAGE allow
+adb shell appops set com.aurora.store MANAGE_EXTERNAL_STORAGE allow
+
+# Take a screenshot of the head unit
+adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png
+
+# Check what's running in foreground
+adb shell dumpsys activity activities | grep mResumedActivity
 ```
+
+### Firmware 2503+ Workaround
+If standard `adb install` is blocked:
+1. Rename `.apk` to `.zip` (e.g., `aurora-store.apk` -> `aurora-store.zip`)
+2. Transfer to car: `adb push aurora-store.zip /sdcard/`
+3. Open **App Manager** on the car
+4. Navigate to the zip file and install from there
+5. Alternatively, use `.xapk` format files which still work
 
 ### Using Downloader App (Easier Method)
 1. Open Downloader on car

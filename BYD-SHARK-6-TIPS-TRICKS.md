@@ -1,6 +1,6 @@
 # BYD Shark 6 - Tips, Tricks & Hidden Features
 
-**Last Updated:** December 2025
+**Last Updated:** March 2026
 **Based on:** Community research, YouTube guides (Electric Seal, BYD Buddy, Beyond EV, Trail Shark), owner forums
 
 ---
@@ -230,6 +230,10 @@ The Shark 6 can power external devices!
 - Works via Bluetooth/NFC
 - Can share temporary access with others
 
+### NFC Card Key
+- Some regions support NFC card as backup key
+- Can be paired via BYD app settings
+
 ---
 
 ## 7. Hidden Storage & Space Tips
@@ -345,8 +349,17 @@ Get detailed battery stats with:
 - Torque Pro
 - Check compatibility with your specific model
 
+**Hardware option:** WiCAN Pro (ESP32-based OBD2 adapter) integrates with Home Assistant for remote vehicle data monitoring. BYD-specific PIDs available at `github.com/loryanstrant/BYD-PID-list`.
+
 ### Screen Recording
 Some firmware versions support screen recording for tutorials.
+
+### ADB Screenshot/Recording (If Connected)
+If you have ADB access, you can capture the head unit screen from your laptop:
+```bash
+adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png
+adb shell screenrecord /sdcard/video.mp4  # max 3 minutes
+```
 
 ---
 

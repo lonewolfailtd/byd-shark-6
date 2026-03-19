@@ -1,21 +1,23 @@
 # BYD Shark 6 Modding & Customization Guide
 
-**Last Updated:** December 2024
+**Last Updated:** March 2026
 **Firmware Versions Covered:** Up to 2503 and beyond
-**Based on:** Community research from XDA Forums, YouTube guides (Trail Shark, BYD Buddy, SG BYD Gear), Facebook groups, and owner experiences
+**Based on:** Community research from XDA Forums, YouTube guides (Trail Shark, BYD Buddy, SG BYD Gear), Facebook groups, GitHub repos, and owner experiences
 
 ---
 
 ## Table of Contents
 1. [What You've Already Done](#what-youve-already-done)
-2. [Safe Modifications (DO THIS)](#safe-modifications-do-this)
-3. [Risky Modifications (CAUTION)](#risky-modifications-caution)
-4. [Dangerous - Will Brick/Void Warranty (DON'T DO)](#dangerous---will-brickvoid-warranty-dont-do)
-5. [Firmware Version Compatibility](#firmware-version-compatibility)
-6. [What Others Have Done Successfully](#what-others-have-done-successfully)
-7. [What Wrecked People's Head Units](#what-wrecked-peoples-head-units)
-8. [Recovery Methods](#recovery-methods)
-9. [Useful Resources](#useful-resources)
+2. [How to Enable ADB (Detailed Steps)](#how-to-enable-adb-detailed-steps)
+3. [Safe Modifications (DO THIS)](#safe-modifications-do-this)
+4. [Risky Modifications (CAUTION)](#risky-modifications-caution)
+5. [Dangerous - Will Brick/Void Warranty (DON'T DO)](#dangerous---will-brickvoid-warranty-dont-do)
+6. [Firmware Version Compatibility](#firmware-version-compatibility)
+7. [What Others Have Done Successfully](#what-others-have-done-successfully)
+8. [What Wrecked People's Head Units](#what-wrecked-peoples-head-units)
+9. [Recovery Methods](#recovery-methods)
+10. [Advanced ADB Commands](#advanced-adb-commands)
+11. [Useful Resources](#useful-resources)
 
 ---
 
@@ -27,6 +29,70 @@ You have successfully:
 - Installed the Downloader app via `adb install`
 
 **Your current setup is working and safe.**
+
+---
+
+## How to Enable ADB (Detailed Steps)
+
+### Method 1: Standard Developer Options (Pre-2407 Firmware)
+
+**Step 1: Enable Developer Options**
+1. On the head unit, go to **Car > System > Version**
+2. Tap **"Factory Reset" text** (the text itself, NOT the button) **10 times rapidly**
+3. A hidden menu appears
+4. **Rotate the screen vertically** to reveal additional buttons
+5. Press **"CONNECT USB TO ENABLE DEBUGGING MODE / REVOKE USB DEBUGGING ENABLE AUTHORIZATION"**
+
+**Step 2: Connect via WiFi**
+1. Turn on your **phone's hotspot**
+2. Connect both **your laptop** and the **car head unit** to the same hotspot
+3. On the car, go to **Settings > WiFi** > tap the connected network to find the car's IP address
+4. On your laptop, run:
+```bash
+adb connect <car-ip-address>:5555
+```
+5. Verify with:
+```bash
+adb devices
+```
+
+### Method 2: IMEI-Based Bypass (Post-2407 Firmware)
+
+BYD disabled developer tools in firmware 2407+. The community discovered this workaround:
+
+1. Connect your **phone to the car via Bluetooth**
+2. On the car's infotainment, dial a specific service number to access a **verification menu** showing your IMEI
+3. Enter the IMEI on a specific verification website (time synchronization between car clock and website is critical)
+4. The website generates a **one-time code** to re-enable ADB
+5. Enter the code on the car to unlock developer tools
+6. Proceed with standard ADB connection (Method 1, Step 2)
+
+**Detailed guides:**
+- `github.com/ahmada3mar/BYD` - Step-by-step with screenshots
+- `github.com/murtaza9000-tech/automark-byd` - Includes APK packages
+
+### Method 3: Unlocked PackageInstaller (No Laptop Needed After Setup)
+
+Once you have ADB access, you can install a modified PackageInstaller that lets you install APKs directly from the car's own screen — from USB drives, web downloads, Telegram, file managers, etc.
+
+1. Get the **PackageInstallerUnlocked.apk** (extracted from Chinese BYD Yuan Plus variant)
+   - Found in: `github.com/MorghusDragon/BYD-Shark-Sideloading` Issue #1
+2. Install via ADB: `adb install PackageInstallerUnlocked.apk`
+3. After this, you can download and install APKs directly on the car without a laptop
+
+**Why this matters:** After the one-time ADB setup, you never need your laptop again for app installs.
+
+### Method 4: USB Sideloading (No ADB Required)
+
+For firmware versions that still support it:
+1. Format USB drive as **FAT32**
+2. Create a folder called **`third party apps`**
+3. Copy your APK files inside
+4. Plug into the car's USB **data port**
+5. Enter the password when prompted (see [Passwords Reference](#passwords-reference))
+
+### Checking Your Firmware Version
+On your head unit: **Settings > About > System Version**
 
 ---
 
@@ -209,6 +275,7 @@ Any attempt to modify system files without proper root access will fail and pote
 | **2307** | Works | Last "easy" version |
 | **2310** | Blocked USB sideloading | Removed developer tools, 2FA for installs |
 | **2403** | Partially blocked | Vehicle location tracker added |
+| **2407+** | Developer tools disabled | Requires IMEI-based bypass (see above) |
 | **2503** | Blocked standard APK | Need workarounds (xapk, zip method) |
 | **2412/2501+** | Most restricted | May need downgrade |
 
@@ -333,32 +400,163 @@ Nuclear option - loses all data:
 
 ---
 
+## Advanced ADB Commands
+
+### Display & UI Tweaks
+```bash
+# Change DPI (UI scaling) - experiment to find best value for your screen
+adb shell wm density 400
+adb shell wm density reset
+
+# Change resolution
+adb shell wm size 1080x2400
+adb shell wm size reset
+
+# Disable animations (makes system feel faster)
+adb shell settings put global window_animation_scale 0
+adb shell settings put global transition_animation_scale 0
+adb shell settings put global animator_duration_scale 0
+
+# Re-enable animations
+adb shell settings put global window_animation_scale 1
+adb shell settings put global transition_animation_scale 1
+adb shell settings put global animator_duration_scale 1
+```
+
+### App Management
+```bash
+# List all installed packages
+adb shell pm list packages
+
+# List only third-party (sideloaded) apps
+adb shell pm list packages -3
+
+# Allow Aurora Store to install apps + storage access
+adb shell appops set com.aurora.store REQUEST_INSTALL_PACKAGES allow
+adb shell appops set com.aurora.store WRITE_EXTERNAL_STORAGE allow
+adb shell appops set com.aurora.store MANAGE_EXTERNAL_STORAGE allow
+
+# Force stop a misbehaving app
+adb shell am force-stop com.package.name
+
+# Clear app data (reset an app)
+adb shell pm clear com.package.name
+
+# Grant a specific permission
+adb shell pm grant com.package.name android.permission.WRITE_EXTERNAL_STORAGE
+```
+
+### System Info & Diagnostics
+```bash
+# Take a screenshot
+adb shell screencap -p /sdcard/screen.png
+adb pull /sdcard/screen.png
+
+# Record screen (max 3 minutes)
+adb shell screenrecord /sdcard/video.mp4
+
+# View real-time system logs (useful for debugging crashes)
+adb logcat
+
+# Dump log to file
+adb logcat -d > byd-log.txt
+
+# Check battery/system info
+adb shell dumpsys battery
+
+# See what app is currently in foreground
+adb shell dumpsys activity activities | grep mResumedActivity
+```
+
+### File Transfer
+```bash
+# Copy file from PC to car
+adb push local-file.apk /sdcard/
+
+# Copy file from car to PC
+adb pull /sdcard/some-file.txt ./
+
+# Copy custom boot animation (BACKUP ORIGINAL FIRST)
+adb pull /system/media/bootanimation.zip ./bootanimation-backup.zip
+```
+
+### Theme Overlays (DiLink)
+```bash
+# List available overlays
+adb shell cmd overlay list
+
+# Enable an overlay
+adb shell cmd overlay enable <overlay-name>
+
+# Disable an overlay
+adb shell cmd overlay disable <overlay-name>
+```
+
+### Input Simulation (Remote Control)
+```bash
+# Simulate a screen tap at x,y coordinates
+adb shell input tap 500 500
+
+# Simulate a swipe
+adb shell input swipe 100 500 900 500
+
+# Type text
+adb shell input text "hello"
+
+# Simulate home button
+adb shell input keyevent 3
+
+# Simulate back button
+adb shell input keyevent 4
+```
+
+---
+
 ## Useful Resources
 
 ### Websites
 - **XDA Forums BYD Thread:** `xdaforums.com/t/byd-multimedia-install-apk.4541247/`
 - **Defective Tech Wiki (Firmware):** `wiki.defective.tech/BYD/Firmware`
+- **Defective Tech Wiki (Fastboot):** `wiki.defective.tech/BYD/Upgrading/Fastboot`
 - **Just BYD Forum:** `forums.justbyd.com`
+- **BYD Owners Forum:** `bydowners.com`
 - **One Finite Planet (Guides):** `onefiniteplanet.org/webpapers/byd-atto-3-software-and-tips/`
+- **BYD Sideloading Guide:** `byd.deskblur.com/us`
+- **All Terrain BYD Notes:** `allterrain.app/byd/`
+- **GBox Lab:** `gboxlab.com`
 
 ### YouTube Channels
 - **Trail Shark** - BYD Shark specific guides
 - **BYD Buddy** - General BYD tips and sideloading
 - **SG BYD Gear** - Sideloading tutorials
 - **AleTech** - Third party apps 2025
+- **BYD CLUB ITALIA** - Sentry mode and advanced mods
 
-### GitHub
-- `github.com/ahmada3mar/BYD` - Tips and tricks
+### GitHub Repositories
+- `github.com/MorghusDragon/BYD-Shark-Sideloading` - Shark-specific sideloading guide
+- `github.com/ahmada3mar/BYD` - Tips, tricks, and post-2407 ADB bypass
+- `github.com/murtaza9000-tech/automark-byd` - ADB bypass with APK packages included
 - `github.com/MuntashirAkon/AppManager` - App Manager releases
+- `github.com/BYDcar/BYDGlobalFactoryImages1` - Factory images and repair manuals
+- `github.com/Niek/BYD-re` - BYD reverse engineering
+- `github.com/loryanstrant/BYD-PID-list` - OBD2 PID listing for BYD vehicles
+
+### Hardware Add-ons
+- **Smart World App2Car Box** - Multimedia box that plugs into wired Android Auto USB port, enables direct app downloads without ADB. Compatible with Shark 6. Available at `smartworldcompany.com`
+- **WiCAN Pro** - ESP32-based OBD2 adapter, integrates with Home Assistant for vehicle data monitoring. Available at `crowdsupply.com/meatpi-electronics/wican-pro`
 
 ### Facebook Groups
 - BYD Global Owners Club
 - BYD Owners Club Malaysia
+- BYD Shark 6 Camping, Off-road, Setups/Mods
 - Regional BYD groups
 
 ### Telegram
 - Multiple BYD groups available
 - Search "BYD" in Telegram
+
+### Other References
+- **Scribd:** ADB Debug DiLink 5 document - `scribd.com/document/914887883/ADB-Debug-Dilink-5`
 
 ---
 
