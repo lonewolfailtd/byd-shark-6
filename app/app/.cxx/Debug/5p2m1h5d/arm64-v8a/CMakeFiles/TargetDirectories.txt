@@ -1,6 +1,0 @@
-C:/Users/Hodgs/byd-shark-6/app/app/.cxx/Debug/5p2m1h5d/arm64-v8a/CMakeFiles/sharkcam.dir
-C:/Users/Hodgs/byd-shark-6/app/app/.cxx/Debug/5p2m1h5d/arm64-v8a/CMakeFiles/vendor_libcpp_compat.dir
-C:/Users/Hodgs/byd-shark-6/app/app/.cxx/Debug/5p2m1h5d/arm64-v8a/CMakeFiles/vendor_libutils_compat.dir
-C:/Users/Hodgs/byd-shark-6/app/app/.cxx/Debug/5p2m1h5d/arm64-v8a/CMakeFiles/vendor_libcutils_compat.dir
-C:/Users/Hodgs/byd-shark-6/app/app/.cxx/Debug/5p2m1h5d/arm64-v8a/CMakeFiles/edit_cache.dir
-C:/Users/Hodgs/byd-shark-6/app/app/.cxx/Debug/5p2m1h5d/arm64-v8a/CMakeFiles/rebuild_cache.dir

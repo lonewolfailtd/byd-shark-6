@@ -2,3 +2,4 @@ research/device-dump/*/pulled/
 research/device-dump/*/logcat-sample.txt
 research/decompiled/
 research/camera-poc/
+app/app/.cxx/
