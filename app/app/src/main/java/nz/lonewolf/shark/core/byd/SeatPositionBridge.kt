@@ -18,7 +18,8 @@ class SeatPositionBridge(context: Context) {
         FORE_AFT("turnSeatHorization"), HEIGHT("turnSeatHeight"), BACKREST("turnSeatbackrest"), CUSHION("turnSeatCushion")
     }
 
-    data class Positions(val horizontal: Double?, val height: Double?, val backrest: Double?, val cushion: Double?, val easyEntry: Int?, val memoryByEcu: Int?)
+    data class Positions(val horizontal: Double?, val height: Double?, val backrest: Double?, val cushion: Double?, val easyEntry: Int?, val memoryByEcu: Int?,
+                         val adjustCfgG: Int? = null, val adjustCfgBody: Int? = null, val passengerAdjustCfg: Int? = null, val supportMassage: Int? = null)
 
     fun read(): Positions = Positions(
         horizontal = bodywork.getDouble("getDriverSeatHorizontalPosition"),
@@ -27,6 +28,10 @@ class SeatPositionBridge(context: Context) {
         cushion = bodywork.getDouble("getDriverSeatSitpointPosition"),
         easyEntry = setting.getInt("getDriverSeatAutoReturn"),
         memoryByEcu = setting.getInt("getPassengerSeatMemoryFunctionCanByECU"),
+        adjustCfgG = setting.getInt("getMainDriverSeatAdjustmentConfigurationByGCtrl"),
+        adjustCfgBody = setting.getInt("getMainDriverSeatAdjustmentConfigurationByLeftBodyCtrl"),
+        passengerAdjustCfg = setting.getInt("getPassengerSeatElectricAdjustmentConfigurationByECU"),
+        supportMassage = setting.getInt("getSupportSeatMassage"),
     )
 
     /** Start moving. `direction` is 1 or 2 as BYD's own buttons send. */

@@ -35,3 +35,7 @@ setAmbientState(1) on the Light device returns -1 on the Shark 6 (verified 18 Se
 | Back home light delay | SettingDevice.setBackHomeLightDelayValue(v) |
 
 Also seen in the Setting device: getCreepModeState / creep speed (Crawl mode), wading pattern state and speed tips, delay power off. Useful for the Off Road page.
+
+## Seat position (checked 18 Sep 2026): not available on the Shark 6
+
+BYD CarSettings only enables screen seat movement when getMainDriverSeatAdjustmentConfigurationByGCtrl or ...ByLeftBodyCtrl == 3. On this ute both read 0, getPassengerSeatElectricAdjustmentConfigurationByECU is 0, and every getDriverSeat*Position() returns 255 (invalid). turnSeatHorization/Height/backrest/Cushion(1, dir) are accepted but the body controller ignores them. The seat motors only answer the physical switches. SeatScreen.kt is kept in the tree but not in the tab bar.

@@ -75,6 +75,7 @@ class VehicleService : Service() {
                     appendLine("seats=${seats.value}")
                     appendLine("lights=${lights.value}")
                     appendLine("slope=${slope.value}")
+                    appendLine("seatPosition=${seatPosition.value}")
                     Vehicle.telemetry.devices.forEach { (n, d) -> appendLine("device $n bound=${d.bound} err=${d.bindError}") }
                 }
                 android.util.Log.e("SharkProbe", report)

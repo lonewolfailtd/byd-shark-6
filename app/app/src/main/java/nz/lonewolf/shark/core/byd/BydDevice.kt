@@ -49,8 +49,9 @@ class BydDevice(private val context: Context, val className: String) {
         return try {
             val m = dev.javaClass.getMethod(name, *types)
             val raw = (m.invoke(dev, *args) as? Number)?.toInt()
-            CommandResult(raw == null || raw >= 0, format(name, args), raw, describe(raw))
+            CommandResult(raw == null || raw >= 0, format(name, args), raw, describe(raw)).also { Log.w("SharkWrite", "${className.substringAfterLast('.')}.${it.call} -> ${it.detail}") }
         } catch (_: NoSuchMethodException) {
+            Log.w("SharkWrite", "${className.substringAfterLast('.')}.${format(name, args)} -> no such method")
             CommandResult.missing(format(name, args))
         } catch (t: Throwable) {
             val c = (t as? InvocationTargetException)?.cause ?: t
