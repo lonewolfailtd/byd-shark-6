@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Simple shark fin. Replaced by real branding later. -->
+    <path android:fillColor="#3DDC84"
+        android:pathData="M24,74 C34,52 50,38 74,30 C68,44 70,58 84,74 Z" />
+</vector>
