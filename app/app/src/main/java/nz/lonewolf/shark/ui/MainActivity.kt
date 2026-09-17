@@ -52,6 +52,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Vehicle.init(this)
         inclinometer = Inclinometer(this)
+        // Load the SDK and start the vehicle link as soon as the app opens; the buttons stay as a manual retry.
+        Thread {
+            runCatching { BydSdkLoader.ensure(applicationContext) }
+                .onFailure { android.util.Log.w("Shark", "sdk ensure failed", it) }
+            runCatching { VehicleService.start(applicationContext) }
+                .onFailure { android.util.Log.w("Shark", "service start failed", it) }
+        }.start()
         setContent {
             MaterialTheme(colorScheme = darkColorScheme(primary = Color(0xFF3DDC84), background = Color(0xFF0B1220))) {
                 Diagnostics(inclinometer)

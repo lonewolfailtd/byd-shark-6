@@ -1,0 +1,20 @@
+--------- beginning of main
+--------- beginning of system
+09-18 07:54:58.939 32031 32057 W BydSdkLoader: inject com.byd.carsettings, com.byd.data.collect ok=true
+09-18 07:55:00.457 32031 32064 E SharkProbe: time=1789674900443 sdk=INJECTED err=null
+09-18 07:55:00.457 32031 32064 E SharkProbe: telemetry=Snapshot(soc=21, usableKwh=128.0, evRangeKm=0, fuelPercent=95, fuelRangeKm=669, combinedRangeKm=669, odometerKm=13989, evMileageKm=5852, speedKmh=0, accelerator=0, brake=0, gear=1, engineRpm=0, enginePowerKw=0, coolantC=0, oilLevel=53, energyMode=0, operationMode=3, sportMode=3, battery12v=13.0, soh=100, chargingState=0, powerLevel=2, steeringAngle=0.0, vin=BYDF7D7A55A7715924B, tyres=Tyres(fl=0.0, fr=377.0, rl=377.0, rr=372.0, unit=raw))
+09-18 07:55:00.457 32031 32064 E SharkProbe: climate=State(bound=true, error=null, powerOn=false, driverTemp=17, passengerTemp=17, outsideTemp=16, fan=0, auto=false, recirc=true, compressorOn=false, maxCool=false, airOnly=false, frontDemist=false, rearHeat=false, synced=true, windMode=2)
+09-18 07:55:00.457 32031 32064 E SharkProbe: seats=State(bound=true, error=null, driver=Seat(heat=OFF, vent=OFF), passenger=Seat(heat=null, vent=null), hasHeat=false, hasVent=false)
+09-18 07:55:00.457 32031 32064 E SharkProbe: lights=State(bound=true, error=null, lightIntensity=1, headlightsOn=true, ambientColour=null, ambientBrightness=null, ambientMode=null)
+09-18 07:55:00.457 32031 32064 E SharkProbe: device statistic bound=true err=null
+09-18 07:55:00.457 32031 32064 E SharkProbe: device speed bound=true err=null
+09-18 07:55:00.457 32031 32064 E SharkProbe: device engine bound=true err=null
+09-18 07:55:00.457 32031 32064 E SharkProbe: device energy bound=true err=null
+09-18 07:55:00.457 32031 32064 E SharkProbe: device gearbox bound=true err=null
+09-18 07:55:00.457 32031 32064 E SharkProbe: device bodywork bound=true err=null
+09-18 07:55:00.457 32031 32064 E SharkProbe: device tyre bound=true err=null
+09-18 07:55:00.457 32031 32064 E SharkProbe: device instrument bound=true err=null
+09-18 07:55:00.457 32031 32064 E SharkProbe: device health bound=true err=null
+09-18 07:55:00.457 32031 32064 E SharkProbe: device charging bound=true err=null
+09-18 07:55:00.457 32031 32064 E SharkProbe: device ota bound=true err=null
+09-18 07:55:10.902 32031 32064 E SharkProbe: time=1789674910898 sdk=INJECTED err=null

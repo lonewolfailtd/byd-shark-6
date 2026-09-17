@@ -51,11 +51,25 @@ class VehicleService : Service() {
     }
 
     private suspend fun poll() {
+        var tick = 0
         while (true) {
             runCatching {
                 telemetry.value = Vehicle.telemetry.read()
                 climate.value = Vehicle.climate.read()
                 seats.value = Vehicle.seats.read()
+            }.onFailure { android.util.Log.e("SharkProbe", "poll failed", it) }
+            // Every 10 s write a probe report so it can be read over adb without the screen.
+            if (tick++ % 10 == 0) runCatching {
+                val report = buildString {
+                    appendLine("time=${System.currentTimeMillis()} sdk=${nz.lonewolf.shark.core.byd.BydSdkLoader.mode} err=${nz.lonewolf.shark.core.byd.BydSdkLoader.lastError}")
+                    appendLine("telemetry=${telemetry.value}")
+                    appendLine("climate=${climate.value}")
+                    appendLine("seats=${seats.value}")
+                    appendLine("lights=${runCatching { Vehicle.lights.read() }.getOrNull()}")
+                    Vehicle.telemetry.devices.forEach { (n, d) -> appendLine("device $n bound=${d.bound} err=${d.bindError}") }
+                }
+                android.util.Log.e("SharkProbe", report)
+                java.io.File(getExternalFilesDir(null), "probe.txt").writeText(report)
             }
             delay(1_000)
         }

@@ -82,7 +82,7 @@ object BydSdkLoader {
             val ok = loadable(loader)
             mode = if (ok) Mode.INJECTED else Mode.UNAVAILABLE
             if (!ok) lastError = "injected ${extra.size} dex element(s) but no bydauto class loads (hidden API policy?)"
-            Log.i(TAG, "inject ${injected.joinToString()} ok=$ok")
+            Log.w(TAG, "inject ${injected.joinToString()} ok=$ok")
             ok
         } catch (t: Throwable) {
             lastError = "${t.javaClass.simpleName}: ${t.message}"
