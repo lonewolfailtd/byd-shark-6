@@ -60,6 +60,7 @@ class VehicleService : Service() {
                 seats.value = Vehicle.seats.read()
                 lights.value = Vehicle.lights.read()
                 slope.value = Vehicle.lights.slope()
+                seatPosition.value = Vehicle.seatPosition.read()
             }.onFailure { android.util.Log.e("SharkProbe", "poll failed", it) }
             if (!startApplied && tick >= 4 && climate.value?.bound == true) {
                 startApplied = true
@@ -114,6 +115,7 @@ class VehicleService : Service() {
         val seats = MutableStateFlow<SeatBridge.State?>(null)
         val lights = MutableStateFlow<nz.lonewolf.shark.core.byd.LightBridge.State?>(null)
         val slope = MutableStateFlow<Int?>(null)
+        val seatPosition = MutableStateFlow<nz.lonewolf.shark.core.byd.SeatPositionBridge.Positions?>(null)
 
         fun start(context: Context) {
             context.startForegroundService(Intent(context, VehicleService::class.java))
