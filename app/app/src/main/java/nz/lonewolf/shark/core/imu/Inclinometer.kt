@@ -13,12 +13,12 @@ import kotlin.math.atan2
 import kotlin.math.sqrt
 
 /**
- * Pitch and roll from the head unit's own IMU.
+ * Pitch and roll from the head unit's IMU (STMicro ASM330LHH on the Shark 6).
  *
- * BYD units expose two accelerometers: a stub (frozen values) that getDefaultSensor()
- * returns, and the real Bosch SMI130 whose name ends in "-iner". We pick by name.
- * A user "level here" calibration removes the mounting angle. Angles are in the
- * vehicle frame: pitch positive nose up, roll positive right side down.
+ * Vehicle frame for a dash mounted screen in landscape: device X points to the
+ * passenger side (right), device Y up, device Z out of the glass toward the driver,
+ * so vehicle forward is -Z. Pitch is positive nose up, roll positive right side down.
+ * "Level here" stores the current angles as zero so the mounting angle cancels out.
  */
 class Inclinometer(private val context: Context) : SensorEventListener {
     data class Reading(val pitch: Float, val roll: Float, val sensorName: String?, val raw: FloatArray)
@@ -28,7 +28,9 @@ class Inclinometer(private val context: Context) : SensorEventListener {
     private var sensor: Sensor? = null
     private val filtered = FloatArray(3)
     private var first = true
-    var smoothing = 0.12f   // 0.05 smooth, 0.3 twitchy
+    /** 0.05 smooth, 0.3 twitchy. */
+    var smoothing = prefs.getFloat("smoothing", 0.12f)
+        set(v) { field = v; prefs.edit().putFloat("smoothing", v).apply() }
 
     private val _reading = MutableStateFlow(Reading(0f, 0f, null, FloatArray(3)))
     val reading: StateFlow<Reading> = _reading
@@ -45,13 +47,12 @@ class Inclinometer(private val context: Context) : SensorEventListener {
 
     fun stop() = sm.unregisterListener(this)
 
-    /** Remember the current attitude as level. */
     fun calibrate() {
         prefs.edit().putFloat("p0", rawPitch()).putFloat("r0", rawRoll()).apply()
         publish()
     }
 
-    fun clearCalibration() { prefs.edit().clear().apply(); publish() }
+    fun clearCalibration() { prefs.edit().remove("p0").remove("r0").apply(); publish() }
 
     override fun onSensorChanged(e: SensorEvent) {
         val v = orient(e.values)
@@ -71,11 +72,16 @@ class Inclinometer(private val context: Context) : SensorEventListener {
         )
     }
 
-    // Head unit lies in the dash: device Y points up the screen, Z out of the screen toward the driver.
-    private fun rawPitch(): Float = Math.toDegrees(atan2(filtered[2].toDouble(), sqrt((filtered[0] * filtered[0] + filtered[1] * filtered[1]).toDouble()))).toFloat()
-    private fun rawRoll(): Float = Math.toDegrees(atan2(filtered[0].toDouble(), filtered[1].toDouble())).toFloat()
+    // Accelerometer reads +g along any axis that points up.
+    private fun rawPitch(): Float {
+        val forward = -filtered[2]
+        val up = sqrt((filtered[0] * filtered[0] + filtered[1] * filtered[1]).toDouble()).toFloat()
+        return Math.toDegrees(atan2(forward.toDouble(), up.toDouble())).toFloat()
+    }
 
-    /** Fold the rotating screen's orientation back into a fixed vehicle frame. */
+    private fun rawRoll(): Float = Math.toDegrees(atan2(-filtered[0].toDouble(), filtered[1].toDouble())).toFloat()
+
+    /** Fold the rotating screen's orientation back into the landscape device frame. */
     private fun orient(v: FloatArray): FloatArray {
         val rot = (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.rotation
         return when (rot) {

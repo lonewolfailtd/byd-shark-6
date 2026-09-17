@@ -8,6 +8,7 @@ object Vehicle {
     lateinit var seats: SeatBridge; private set
     lateinit var lights: LightBridge; private set
     lateinit var telemetry: TelemetryBridge; private set
+    lateinit var profiles: nz.lonewolf.shark.data.ProfileStore; private set
     @Volatile var ready = false; private set
 
     fun init(context: Context) {
@@ -17,6 +18,7 @@ object Vehicle {
         seats = SeatBridge(app)
         lights = LightBridge(app)
         telemetry = TelemetryBridge(app)
+        profiles = nz.lonewolf.shark.data.ProfileStore(app)
         ready = true
     }
 }

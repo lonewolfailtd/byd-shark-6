@@ -52,6 +52,7 @@ class VehicleService : Service() {
 
     private suspend fun poll() {
         var tick = 0
+        var startApplied = false
         while (true) {
             runCatching {
                 telemetry.value = Vehicle.telemetry.read()
@@ -60,6 +61,10 @@ class VehicleService : Service() {
                 lights.value = Vehicle.lights.read()
                 slope.value = Vehicle.lights.slope()
             }.onFailure { android.util.Log.e("SharkProbe", "poll failed", it) }
+            if (!startApplied && tick >= 4 && climate.value?.bound == true) {
+                startApplied = true
+                Vehicle.profiles.startProfile()?.let { p -> runCatching { android.util.Log.w("SharkProbe", "start profile ${p.name}: ${Vehicle.profiles.apply(p)}") } }
+            }
             // Every 10 s write a probe report so it can be read over adb without the screen.
             if (tick++ % 10 == 0) runCatching {
                 val report = buildString {
