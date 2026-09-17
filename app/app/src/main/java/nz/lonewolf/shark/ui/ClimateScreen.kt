@@ -68,18 +68,18 @@ fun ClimateScreen() {
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            // Driver seat
-            Panel("Driver seat", Modifier.weight(1f)) {
-                SeatControls(s?.driver, onHeat = { write("Driver heat") { st.setHeat(SeatBridge.DRIVER, it) } }, onVent = { write("Driver vent") { st.setVent(SeatBridge.DRIVER, it) } })
+            // Passenger seat
+            Panel("Passenger seat", Modifier.weight(1f)) {
+                SeatControls(s?.passenger, onHeat = { write("Passenger heat") { st.setHeat(SeatBridge.PASSENGER, it) } }, onVent = { write("Passenger vent") { st.setVent(SeatBridge.PASSENGER, it) } })
             }
             // Climate centre
             Panel("Climate", Modifier.weight(2.2f)) {
                 Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
-                    Stepper("Driver", fmt(c?.driverTemp, "°"), valueColour = tempColour(c?.driverTemp),
-                        onMinus = { write("Driver temp") { cl.nudgeDriverTemp(-1) } }, onPlus = { write("Driver temp") { cl.nudgeDriverTemp(+1) } })
-                    Stepper("Fan", fmt(c?.fan), onMinus = { write("Fan") { cl.nudgeFan(-1) } }, onPlus = { write("Fan") { cl.nudgeFan(+1) } })
                     Stepper("Passenger", fmt(c?.passengerTemp, "°"), valueColour = tempColour(c?.passengerTemp),
                         onMinus = { write("Passenger temp") { cl.nudgePassengerTemp(-1) } }, onPlus = { write("Passenger temp") { cl.nudgePassengerTemp(+1) } })
+                    Stepper("Fan", fmt(c?.fan), onMinus = { write("Fan") { cl.nudgeFan(-1) } }, onPlus = { write("Fan") { cl.nudgeFan(+1) } })
+                    Stepper("Driver", fmt(c?.driverTemp, "°"), valueColour = tempColour(c?.driverTemp),
+                        onMinus = { write("Driver temp") { cl.nudgeDriverTemp(-1) } }, onPlus = { write("Driver temp") { cl.nudgeDriverTemp(+1) } })
                 }
                 Spacer(Modifier.height(12.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -96,9 +96,9 @@ fun ClimateScreen() {
                 Spacer(Modifier.height(8.dp))
                 Text("Outside ${fmt(c?.outsideTemp, "°C")}   ${status}", color = Shark.muted, fontSize = 14.sp)
             }
-            // Passenger seat
-            Panel("Passenger seat", Modifier.weight(1f)) {
-                SeatControls(s?.passenger, onHeat = { write("Passenger heat") { st.setHeat(SeatBridge.PASSENGER, it) } }, onVent = { write("Passenger vent") { st.setVent(SeatBridge.PASSENGER, it) } })
+            // Driver seat
+            Panel("Driver seat", Modifier.weight(1f)) {
+                SeatControls(s?.driver, onHeat = { write("Driver heat") { st.setHeat(SeatBridge.DRIVER, it) } }, onVent = { write("Driver vent") { st.setVent(SeatBridge.DRIVER, it) } })
             }
         }
         Panel("Profiles") {
