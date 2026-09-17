@@ -70,11 +70,41 @@ class ClimateBridge(context: Context) {
         { device.call("setAcStartState", 0) }, { device.call("setAcStartState", 0, 0) },
     )
 
-    fun setDriverTemp(c: Int) = setZoneTemp(ZONE_DRIVER, c)
+    // Optimistic setpoints so rapid taps stack instead of waiting for the vehicle to echo.
+    @Volatile private var pendingDriver: Pair<Int, Long>? = null
+    @Volatile private var pendingPassenger: Pair<Int, Long>? = null
+    @Volatile private var pendingFan: Pair<Int, Long>? = null
+    private fun pending(p: Pair<Int, Long>?, fallback: Int?): Int? =
+        if (p != null && System.currentTimeMillis() - p.second < 3_000) p.first else fallback
+
+    fun setDriverTemp(c: Int): CommandResult {
+        val r = setZoneTemp(ZONE_DRIVER, c)
+        if (r.ok) pendingDriver = c.coerceIn(TEMP_MIN, TEMP_MAX) to System.currentTimeMillis()
+        return r
+    }
 
     fun setPassengerTemp(c: Int): CommandResult {
         if (synced() != false) setSynced(false)
-        return setZoneTemp(ZONE_PASSENGER, c)
+        val r = setZoneTemp(ZONE_PASSENGER, c)
+        if (r.ok) pendingPassenger = c.coerceIn(TEMP_MIN, TEMP_MAX) to System.currentTimeMillis()
+        return r
+    }
+
+    fun nudgeDriverTemp(delta: Int): CommandResult {
+        val base = pending(pendingDriver, null) ?: device.getInt("getTemprature", ZONE_DRIVER) ?: 22
+        return setDriverTemp(base + delta)
+    }
+
+    fun nudgePassengerTemp(delta: Int): CommandResult {
+        val base = pending(pendingPassenger, null) ?: device.getInt("getTemprature", ZONE_PASSENGER) ?: 22
+        return setPassengerTemp(base + delta)
+    }
+
+    fun nudgeFan(delta: Int): CommandResult {
+        val base = pending(pendingFan, null) ?: device.getInt("getAcWindLevel")?.takeIf { it in FAN_MIN..FAN_MAX } ?: lastFan ?: 2
+        val r = setFan(base + delta)
+        if (r.ok) pendingFan = (base + delta).coerceIn(FAN_MIN, FAN_MAX) to System.currentTimeMillis()
+        return r
     }
 
     private fun setZoneTemp(zone: Int, c: Int): CommandResult {

@@ -129,12 +129,40 @@ private fun Diagnostics(inclinometer: Inclinometer) {
             }) { Text("Dump methods") }
         }
         Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { scope.launch { log = withContext(Dispatchers.IO) { Vehicle.climate.setDriverTemp((climate?.driverTemp ?: 22) + 1).toString() } } }) { Text("Driver temp +1") }
-            OutlinedButton(onClick = { scope.launch { log = withContext(Dispatchers.IO) { Vehicle.climate.setDriverTemp((climate?.driverTemp ?: 22) - 1).toString() } } }) { Text("Driver temp -1") }
-            OutlinedButton(onClick = { scope.launch { log = withContext(Dispatchers.IO) { Vehicle.climate.setFan((climate?.fan ?: 3) + 1).toString() } } }) { Text("Fan +1") }
-            OutlinedButton(onClick = { scope.launch { log = withContext(Dispatchers.IO) { Vehicle.seats.setHeat(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.LOW).toString() } } }) { Text("Driver seat heat low") }
-            OutlinedButton(onClick = { scope.launch { log = withContext(Dispatchers.IO) { Vehicle.seats.setHeat(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.OFF).toString() } } }) { Text("Driver seat heat off") }
+        // Run a write off the main thread, then refresh the shared state straight away.
+        fun write(block: () -> nz.lonewolf.shark.core.byd.CommandResult) {
+            scope.launch {
+                log = withContext(Dispatchers.IO) {
+                    val r = block()
+                    runCatching {
+                        VehicleService.climate.value = Vehicle.climate.read()
+                        VehicleService.seats.value = Vehicle.seats.read()
+                    }
+                    r.toString()
+                }
+            }
+        }
+        val c = Vehicle.climate
+        val s = Vehicle.seats
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            OutlinedButton(onClick = { write { c.power(climate?.powerOn != true) } }) { Text(if (climate?.powerOn == true) "Climate OFF" else "Climate ON") }
+            OutlinedButton(onClick = { write { c.nudgeDriverTemp(+1) } }) { Text("Temp +1") }
+            OutlinedButton(onClick = { write { c.nudgeDriverTemp(-1) } }) { Text("Temp -1") }
+            OutlinedButton(onClick = { write { c.nudgeFan(+1) } }) { Text("Fan +1") }
+            OutlinedButton(onClick = { write { c.nudgeFan(-1) } }) { Text("Fan -1") }
+            OutlinedButton(onClick = { write { c.setAuto(climate?.auto != true) } }) { Text("Auto") }
+            OutlinedButton(onClick = { write { c.setRecirc(climate?.recirc != true) } }) { Text("Recirc") }
+            OutlinedButton(onClick = { write { c.setFrontDemist(climate?.frontDemist != true) } }) { Text("Demist") }
+        }
+        Spacer(Modifier.height(6.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            OutlinedButton(onClick = { write { s.setHeat(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.LOW) } }) { Text("Seat heat low") }
+            OutlinedButton(onClick = { write { s.setHeat(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.HIGH) } }) { Text("Seat heat high") }
+            OutlinedButton(onClick = { write { s.setHeat(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.OFF) } }) { Text("Seat heat off") }
+            OutlinedButton(onClick = { write { s.setVent(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.LOW) } }) { Text("Seat vent low") }
+            OutlinedButton(onClick = { write { s.setVent(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.OFF) } }) { Text("Seat vent off") }
+            OutlinedButton(onClick = { write { Vehicle.lights.setAmbientColour(0xFF2200) } }) { Text("Ambient red") }
+            OutlinedButton(onClick = { write { Vehicle.lights.setAmbientColour(0x0044FF) } }) { Text("Ambient blue") }
         }
         if (log.isNotBlank()) Text(log, color = Color(0xFFFFD54F), fontSize = 14.sp)
         Spacer(Modifier.height(12.dp))
