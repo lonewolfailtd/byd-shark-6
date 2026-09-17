@@ -109,6 +109,12 @@ private fun Diagnostics(inclinometer: Inclinometer) {
             add(Row("Tyres (${t.tyres.unit})", "FL ${t.tyres.fl} FR ${t.tyres.fr} RL ${t.tyres.rl} RR ${t.tyres.rr}", t.tyres.fl != null))
             add(Row("Steering / VIN", "${t.steeringAngle}, ${t.vin}", t.vin != null))
         }
+        VehicleService.lights.value?.let { l ->
+            add(Row("Ambient", "state ${l.ambientState} support ${l.ambientColoursSupport} cfg ${l.ambientSwitchConfig} ring ${l.ringColour}/${l.ringBrightness} theme ${l.themeLinked} night ${l.nightWeaken} lux ${l.lightIntensity}", l.ambientState != null))
+            add(Row("Ambient zones", l.zones.joinToString(" | ") { "z${it.area} c${it.colour} b${it.brightness} m${it.multicolourMode}/${it.multicolourState}" }, null))
+            add(Row("Ambient palette", l.palette.entries.joinToString(" | ") { "z${it.key}=${it.value}" }, null))
+            add(Row("Vehicle slope", "${VehicleService.slope.value}", VehicleService.slope.value != null))
+        }
         add(Row("Tilt", "pitch %.1f roll %.1f (%s)".format(tilt.pitch, tilt.roll, tilt.sensorName ?: "no sensor"), tilt.sensorName != null))
         add(Row("Accelerometers", inclinometer.availableSensors().joinToString(" | "), null))
     }
@@ -161,8 +167,11 @@ private fun Diagnostics(inclinometer: Inclinometer) {
             OutlinedButton(onClick = { write { s.setHeat(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.OFF) } }) { Text("Seat heat off") }
             OutlinedButton(onClick = { write { s.setVent(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.LOW) } }) { Text("Seat vent low") }
             OutlinedButton(onClick = { write { s.setVent(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.OFF) } }) { Text("Seat vent off") }
-            OutlinedButton(onClick = { write { Vehicle.lights.setAmbientColour(0xFF2200) } }) { Text("Ambient red") }
-            OutlinedButton(onClick = { write { Vehicle.lights.setAmbientColour(0x0044FF) } }) { Text("Ambient blue") }
+            OutlinedButton(onClick = { write { Vehicle.lights.setAmbientOn(true) } }) { Text("Ambient on") }
+            OutlinedButton(onClick = { write { Vehicle.lights.setZoneColour(0, 1) } }) { Text("Zone0 colour 1") }
+            OutlinedButton(onClick = { write { Vehicle.lights.setZoneColour(0, 3) } }) { Text("Zone0 colour 3") }
+            OutlinedButton(onClick = { write { Vehicle.lights.setZoneColour(1, 5) } }) { Text("Zone1 colour 5") }
+            OutlinedButton(onClick = { write { Vehicle.lights.setZoneBrightness(0, 5) } }) { Text("Zone0 bright 5") }
         }
         if (log.isNotBlank()) Text(log, color = Color(0xFFFFD54F), fontSize = 14.sp)
         Spacer(Modifier.height(12.dp))

@@ -57,6 +57,8 @@ class VehicleService : Service() {
                 telemetry.value = Vehicle.telemetry.read()
                 climate.value = Vehicle.climate.read()
                 seats.value = Vehicle.seats.read()
+                lights.value = Vehicle.lights.read()
+                slope.value = Vehicle.lights.slope()
             }.onFailure { android.util.Log.e("SharkProbe", "poll failed", it) }
             // Every 10 s write a probe report so it can be read over adb without the screen.
             if (tick++ % 10 == 0) runCatching {
@@ -65,11 +67,20 @@ class VehicleService : Service() {
                     appendLine("telemetry=${telemetry.value}")
                     appendLine("climate=${climate.value}")
                     appendLine("seats=${seats.value}")
-                    appendLine("lights=${runCatching { Vehicle.lights.read() }.getOrNull()}")
+                    appendLine("lights=${lights.value}")
+                    appendLine("slope=${slope.value}")
                     Vehicle.telemetry.devices.forEach { (n, d) -> appendLine("device $n bound=${d.bound} err=${d.bindError}") }
                 }
                 android.util.Log.e("SharkProbe", report)
                 java.io.File(getExternalFilesDir(null), "probe.txt").writeText(report)
+                val methodsFile = java.io.File(getExternalFilesDir(null), "methods.txt")
+                if (!methodsFile.exists()) methodsFile.writeText(buildString {
+                    val all = linkedMapOf(
+                        "ac" to Vehicle.climate.device, "setting" to Vehicle.seats.device,
+                        "light" to Vehicle.lights.device, "sensor" to Vehicle.lights.sensor,
+                    ) + Vehicle.telemetry.devices
+                    all.forEach { (n, d) -> appendLine("== $n ${d.className}"); d.methodDump().forEach { appendLine(it) } }
+                })
             }
             delay(1_000)
         }
@@ -96,6 +107,8 @@ class VehicleService : Service() {
         val telemetry = MutableStateFlow<TelemetryBridge.Snapshot?>(null)
         val climate = MutableStateFlow<ClimateBridge.State?>(null)
         val seats = MutableStateFlow<SeatBridge.State?>(null)
+        val lights = MutableStateFlow<nz.lonewolf.shark.core.byd.LightBridge.State?>(null)
+        val slope = MutableStateFlow<Int?>(null)
 
         fun start(context: Context) {
             context.startForegroundService(Intent(context, VehicleService::class.java))
