@@ -1,0 +1,33 @@
+﻿priority=0 preferredOrder=0 match=0x108000 specificIndex=-1 isDefault=true
+ActivityInfo:
+  name=com.android.launcher3.home.MainActivity
+  packageName=com.android.launcher3
+  labelRes=0x0 nonLocalizedLabel=壁纸桌面 icon=0x0 banner=0x0
+  enabled=true exported=true directBootAware=true
+  taskAffinity=null targetActivity=null persistableMode=PERSIST_ROOT_ONLY
+  launchMode=2 flags=0x4224 privateFlags=0x0 theme=0x7f11014f
+  screenOrientation=4 configChanges=0x40002fb7 softInputMode=0x0
+  lockTaskLaunchMode=LOCK_TASK_LAUNCH_MODE_DEFAULT
+  resizeMode=RESIZE_MODE_UNRESIZEABLE
+  ApplicationInfo:
+    name=com.android.launcher3.home.HomeApplication
+    packageName=com.android.launcher3
+    labelRes=0x7f100040 nonLocalizedLabel=null icon=0x7f070079 banner=0x0
+    className=com.android.launcher3.home.HomeApplication
+    processName=com.android.launcher3
+    taskAffinity=com.android.launcher3
+    uid=1000 flags=0x24cbbe47 privateFlags=0x8c900960 theme=0x0
+    requiresSmallestWidthDp=0 compatibleWidthLimitDp=0 largestWidthLimitDp=0
+    sourceDir=/system/app/BydLauncherWallPaper/BydLauncherWallPaper.apk
+    seinfo=platform:privapp:targetSdkVersion=23
+    seinfoUser=:complete
+    dataDir=/data/user_de/0/com.android.launcher3
+    deviceProtectedDataDir=/data/user_de/0/com.android.launcher3
+    credentialProtectedDataDir=/data/user/0/com.android.launcher3
+    enabled=true minSdkVersion=29 targetSdkVersion=30 versionCode=240514 targetSandboxVersion=1
+    supportsRtl=true
+    fullBackupContent=@xml/2131951616
+    crossProfile=false
+    HiddenApiEnforcementPolicy=0
+    usesNonSdkApi=false
+    allowsPlaybackCapture=true

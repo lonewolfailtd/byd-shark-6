@@ -1,0 +1,300 @@
+﻿*Dump car service*
+*Dump all services*
+*CarFeatureController*
+ mEnabledFeatures:[hvac, storage_monitoring, configuration, cabin, car-service-test, vehicle_map_service, vehicle_map_subscriber_service, uxrestriction, com.android.car.user.CarUserNoticeService, car_navigation_service, drivingstate, trust_enroll, property, enhanced_audio, audio, power, projection, diagnostic, car_occupant_zone_service, info, car_bugreport, car_media, app_focus, package, car_watchdog, vendor_extension, car_bluetooth, car_user_service, cluster_service, android.car.input, sensor]
+ mDefaultEnabledFeaturesFromConfig:[car_navigation_service, com.android.car.user.CarUserNoticeService, diagnostic, storage_monitoring, vehicle_map_service]
+ mDisabledFeaturesFromVhal:[]
+ mAvailableExperimentalFeatures:[]
+ mPendingEnabledFeatures:[]
+ mPendingDisabledFeatures:[]
+*CarUserService*
+7 lifecycle listeners for services
+  com.android.car.PerUserCarServiceHelper$Lambda
+  com.android.car.CarMediaService$Lambda
+  com.android.car.CarOccupantZoneService$Lambda
+  com.android.car.pm.VendorServiceController@df90af5
+  com.android.car.CarInputService$Lambda
+  com.android.car.user.CarUserNoticeService$Lambda
+  com.android.car.watchdog.CarWatchdogService$Lambda
+No lifecycle listeners for apps
+User switch UI receiver null
+User0Unlocked: true
+BackgroundUsersToRestart: []
+BackgroundUsersRestarted: []
+MaxRunningUsers: 3
+NumberOfDrivers: 1
+  #0: id=0 NumberPassengers: 0
+EnablePassengerSupport: false
+User HAL timeout: 5000ms
+Initial user: UserInfo{0:Driver:c13}
+Relevant overlayable properties
+  owner_name=Driver
+  default_guest_name=Guest
+User switch in process=-10000
+Request Id for the user switch in process=0
+ System UI package name=com.android.systemui
+Relevant Global settings
+  android.car.LAST_ACTIVE_USER_ID=-10000
+  android.car.LAST_ACTIVE_PERSISTENT_USER_ID=-10000
+* User Metrics *
+First user (0) unlocked in +6s211ms
+  no users starting
+  no users stopping
+Last 10 started users
+  2026-09-18T02:34:22.153 - user=0 start=2026-09-17 14:34:20.105 unlocking=+2s33ms unlocked=+2s40ms
+Last 10 stopped users
+HAL response time: N/A
+*SystemActivityMonitoringService*
+ Top Tasks per display:
+display id 0: TaskInfoContainer [topActivity=ComponentInfo{com.android.launcher3/com.android.launcher3.home.MainActivity}, taskId=2, stackId=1, userId=0, displayId=0, position=5
+ Foreground uid-pids:
+uid:1000, pids:[1786]
+*PowerManagementService*
+mCurrentState:CpmsState canSleep:false, canPostpone=false, carPowerStateListenerState=6, CpmsState=ON(1),mProcessingStartTime:56920,mLastSleepEntryTime:62444,mNextWakeupSec:0,mShutdownOnNextSuspend:false,mShutdownOnFinish:false,mShutdownPollingIntervalMs:2000,mShutdownPrepareTimeMs:5000,mDisableUserSwitchDuringResume:true,mRebootAfterGarageMode:false
+mSwitchGuestUserBeforeSleep:true
+mMaxSuspendWaitDurationMs:180000, config_maxSuspendWaitDuration:180000
+InitialUserSetter
+  mNewUserName: Driver
+  mNewGuestName: Guest
+*CarEnhancedAudioCore*
+	Has AudioPlaybackConfiguration#getAudioDeviceInfo() api? false
+
+	Car enhanced configurations:
+		Car enhanced audio configuration: /vendor/etc/car_enhanced_audio_configuration.xml
+		Car audio focus matrix: /vendor/etc/car_audio_focus_matrix.csv
+
+	Global configurations:
+		Use dynamic routing? true
+		Use car volume group muting? true
+		Use hal audio focus? false
+		Use hal ducking signals? true
+		Use audio gain API? false
+		Persist group volume? true
+		Persist volume mute state? false
+		Volume key event timeout ms? 0
+		Play sound on volume changed? true
+		Ignore car permission? false
+		Volume adjustment behaviors? 1
+		Get suggested volume group by audio playback? false
+		Get suggested volume group by call state? false
+		Handle mute state for media key event? false
+		Dispatch media key event on mute changed? false
+
+	Current state:
+		Master muted? false
+
+	Car audio contexts (size 25):
+		Context INVALID 0
+			unknown usage 15 15 
+		Context MUSIC 1 priority 12 isDefault
+			USAGE_UNKNOWN 0 
+			USAGE_MEDIA 1 
+			USAGE_GAME 14 
+		Context NAVIGATION 2 priority 2
+			USAGE_ASSISTANCE_NAVIGATION_GUIDANCE 12 
+		Context VOICE_COMMAND 3 priority 10
+			USAGE_ASSISTANCE_ACCESSIBILITY 11 
+			USAGE_ASSISTANT 16 
+		Context ANNOUNCEMENT 4 priority 11
+			USAGE_ALARM 4 
+			USAGE_UE_ANNOUNCEMENT 18 
+		Context CALL_RING 5 priority 7
+			USAGE_NOTIFICATION_RINGTONE 6 
+		Context CALL 6 priority 8 isCritical
+			USAGE_VOICE_COMMUNICATION 2 
+			USAGE_VOICE_COMMUNICATION_SIGNALLING 3 
+			USAGE_NOTIFICATION_COMMUNICATION_REQUEST 7 
+			USAGE_NOTIFICATION_COMMUNICATION_INSTANT 8 
+		Context SYS_NOTIFICATION 7
+			USAGE_NOTIFICATION 5 
+			USAGE_NOTIFICATION_EVENT 10 
+			USAGE_NOTIFICATION_COMMUNICATION_DELAYED 9 
+			USAGE_ASSISTANCE_SONIFICATION 13 
+		Context EMERGENCY 8
+			USAGE_ECALL 21 
+		Context POWER 9
+			USAGE_POWER 22 
+		Context SAFETY 10
+			USAGE_VEHICLE_STATUS_ALARM 19 
+			USAGE_ALARM_SAFETY 20 
+		Context CP_MEDIA 11 priority 13
+			USAGE_CP_MEDIA 24 
+		Context CP_TEMP_MEDIA 12 priority 15
+			USAGE_CP_TEMP_MEDIA 25 
+		Context CP_SIRI 13 priority 4
+			USAGE_CP_SIRI 28 
+		Context CP_ESIRI 14 priority 17
+			USAGE_CP_ESIRI 29 
+		Context CP_ESIRI_DUCK 15 priority 0
+			USAGE_CP_ESIRI_DUCK 30 
+		Context CP_RING 16 priority 5
+			USAGE_CP_RING 31 
+		Context CP_PHONE 17 priority 6
+			USAGE_CP_PHONE 32 
+		Context CP_ALT_DUCK 18 priority 1
+			USAGE_CP_ALT_DUCK 26 
+		Context CP_ALT 19 priority 16
+			USAGE_CP_ALT 27 
+		Context AA_MEDIA 20 priority 14
+			USAGE_AAUTO_MEDIA 33 
+		Context AA_VR 21 priority 9
+			USAGE_AAUTO_VR 35 
+		Context AA_GUIDANCE 22 priority 3
+			USAGE_AAUTO_GUIDANCE 34 
+		Context CAMERA 23
+			USAGE_CAMERA 23 
+		Context POWER_STATE 24
+			USAGE_IVI_POWER 36 
+
+
+	CarAudioZone(primary zone:0) isPrimary? true
+		CarVolumeGroup id: 0
+			UserId(-2)
+			Is max volume restricted? false
+			Volume group gain values (min / max / default/ current): 0 39 10 19
+			Current is muted? false
+			Is muting restricted? false
+			Volume group boot gain values (min / max): 5 20
+			Volume group limited value 39
+			Context: 1 -> Address: bus0_media_out
+			Context: 11 -> Address: bus0_media_out
+			Context: 12 -> Address: bus0_media_out
+			Context: 20 -> Address: bus0_media_out
+			Context: 23 -> Address: bus0_media_out
+			CarAudioDeviceInfo
+				Bus Number (0) / address (bus0_media_out)
+ 				sample rate / encoding format / channel count: 48000 2 2
+				Gain values (min / max / default/ current): -6300 0 0 0
+Blocked: false
+Limited: false
+Ducked: false
+
+		CarVolumeGroup id: 1
+			UserId(-2)
+			Is max volume restricted? false
+			Volume group gain values (min / max / default/ current): 0 10 4 0
+			Current is muted? false
+			Is muting restricted? false
+			Volume group limited value 10
+			Context: 2 -> Address: bus1_navigation_out
+			Context: 18 -> Address: bus11_ext_tips_out
+			Context: 19 -> Address: bus11_ext_tips_out
+			Context: 22 -> Address: bus1_navigation_out
+			CarAudioDeviceInfo
+				Bus Number (1) / address (bus1_navigation_out)
+ 				sample rate / encoding format / channel count: 48000 2 1
+				Gain values (min / max / default/ current): -6300 0 0 0
+			CarAudioDeviceInfo
+				Bus Number (11) / address (bus11_ext_tips_out)
+ 				sample rate / encoding format / channel count: 48000 2 2
+				Gain values (min / max / default/ current): -6300 0 0 0
+Blocked: false
+Limited: false
+Ducked: false
+
+		CarVolumeGroup id: 2
+			UserId(-2)
+			Is max volume restricted? false
+			Volume group gain values (min / max / default/ current): 5 24 10 14
+			Current is muted? false
+			Is muting restricted? false
+			Volume group limited value 24
+			Context: 3 -> Address: bus2_voice_command_out
+			Context: 13 -> Address: bus2_voice_command_out
+			Context: 14 -> Address: bus14_esiri_out
+			Context: 15 -> Address: bus14_esiri_out
+			Context: 21 -> Address: bus2_voice_command_out
+			CarAudioDeviceInfo
+				Bus Number (2) / address (bus2_voice_command_out)
+ 				sample rate / encoding format / channel count: 48000 2 2
+				Gain values (min / max / default/ current): -6300 0 0 0
+			CarAudioDeviceInfo
+				Bus Number (14) / address (bus14_esiri_out)
+ 				sample rate / encoding format / channel count: 48000 2 2
+				Gain values (min / max / default/ current): -6300 0 0 0
+Blocked: false
+Limited: false
+Ducked: false
+
+		CarVolumeGroup id: 3
+			UserId(-2)
+			Is max volume restricted? false
+			Volume group gain values (min / max / default/ current): 5 39 15 6
+			Current is muted? false
+			Is muting restricted? false
+			Volume group limited value 39
+			Context: 4 -> Address: bus16_hwa_tts_out
+			CarAudioDeviceInfo
+				Bus Number (16) / address (bus16_hwa_tts_out)
+ 				sample rate / encoding format / channel count: 48000 2 2
+				Gain values (min / max / default/ current): -6300 0 0 0
+Blocked: false
+Limited: false
+Ducked: false
+
+		CarVolumeGroup id: 4
+			UserId(-2)
+			Is max volume restricted? false
+			Volume group gain values (min / max / default/ current): 0 39 10 1
+			Current is muted? false
+			Is muting restricted? false
+			Volume group limited value 39
+			Context: 5 -> Address: bus3_call_ring_out
+			Context: 16 -> Address: bus10_carp_ring
+			CarAudioDeviceInfo
+				Bus Number (3) / address (bus3_call_ring_out)
+ 				sample rate / encoding format / channel count: 16000 2 2
+				Gain values (min / max / default/ current): -6300 0 0 0
+			CarAudioDeviceInfo
+				Bus Number (10) / address (bus10_carp_ring)
+ 				sample rate / encoding format / channel count: 48000 2 2
+				Gain values (min / max / default/ current): -6300 0 0 0
+Blocked: false
+Limited: false
+Ducked: false
+
+		CarVolumeGroup id: 5
+			UserId(-2)
+			Is max volume restricted? false
+			Volume group gain values (min / max / default/ current): 5 39 10 13
+			Volume group can not be muted.
+			Volume group limited value 39
+			Context: 6 -> Address: bus4_call_out
+			Context: 8 -> Address: bus4_call_out
+			Context: 9 -> Address: bus4_call_out
+			Context: 10 -> Address: bus4_call_out
+			Context: 17 -> Address: bus9_carp_phone
+			Context: 24 -> Address: bus4_call_out
+			CarAudioDeviceInfo
+				Bus Number (9) / address (bus9_carp_phone)
+ 				sample rate / encoding format / channel count: 48000 2 2
+				Gain values (min / max / default/ current): -6300 0 0 0
+			CarAudioDeviceInfo
+				Bus Number (4) / address (bus4_call_out)
+ 				sample rate / encoding format / channel count: 16000 2 2
+				Gain values (min / max / default/ current): -6300 0 0 0
+Blocked: false
+Limited: false
+Ducked: false
+
+		CarVolumeGroup id: 6
+			UserId(-2)
+			Is max volume restricted? false
+			Volume group gain values (min / max / default/ current): 0 10 10 10
+			Volume group can not be muted.
+			Volume group limited value 10
+			Context: 7 -> Address: bus6_notification_out
+			CarAudioDeviceInfo
+				Bus Number (6) / address (bus6_notification_out)
+ 				sample rate / encoding format / channel count: 48000 2 1
+				Gain values (min / max / default/ current): -6300 0 0 0
+Blocked: false
+Limited: false
+Ducked: false
+
+		Input Audio Device Addresses
+
+
+	UserId to Zone Mapping:
+
+	Interaction Datrix Descriptors:

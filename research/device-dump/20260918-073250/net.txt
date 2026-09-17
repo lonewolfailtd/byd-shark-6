@@ -1,0 +1,15 @@
+﻿adb.exe : /system/bin/sh: ip: inaccessible or not found
+At C:\Users\Hodgs\byd-shark-6\tools\recon.ps1:22 char:3
++   & $Adb shell $cmd 2>&1 | Out-File -Encoding utf8 (Join-Path $Out "$ ...
++   ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (/system/bin/sh:...le or not found:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+/system/bin/sh: ip: inaccessible or not found
+[init.svc.wificond]: [running]
+[persist.adb.wifi.guid]: [adb-9e76cf32-ylxzxu]
+[ro.boot.wificountrycode]: [CN]
+[ro.wifi.channels]: []
+[sys.wifitracing.started]: [1]
+[wifi.direct.interface]: [p2p-dev-wlan0]
+[wifi.interface]: [wlan0]

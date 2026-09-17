@@ -1,0 +1,207 @@
+﻿      * Client AppBindRecord{19d68f1 ProcessRecord{64df88 4173:com.byd.vrassistant/1000}}
+      * Client AppBindRecord{1654cd6 ProcessRecord{1806871 2660:com.byd.uereport/1000}}
+      * Client AppBindRecord{90f1b57 ProcessRecord{2aff81f 5351:com.byd.data.collect/1000}}
+      * Client AppBindRecord{20d5644 ProcessRecord{3a23337 27177:com.byd.trafficmonitor/1000}}
+      * Client AppBindRecord{50015f3 ProcessRecord{6584542 4005:com.byd.autoservice/1000}}
+      * Client AppBindRecord{7df4529 ProcessRecord{a65e91c 4516:com.byd.cota/1000}}
+      * Client AppBindRecord{7d920ae ProcessRecord{b877c06 6292:com.byd.carsettings/1000}}
+    baseDir=/system/app/BydMapLauncher/BydMapLauncher.apk
+  * ServiceRecord{784e0fb u0 com.amazon.mp3.automotiveOS/com.amazon.mp3.watch.WatchSessionService}
+    intent={cmp=com.amazon.mp3.automotiveOS/com.amazon.mp3.watch.WatchSessionService}
+    packageName=com.amazon.mp3.automotiveOS
+    processName=com.amazon.mp3.automotiveOS
+    baseDir=/system/app/BydAmazonMusicService/BydAmazonMusicService.apk
+    dataDir=/data/user/0/com.amazon.mp3.automotiveOS
+    app=ProcessRecord{7bbc5ae 3414:com.amazon.mp3.automotiveOS/u0a25}
+    recentCallingPackage=com.amazon.mp3.automotiveOS
+      intent={cmp=com.amazon.mp3.automotiveOS/com.amazon.mp3.watch.WatchSessionService}
+      * Client AppBindRecord{506506b ProcessRecord{7bbc5ae 3414:com.amazon.mp3.automotiveOS/u0a25}}
+          ConnectionRecord{dcdd28a u0 CR com.amazon.mp3.automotiveOS/com.amazon.mp3.watch.WatchSessionService:@aa64f5}
+      ConnectionRecord{dcdd28a u0 CR com.amazon.mp3.automotiveOS/com.amazon.mp3.watch.WatchSessionService:@aa64f5}
+  * ServiceRecord{79e5d92 u0 com.neusoft.na.navigation/com.neusoft.na.byd.sdk.NaviService}
+    intent={cmp=com.neusoft.na.navigation/com.neusoft.na.byd.sdk.NaviService}
+    baseDir=/system/app/BydMapLauncher/BydMapLauncher.apk
+    isForeground=true foregroundId=32032 foregroundNoti=Notification(channel=bydserviceChannel shortcut=null contentView=null vibrate=null sound=null defaults=0x0 flags=0x62 color=0x00000000 vis=PRIVATE)
+      intent={cmp=com.neusoft.na.navigation/com.neusoft.na.byd.sdk.NaviService}
+      * Client AppBindRecord{9897061 ProcessRecord{64df88 4173:com.byd.vrassistant/1000}}
+          ConnectionRecord{80ac4c0 u0 CR com.neusoft.na.navigation/com.neusoft.na.byd.sdk.NaviService:@a138643}
+          ConnectionRecord{acb10bf u0 CR com.neusoft.na.navigation/com.neusoft.na.byd.sdk.NaviService:@2fb96de}
+      ConnectionRecord{acb10bf u0 CR com.neusoft.na.navigation/com.neusoft.na.byd.sdk.NaviService:@2fb96de}
+      ConnectionRecord{80ac4c0 u0 CR com.neusoft.na.navigation/com.neusoft.na.byd.sdk.NaviService:@a138643}
+  * ServiceRecord{9014da8 u0 com.byd.trafficmonitor/.TrafficMonitorService}
+    intent={act=com.byd.traffic_monitor.CHECK_DATA_PACKAGE pkg=com.byd.trafficmonitor}
+    packageName=com.byd.trafficmonitor
+    processName=com.byd.trafficmonitor
+    baseDir=/system/app/BydFlowMonitor/BydFlowMonitor.apk
+    dataDir=/data/user/0/com.byd.trafficmonitor
+    app=ProcessRecord{3a23337 27177:com.byd.trafficmonitor/1000}
+    recentCallingPackage=com.byd.uereport
+      * Client AppBindRecord{ce107e0 ProcessRecord{1806871 2660:com.byd.uereport/1000}}
+      * Client AppBindRecord{376ca99 ProcessRecord{324afc9 2478:com.ts.androidauto/1000}}
+      * Client AppBindRecord{37ec20c ProcessRecord{64df88 4173:com.byd.vrassistant/1000}}
+      * Client AppBindRecord{d607755 ProcessRecord{ad5c4e 2513:com.byd.bluetoothcall/1000}}
+      * Client AppBindRecord{6002a5b ProcessRecord{1806871 2660:com.byd.uereport/1000}}
+      * Client AppBindRecord{85bf2f8 ProcessRecord{324afc9 2478:com.ts.androidauto/1000}}
+      * Client AppBindRecord{d9789d3 ProcessRecord{6584542 4005:com.byd.autoservice/1000}}
+      * Client AppBindRecord{1b62910 ProcessRecord{699a698 2340:com.byd.sing/1000}}
+      * Client AppBindRecord{e017d1a ProcessRecord{ac458b7 3987:com.ts.androidauto.app/1000}}
+      * Client AppBindRecord{62e0a28 ProcessRecord{b877c06 6292:com.byd.carsettings/1000}}
+      * Client AppBindRecord{ba2b341 ProcessRecord{bf010ef 20154:com.byd.localmusic/1000}}
+  * ServiceRecord{67d04e8 u0 com.byd.vrassistant/cerence.ark.assistant.service.SpeechService}
+    intent={cmp=com.byd.vrassistant/cerence.ark.assistant.service.SpeechService}
+    packageName=com.byd.vrassistant
+    processName=com.byd.vrassistant
+    baseDir=/product/app/BydVoice/BydVoice.apk
+    dataDir=/data/user/0/com.byd.vrassistant
+    app=ProcessRecord{64df88 4173:com.byd.vrassistant/1000}
+    recentCallingPackage=com.byd.vrassistant
+      intent={cmp=com.byd.vrassistant/cerence.ark.assistant.service.SpeechService}
+      * Client AppBindRecord{4a6427d ProcessRecord{64df88 4173:com.byd.vrassistant/1000}}
+          ConnectionRecord{af38e0b u0 CR com.byd.vrassistant/cerence.ark.assistant.service.SpeechService:@1e5c9da}
+      ConnectionRecord{af38e0b u0 CR com.byd.vrassistant/cerence.ark.assistant.service.SpeechService:@1e5c9da}
+  * ServiceRecord{9aee6d4 u0 com.android.car.media/.byd.voice.AmazonMusicVoiceService}
+    intent={cmp=com.android.car.media/.byd.voice.AmazonMusicVoiceService}
+    baseDir=/system/app/BydAmazonMusic/BydAmazonMusic.apk
+    recentCallingPackage=com.byd.vrassistant
+      intent={cmp=com.android.car.media/.byd.voice.AmazonMusicVoiceService}
+      * Client AppBindRecord{d268dc3 ProcessRecord{64df88 4173:com.byd.vrassistant/1000}}
+          ConnectionRecord{d8c2f37 u0 CR com.android.car.media/.byd.voice.AmazonMusicVoiceService:@4dcc436}
+      ConnectionRecord{d8c2f37 u0 CR com.android.car.media/.byd.voice.AmazonMusicVoiceService:@4dcc436}
+    baseDir=/system/app/BydCarSystemUI/BydCarSystemUI.apk
+      * Client AppBindRecord{ddeeb1 ProcessRecord{64df88 4173:com.byd.vrassistant/1000}}
+      * Client AppBindRecord{b1ebf96 ProcessRecord{ad5c4e 2513:com.byd.bluetoothcall/1000}}
+      * Client AppBindRecord{e7b7717 ProcessRecord{1806871 2660:com.byd.uereport/1000}}
+      * Client AppBindRecord{ba4e704 ProcessRecord{2aff81f 5351:com.byd.data.collect/1000}}
+      * Client AppBindRecord{4b1c4ed ProcessRecord{324afc9 2478:com.ts.androidauto/1000}}
+      * Client AppBindRecord{5ff3f22 ProcessRecord{3a23337 27177:com.byd.trafficmonitor/1000}}
+      * Client AppBindRecord{3762b6e ProcessRecord{6584542 4005:com.byd.autoservice/1000}}
+      * Client AppBindRecord{62ba4a5 ProcessRecord{7d82b3a 2685:com.byd.logtools/1000}}
+      * Client AppBindRecord{737e02b ProcessRecord{a65e91c 4516:com.byd.cota/1000}}
+      * Client AppBindRecord{559bc88 ProcessRecord{ac458b7 3987:com.ts.androidauto.app/1000}}
+      * Client AppBindRecord{7d6e621 ProcessRecord{b877c06 6292:com.byd.carsettings/1000}}
+      * Client AppBindRecord{f243a46 ProcessRecord{bf010ef 20154:com.byd.localmusic/1000}}
+      * Client AppBindRecord{4525407 ProcessRecord{cb1ac56 3235:com.byd.ota/1000}}
+      * Client AppBindRecord{a9ac35d ProcessRecord{d9feebf 11531:com.byd.mycar/1000}}
+  * ServiceRecord{4833104 u0 com.spotify.music/com.spotify.automotive.base.service.AAMMediaBrowserService}
+    intent={act=android.media.browse.MediaBrowserService cmp=com.spotify.music/com.spotify.automotive.base.service.AAMMediaBrowserService}
+    baseDir=/system/app/BydSpotifyMusicSdk/BydSpotifyMusicSdk.apk
+    recentCallingPackage=com.telenav.scoutivi.spotify.byd
+      intent={act=android.media.browse.MediaBrowserService cmp=com.spotify.music/com.spotify.automotive.base.service.AAMMediaBrowserService}
+      * Client AppBindRecord{1b629a3 ProcessRecord{5c05fe4 2990:com.telenav.scoutivi.spotify.byd/u0a19}}
+          ConnectionRecord{314ab79 u0 CR CAPS com.spotify.music/com.spotify.automotive.base.service.AAMMediaBrowserService:@5786040}
+      ConnectionRecord{314ab79 u0 CR CAPS com.spotify.music/com.spotify.automotive.base.service.AAMMediaBrowserService:@5786040}
+  * ServiceRecord{822bed3 u0 com.byd.sing/.service.MicConnectService}
+    intent={cmp=com.byd.sing/.service.MicConnectService}
+    packageName=com.byd.sing
+    processName=com.byd.sing
+    baseDir=/system/app/BydSing/BydSing.apk
+    dataDir=/data/user/0/com.byd.sing
+    app=ProcessRecord{699a698 2340:com.byd.sing/1000}
+    recentCallingPackage=com.byd.sing
+      intent={cmp=com.byd.sing/.service.MicConnectService}
+          ConnectionRecord{ae98135 u0 CR com.byd.sing/.service.MicConnectService:@980476c}
+      ConnectionRecord{ae98135 u0 CR com.byd.sing/.service.MicConnectService:@980476c}
+    baseDir=/product/app/BydLatinIME/BydLatinIME.apk
+      * Client AppBindRecord{2952a1b ProcessRecord{64df88 4173:com.byd.vrassistant/1000}}
+      * Client AppBindRecord{83957b8 ProcessRecord{1806871 2660:com.byd.uereport/1000}}
+      * Client AppBindRecord{9749991 ProcessRecord{2aff81f 5351:com.byd.data.collect/1000}}
+      * Client AppBindRecord{495c0f6 ProcessRecord{324afc9 2478:com.ts.androidauto/1000}}
+      * Client AppBindRecord{8d4f682 ProcessRecord{6584542 4005:com.byd.autoservice/1000}}
+      * Client AppBindRecord{54c193 ProcessRecord{699a698 2340:com.byd.sing/1000}}
+      * Client AppBindRecord{817e9c9 ProcessRecord{b877c06 6292:com.byd.carsettings/1000}}
+      * Client AppBindRecord{5dff8ce ProcessRecord{bf010ef 20154:com.byd.localmusic/1000}}
+      * Client AppBindRecord{b7fe3ef ProcessRecord{cb1ac56 3235:com.byd.ota/1000}}
+      * Client AppBindRecord{6c10efc ProcessRecord{d9feebf 11531:com.byd.mycar/1000}}
+    baseDir=/system/app/BydMapLauncher/BydMapLauncher.apk
+  * ServiceRecord{62b62f5 u0 com.byd.localmusic/com.byd.music.service.RadioService}
+    intent={act=com.android.car.radio.ACTION_APP_SERVICE cmp=com.byd.localmusic/com.byd.music.service.RadioService}
+    packageName=com.byd.localmusic
+    processName=com.byd.localmusic
+    baseDir=/system/app/BydLocalMedia/BydLocalMedia.apk
+    dataDir=/data/user/0/com.byd.localmusic
+    app=ProcessRecord{bf010ef 20154:com.byd.localmusic/1000}
+    recentCallingPackage=com.byd.localmusic
+      intent={act=com.android.car.radio.ACTION_APP_SERVICE cmp=com.byd.localmusic/com.byd.music.service.RadioService}
+      * Client AppBindRecord{65e0901 ProcessRecord{bf010ef 20154:com.byd.localmusic/1000}}
+          ConnectionRecord{879982c u0 CR com.byd.localmusic/com.byd.music.service.RadioService:@2ed13df}
+      ConnectionRecord{879982c u0 CR com.byd.localmusic/com.byd.music.service.RadioService:@2ed13df}
+      * Client AppBindRecord{67a61e7 ProcessRecord{64df88 4173:com.byd.vrassistant/1000}}
+      * Client AppBindRecord{b9a4194 ProcessRecord{ad5c4e 2513:com.byd.bluetoothcall/1000}}
+      * Client AppBindRecord{d21343d ProcessRecord{1806871 2660:com.byd.uereport/1000}}
+      * Client AppBindRecord{8813583 ProcessRecord{324afc9 2478:com.ts.androidauto/1000}}
+      * Client AppBindRecord{3e42f2c ProcessRecord{b877c06 6292:com.byd.carsettings/1000}}
+    recentCallingPackage=com.byd.sing
+      * Client AppBindRecord{279d1fb ProcessRecord{1f02a1 4598:com.byd.intelligententry/1000}}
+      * Client AppBindRecord{efb1218 ProcessRecord{64df88 4173:com.byd.vrassistant/1000}}
+      * Client AppBindRecord{6fa3471 ProcessRecord{ad5c4e 2513:com.byd.bluetoothcall/1000}}
+      * Client AppBindRecord{4e8f256 ProcessRecord{1806871 2660:com.byd.uereport/1000}}
+      * Client AppBindRecord{58992d7 ProcessRecord{2aff81f 5351:com.byd.data.collect/1000}}
+      * Client AppBindRecord{f9b37c4 ProcessRecord{3a23337 27177:com.byd.trafficmonitor/1000}}
+      * Client AppBindRecord{c19dde2 ProcessRecord{6584542 4005:com.byd.autoservice/1000}}
+      * Client AppBindRecord{76a8573 ProcessRecord{699a698 2340:com.byd.sing/1000}}
+      * Client AppBindRecord{b9a00a9 ProcessRecord{7d82b3a 2685:com.byd.logtools/1000}}
+      * Client AppBindRecord{75e05cf ProcessRecord{a65e91c 4516:com.byd.cota/1000}}
+      * Client AppBindRecord{5e7bb5c ProcessRecord{b877c06 6292:com.byd.carsettings/1000}}
+      * Client AppBindRecord{3e8fe65 ProcessRecord{bf010ef 20154:com.byd.localmusic/1000}}
+      * Client AppBindRecord{ed5473a ProcessRecord{cb1ac56 3235:com.byd.ota/1000}}
+      * Client AppBindRecord{ce33148 ProcessRecord{d9feebf 11531:com.byd.mycar/1000}}
+  * ServiceRecord{ec63d50 u0 com.ts.androidauto.projectionservice/.AndroidAutoService}
+    intent={cmp=com.ts.androidauto.projectionservice/.AndroidAutoService}
+    packageName=com.ts.androidauto.projectionservice
+    processName=com.ts.androidauto
+    baseDir=/system/app/ts-androidauto-service/ts-androidauto-service.apk
+    dataDir=/data/user/0/com.ts.androidauto.projectionservice
+    app=ProcessRecord{324afc9 2478:com.ts.androidauto/1000}
+      intent={cmp=com.ts.androidauto.projectionservice/.AndroidAutoService}
+      * Client AppBindRecord{bfedfc7 ProcessRecord{64df88 4173:com.byd.vrassistant/1000}}
+          ConnectionRecord{1928633 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@15269a2}
+          ConnectionRecord{b05096d u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@ae06d84}
+      * Client AppBindRecord{e9e19f4 ProcessRecord{ad5c4e 2513:com.byd.bluetoothcall/1000}}
+          ConnectionRecord{d640a61 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@88fc9c8}
+      * Client AppBindRecord{bf1951d ProcessRecord{1806871 2660:com.byd.uereport/1000}}
+          ConnectionRecord{36f1ad8 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@b0985bb}
+          ConnectionRecord{940a59e u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@e2f07d9}
+          ConnectionRecord{9dc25cc u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@f70d3ff}
+          ConnectionRecord{bdbafa0 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@efbd0a3}
+adb.exe : Failed to write while dumping service activity: Broken pipe
+At C:\Users\Hodgs\byd-shark-6\tools\recon.ps1:22 char:3
++   & $Adb shell $cmd 2>&1 | Out-File -Encoding utf8 (Join-Path $Out "$ ...
++   ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Failed to write...ty: Broken pipe:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+          ConnectionRecord{b7b3095 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@b57984c}
+      * Client AppBindRecord{17ce160 ProcessRecord{6584542 4005:com.byd.autoservice/1000}}
+          ConnectionRecord{6e8d16e u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@b1040e9}
+          ConnectionRecord{447660b u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@f4201da}
+          ConnectionRecord{d8f83d0 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@5669793}
+          ConnectionRecord{6ff1e39 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@50de600}
+      * Client AppBindRecord{5b200bf ProcessRecord{ac458b7 3987:com.ts.androidauto.app/1000}}
+          ConnectionRecord{c848113 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@ff60402}
+          ConnectionRecord{cf8f676 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@4353511}
+          ConnectionRecord{fe07549 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@b70ef50}
+      * Client AppBindRecord{bbeb38c ProcessRecord{b877c06 6292:com.byd.carsettings/1000}}
+          ConnectionRecord{92c4ba2 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@871336d}
+          ConnectionRecord{d0a8ff0 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@833c033}
+      * Client AppBindRecord{52f4ad5 ProcessRecord{bf010ef 20154:com.byd.localmusic/1000}}
+          ConnectionRecord{87c83ea u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@2c97fd5}
+          ConnectionRecord{f7e3290 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@bbbc953}
+      ConnectionRecord{1928633 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@15269a2}
+      ConnectionRecord{87c83ea u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@2c97fd5}
+      ConnectionRecord{cf8f676 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@4353511}
+      ConnectionRecord{6ff1e39 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@50de600}
+      ConnectionRecord{d8f83d0 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@5669793}
+      ConnectionRecord{d0a8ff0 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@833c033}
+      ConnectionRecord{92c4ba2 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@871336d}
+      ConnectionRecord{d640a61 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@88fc9c8}
+      ConnectionRecord{b05096d u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@ae06d84}
+      ConnectionRecord{36f1ad8 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@b0985bb}
+      ConnectionRecord{6e8d16e u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@b1040e9}
+      ConnectionRecord{b7b3095 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@b57984c}
+      ConnectionRecord{fe07549 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@b70ef50}
+      ConnectionRecord{f7e3290 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@bbbc953}
+      ConnectionRecord{940a59e u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@e2f07d9}
+      ConnectionRecord{bdbafa0 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@efbd0a3}
+      ConnectionRecord{447660b u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@f4201da}
+      ConnectionRecord{9dc25cc u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@f70d3ff}
+      ConnectionRecord{c848113 u0 CR com.ts.androidauto.projectionservice/.AndroidAutoService:@ff60402}

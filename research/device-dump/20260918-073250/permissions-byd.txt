@@ -1,0 +1,1050 @@
+﻿  label:Transmission info
+  description:Access to transmission info
+  + permission:android.permission.BYDAUTO_GEARBOX_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:dangerous
+
++ group:android.permission-group.CONTACTS
+--
+  label:Statistic info
+  description:Access to statistic info
+  + permission:android.permission.BYDAUTO_STATISTIC_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:dangerous
+
++ group:android.permission-group.UNDEFINED
+--
+  label:Body info
+  description:Access to body info
+  + permission:android.permission.BYDAUTO_BODYWORK_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:dangerous
+
++ group:android.permission-group.PERSONAL_INFO
+--
+  label:Instrument info
+  description:Access to instrument info
+  + permission:android.permission.BYDAUTO_INSTRUMENT_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+
++ group:android.permission-group.SMS
+--
+  label:Cloud service info
+  description:Access to cloud service info
+  + permission:android.permission.BYDAUTO_YUN_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:dangerous
+
++ ungrouped:
+--
+    description:Handle input events
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_PANORAMA_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_PANORAMA_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.WRITE_SETTINGS
+    package:android
+--
+    description:Allows the app to modify the system's settings data. Malicious apps may corrupt your system's configuration.
+    protectionLevel:signature|appop|pre23|preinstalled
+  + permission:android.permission.BYDAUTO_ENGINEERMODE_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_ENGINEERMODE_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:com.android.permission.INSTALL_EXISTING_PACKAGES
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_LIGHT_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_LIGHT_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.READ_WALLPAPER_INTERNAL
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_POWER_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_POWER_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_ENGINE_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_ENGINE_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_ADAS_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.RESTART_PACKAGES
+    package:android
+--
+    description:Allows the app to modify global audio settings such as volume and which speaker is used for output.
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_SAFETY_BELT_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.ACCESS_CHECKIN_PROPERTIES
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_OTA_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_OTA_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.SIGNAL_PERSISTENT_PROCESSES
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_POWER_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.ACCESS_MOCK_LOCATION
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_SENSOR_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.READ_ACTIVE_EMERGENCY_SESSION
+    package:android
+--
+    description:Access vendor specific seat properties.
+    protectionLevel:signature|privileged
+  + permission:com.byd.ota.permision.OTA_UPGRADE_SDK
+    package:com.byd.ota
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.GET_APP_OPS_STATS
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_PKI_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.CONTROL_KEYGUARD_SECURE_NOTIFICATIONS
+    package:android
+--
+    protectionLevel:signature|privileged
+  + permission:com.loostone.tuning.provider.permission.READ
+    package:com.byd.sing
+    label:provider read permission
+    description:null
+    protectionLevel:normal
+  + permission:android.car.permission.CAR_DRIVING_STATE
+    package:com.android.car
+    label:listen to driving state
+--
+    description:null
+    protectionLevel:signature
+  + permission:com.byd.browser.permission.C2D_MESSAGE
+    package:com.byd.browser
+    label:null
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_OTA_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.READ_WIFI_CREDENTIAL
+    package:android
+--
+    description:null
+    protectionLevel:signature|installer
+  + permission:android.permission.BYDAUTO_SENSOR_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_SENSOR_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.INSTALL_LOCATION_PROVIDER
+    package:android
+--
+    description:Allows reading status and detection data for Occupant Awareness System
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_AC_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.car.permission.CONTROL_CAR_DOORS
+    package:com.android.car
+--
+    description:Access your car’s vendor channel to exchange car-specific information.
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_TIME_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_READ_MEDIA_RW
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.GET_TOP_ACTIVITY_INFO
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_YUN_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_YUN_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.CLEAR_APP_USER_DATA
+    package:android
+--
+    description:Control car’s fuel door and charge port.
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_GEARBOX_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_GEARBOX_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BIND_TV_INPUT
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:com.byd.automultipletheme.Permission.write
+    package:com.byd.automultipletheme
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.car.permission.CONTROL_CAR_MIRRORS
+    package:com.android.car
+    label:control car’s mirrors
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_PM2P5_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.SEND_DOWNLOAD_COMPLETED_INTENTS
+    package:com.android.providers.downloads
+--
+    description:Allows the app to send notifications about completed downloads. Malicious apps can use this to confuse other apps that download files.
+    protectionLevel:signature
+  + permission:com.byd.multipletheme.Permission.WRITE
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_CHARGING_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_CHARGING_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.GET_PROCESS_STATE_AND_OOM_SCORE
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:com.byd.permission.carsettings.READ_CARSETTINGS_PROVIDER
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.MANAGE_APP_TOKENS
+    package:android
+--
+    description:Allows the app to change the state of network connectivity.
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_PKI_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_PKI_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.CAPTURE_TV_INPUT
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:com.byd.intelligententry.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    package:com.byd.intelligententry
+    label:null
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.MANAGE_ROLE_HOLDERS
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:signature|preinstalled
+  + permission:android.permission.BYDAUTO_CHARGING_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.MANAGE_SUBSCRIPTION_PLANS
+    package:android
+--
+    description:Control your car’s audio volume.
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_TYRE_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_XCALL_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_XCALL_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BLUETOOTH
+    package:android
+--
+    description:Allows the app to view the configuration of the Bluetooth on the phone, and to make and accept connections with paired devices.
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_AC_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_AC_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BROADCAST_WAP_PUSH
+    package:android
+--
+    protectionLevel:signature
+  + permission:com.loostone.tuning.provider.permission.WRITE
+    package:com.byd.sing
+    label:provider write permission
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.SET_INITIAL_LOCK
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_SAFETY_BELT_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_SAFETY_BELT_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BROADCAST_NETWORK_PRIVILEGED
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:com.tmap.auto.byd.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    package:com.tmap.auto.byd
+    label:null
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.TV_INPUT_HARDWARE
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:normal
+  + permission:com.byd.yqzx.vehiclesystem.shared.vehicle.data
+    package:com.byd.cota
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.GET_INTENT_SENDER_INTENT
+    package:android
+    label:null
+    description:null
+    protectionLevel:signature
+  + permission:com.stingray.karaoke.car.byd8155f.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    package:com.stingray.karaoke.car.byd8155f
+    label:null
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BIND_CARRIER_MESSAGING_CLIENT_SERVICE
+    package:android
+    label:null
+--
+    description:Control vendor specific seat properties.
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_TIME_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_TIME_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.UPDATE_DEVICE_STATS
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_REMINDER_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BLUETOOTH_STACK
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:com.byd.vr.assistant.xf.PRIVACY_SETTING
+    package:com.byd.vrassistant.xf
+    label:允许启动隐私设置页
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.INSTALL_GRANT_RUNTIME_PERMISSIONS
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_SETTING_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_SETTING_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.CONTROL_REMOTE_APP_TRANSITION_ANIMATIONS
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged|development|appop|retailDemo
+  + permission:android.permission.BYDAUTO_PANORAMA_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.NETWORK_SIGNAL_STRENGTH_WAKEUP
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_SPEED_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_SPEED_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.MANAGE_DEBUGGING
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:com.android.permission.CHANGE_BYD_APP_THEME
+    package:com.byd.automultipletheme
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:com.byd.browser.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    package:com.byd.browser
+    label:null
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.SET_ACTIVITY_WATCHER
+    package:android
+    label:null
+--
+    description:Allows the app to send sticky broadcasts, which remain after the broadcast ends. Excessive use may make the phone slow or unstable by causing it to use too much memory.
+    protectionLevel:normal
+  + permission:com.byd.automap.permission.ACCESS_SERVICE
+    package:com.byd.automap
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.INSTALL_PACKAGE_UPDATES
+    package:android
+    label:null
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_SETTING_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.ASEC_ACCESS
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:com.byd.abroadgamecollection.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    package:com.byd.abroadgamecollection
+    label:null
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_RADAR_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.WRITE_APN_SETTINGS
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_ADAS_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_ADAS_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.CHANGE_WIFI_STATE
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_DOOR_LOCK_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_DOOR_LOCK_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BIND_PACKAGE_VERIFIER
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:com.byd.browser.permission.DEBUG
+    package:com.byd.browser
+    label:Debug web pages
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.RECEIVE_STK_COMMANDS
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_RADAR_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_RADAR_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BIND_VISUAL_VOICEMAIL_SERVICE
+    package:android
+--
+    description:Allows the app to disable the keylock and any associated password security. For example, the phone disables the keylock when receiving an incoming phone call, then re-enables the keylock when the call is finished.
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_TEST_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_TEST_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:com.amazon.identity.auth.device.perm.AUTH_SDK
+    package:com.amazon.mp3.automotiveOS
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:com.byd.browser.permission.READ_WRITE_BOOKMARK_FOLDERS
+    package:com.byd.browser
+    label:null
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.CHANGE_CONFIGURATION
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_VERSION_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_VERSION_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.LOCAL_MAC_ADDRESS
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_STATISTIC_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_STATISTIC_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.TRIGGER_SHELL_BUGREPORT
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:com.byd.browser.permission.TRANSLATE
+    package:com.byd.browser
+    label:null
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.SET_KEYBOARD_LAYOUT
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_PM2P5_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_PM2P5_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BIND_SOUND_TRIGGER_DETECTION_SERVICE
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged|vendorPrivileged
+  + permission:android.permission.BYDAUTO_TYRE_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_TYRE_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.REQUEST_DELETE_PACKAGES
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_LIGHT_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.CHANGE_BACKGROUND_DATA_SETTING
+    package:android
+--
+    protectionLevel:signature
+  + permission:android.permission.MEDIA_CONTENT_CONTROL 
+    package:com.byd.carsettings
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.GLOBAL_SEARCH
+    package:android
+    label:null
+--
+    description:Allows the app to read the sync settings for an account. For example, this can determine whether the People app is synced with an account.
+    protectionLevel:normal
+  + permission:com.byd.browser.TOS_ACKED
+    package:com.byd.browser
+    label:null
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.START_ACTIVITIES_FROM_BACKGROUND
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:signature|privileged|development
+  + permission:com.byd.vrdownload.xf.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    package:com.byd.vrdownload.xf
+    label:null
+    description:null
+    protectionLevel:signature
+  + permission:android.car.permission.GET_CAR_VENDOR_CATEGORY_10
+    package:com.android.car
+    label:access vendor specific properties in category 10
+--
+    protectionLevel:signature|privileged|appop
+  + permission:android.permission.DEVICE_POWER 
+    package:com.byd.uereport
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.HANDLE_CALL_INTENT
+    package:com.android.server.telecom
+    label:Protects handling the call intent via the TelecomManager API.
+    description:null
+    protectionLevel:signature|privileged
+  + permission:com.byd.vr.assistant.xf.FEEDBACK
+    package:com.byd.vrassistant.xf
+    label:允许启动用户反馈页
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.MEDIA_RESOURCE_OVERRIDE_PID
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_INSTRUMENT_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_INSTRUMENT_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.car.permission.ACCESS_CAR_PROJECTION_STATUS
+    package:com.android.car
+--
+    protectionLevel:signature|privileged
+  + permission:com.tmap.auto.permission.API
+    package:com.tmap.auto.byd
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.REMOVE_DRM_CERTIFICATES
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_REAR_VIEW_MIRROR_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.WIFI_UPDATE_USABILITY_STATS_SCORE
+    package:android
+--
+    description:Control vendor specific light properties.
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_ENGINE_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.CAPTURE_MEDIA_OUTPUT
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_ENGINEERMODE_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BIND_TEXTCLASSIFIER_SERVICE
+    package:android
+--
+    description:null
+    protectionLevel:signature|preinstalled
+  + permission:android.permission.BYDAUTO_DOOR_LOCK_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.CREATE_USERS
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:com.byd.overseaappstore.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    package:com.byd.overseaappstore
+    label:null
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.CONFIGURE_DISPLAY_BRIGHTNESS
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:com.byd.camera.write
+    package:com.byd.auto_camera
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.MODIFY_APPWIDGET_BIND_PERMISSIONS
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_TEST_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.car.permission.SET_CAR_VENDOR_CATEGORY_10
+    package:com.android.car
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_SPEED_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.MANAGE_APP_OPS_MODES
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_LOCATION_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_LOCATION_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.REQUEST_INSTALL_PACKAGES
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_REMINDER_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_REMINDER_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.MANAGE_AUTO_FILL
+    package:android
+--
+    description:Allows an application to add Homescreen shortcuts without user intervention.
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_WRITE_MEDIA_RW
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BIND_TEXT_SERVICE
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:com.byd.browser.permission.CHILD_SERVICE
+    package:com.byd.browser
+    label:null
+    description:null
+    protectionLevel:signature
+  + permission:android.car.permission.CONTROL_CAR_DISPLAY_UNITS
+    package:com.android.car
+    label:control car’s display units
+--
+    description:null
+    protectionLevel:signature|privileged|development
+  + permission:android.permission.BYDAUTO_VERSION_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:com.esaba.downloader.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    package:com.esaba.downloader
+--
+    description:null
+    protectionLevel:signature
+  + permission:com.byd.automultipletheme.Permission.read
+    package:com.byd.automultipletheme
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.GET_APP_GRANTED_URI_PERMISSIONS
+    package:android
+    label:null
+--
+    description:null
+    protectionLevel:signature|preinstalled
+  + permission:android.permission.BYDAUTO_BODYWORK_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_BODYWORK_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.LOCATION_HARDWARE
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_REAR_VIEW_MIRROR_GET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BYDAUTO_REAR_VIEW_MIRROR_SET
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.BIND_EXPLICIT_HEALTH_CHECK_SERVICE
+    package:android
+--
+    description:null
+    protectionLevel:signature
+  + permission:com.byd.permission.carsettings.WRITE_CARSETTINGS_PROVIDER
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.car.permission.CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM
+    package:com.android.car
+--
+    description:Bind to VMS clients
+    protectionLevel:signature
+  + permission:android.permission.BYDAUTO_LOCATION_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.UPDATE_APP_OPS_STATS
+    package:android
+--
+    description:null
+    protectionLevel:signature|privileged
+  + permission:android.permission.BYDAUTO_XCALL_COMMON
+    package:android
+    label:null
+    description:null
+    protectionLevel:normal
+  + permission:android.permission.ACCESS_INPUT_FLINGER
+    package:android

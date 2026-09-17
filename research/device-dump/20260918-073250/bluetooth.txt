@@ -1,0 +1,106 @@
+﻿Bluetooth Status
+  enabled: true
+  state: ON
+  address: 64:FE:15:24:B7:61
+  name: Black Betty
+  time since enabled: 00:31:44.754
+
+Enable log:
+  09-18 07:01:08  Enabled  due to APPLICATION_REQUEST by com.ts.appservice.power
+
+Bluetooth crashed 0 times
+
+0 BLE apps registered
+
+BluetoothManagerService:
+  mEnable:true
+  mQuietEnable:false
+  mEnableExternal:true
+  mQuietEnableExternal:false
+
+
+AdapterProperties
+  Name: Black Betty
+  Address: 64:FE:15:24:B7:61
+  BluetoothClass: null
+  ScanMode: SCAN_MODE_CONNECTABLE_DISCOVERABLE
+  ConnectionState: STATE_DISCONNECTED
+  State: ON
+  MaxConnectedAudioDevices: 5
+  A2dpOffloadEnabled: true
+  Discovering: false
+  DiscoveryEndMs: 0
+  Bonded devices:
+    ******11:A9:F9:55 [ ???? ] iPhone
+    ******8C:C3:CE:CD [ ???? ] Tane's S23+
+mSnoopLogSettingAtEnable = empty
+mDefaultSnoopLogSettingAtEnable = null
+
+AdapterState:
+ total records=4
+ rec[0]: time=09-18 07:01:08.675 processed=OffState org=OffState dest=TurningBleOnState what=3(0x3) BLE_TURN_ON
+ rec[1]: time=09-18 07:01:10.389 processed=TurningBleOnState org=TurningBleOnState dest=BleOnState what=7(0x7) BLE_STARTED
+ rec[2]: time=09-18 07:01:10.394 processed=BleOnState org=BleOnState dest=TurningOnState what=1(0x1) USER_TURN_ON
+ rec[3]: time=09-18 07:01:10.486 processed=TurningOnState org=TurningOnState dest=OnState what=5(0x5) BREDR_STARTED
+curState=OnState
+
+SilenceDeviceManager:
+  Address            | Is silenced?
+
+BluetoothDatabase:
+  Metadata Changes:
+    09-18 07:01:21.688 (uid/pid=1000/2478) 80:39:8C:C3:CE:CD A2DP_SINK connection policy changed: : 100 -> 0
+    09-18 07:07:55.346 (uid/pid=1000/2478) 80:39:8C:C3:CE:CD A2DP_SINK connection policy changed: : 0 -> 100
+
+Metadata:
+    40:C7:11:A9:F9:55 {profile connection policy(A2DP=-1|A2DP_SINK=100|HEADSET=-1|HEADSET_CLIENT=100|HID_HOST=-1|PAN=-1|PBAP=-1|PBAP_CLIENT=-1|MAP=-1|MAP_CLIENT=-1|SAP=-1|HEARING_AID=-1), optional codec(support=-1|enabled=-1), custom metadata(manufacturer_name=null|model_name=null|software_version=null|hardware_version=null|companion_app=null|main_icon=null|is_untethered_headset=null|untethered_left_icon=null|untethered_right_icon=null|untethered_case_icon=null|untethered_left_battery=null|untethered_right_battery=null|untethered_case_battery=null|untethered_left_charging=null|untethered_right_charging=null|untethered_case_charging=null|enhanced_settings_ui_uri=null)}
+    80:39:8C:C3:CE:CD {profile connection policy(A2DP=-1|A2DP_SINK=100|HEADSET=-1|HEADSET_CLIENT=100|HID_HOST=-1|PAN=-1|PBAP=-1|PBAP_CLIENT=-1|MAP=-1|MAP_CLIENT=-1|SAP=-1|HEARING_AID=-1), optional codec(support=-1|enabled=-1), custom metadata(manufacturer_name=null|model_name=null|software_version=null|hardware_version=null|companion_app=null|main_icon=null|is_untethered_headset=null|untethered_left_icon=null|untethered_right_icon=null|untethered_case_icon=null|untethered_left_battery=null|untethered_right_battery=null|untethered_case_battery=null|untethered_left_charging=null|untethered_right_charging=null|untethered_case_charging=null|enhanced_settings_ui_uri=null)}
+
+Profile: GattService
+  mAdvertisingServiceUuids:
+  mMaxScanFilters: 0
+
+Registered App
+  Scanner:
+  Client:
+  Server:
+
+
+GATT Scanner Map
+  Entries: 0
+
+GATT Client Map
+  Entries: 0
+
+GATT Server Map
+  Entries: 0
+
+GATT Handle Map
+  Entries: 0
+  Requests: 0
+
+Profile: A2dpSinkService
+  Devices Tracked = 0
+
+Profile: HidHostService
+  mTargetDevice: null
+  mInputDevices:
+
+Profile: PanService
+  mMaxPanDevices: 5
+  mPanIfName: null
+  mTetherOn: false
+  mPanDevices:
+
+Profile: HeadsetClientService
+
+Profile: AvrcpControllerService
+  Devices Tracked = 0
+
+  sBrowseTree: Size: 3
+  Cover Artwork Enabled: True
+  CoverArtManager:
+    Download Scheme: thumbnail
+  CoverArtStorage:
+
+Profile: PbapClientService

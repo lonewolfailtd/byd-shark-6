@@ -2,11 +2,12 @@
 # Usage: powershell -ExecutionPolicy Bypass -File tools\install.ps1 -Ip 192.168.1.xx [-Apk path\to\app-debug.apk]
 param(
   [Parameter(Mandatory=$true)][string]$Ip,
-  [string]$Apk = (Join-Path $PSScriptRoot "..\app\app\build\outputs\apk\debug\app-debug.apk"),
+  [string]$Apk = "",
   [string]$Adb = "$env:USERPROFILE\Downloads\platform-tools-latest-windows\platform-tools\adb.exe",
   [string]$Pkg = "nz.lonewolf.shark"
 )
 $ErrorActionPreference = "Continue"
+if (-not $Apk) { $Apk = Join-Path (Split-Path -Parent $PSCommandPath) "..\app\app\build\outputs\apk\debug\app-debug.apk" }
 if (-not (Test-Path $Apk)) { Write-Error "APK not found at $Apk. Build first: cd app; .\gradlew.bat assembleDebug"; exit 1 }
 
 & $Adb connect "$Ip`:5555" | Out-Null

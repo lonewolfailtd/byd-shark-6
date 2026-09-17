@@ -1,0 +1,160 @@
+﻿/system/etc/permissions:
+total 176
+dr-xr-xr-x  2 root root  4096 2026-08-11 06:52 .
+dr-xr-xr-x 23 root root  4096 2026-08-11 07:11 ..
+-r--r--r--  1 root root   824 2026-08-11 06:52 android.hardware.broadcastradio.xml
+-r--r--r--  1 root root   834 2026-08-11 06:52 android.hardware.ethernet.xml
+-r--r--r--  1 root root   832 2026-08-11 06:52 android.hardware.type.automotive.xml
+-r--r--r--  1 root root   748 2026-08-11 06:52 android.software.webview.xml
+-r--r--r--  1 root root   777 2026-08-11 06:08 android.test.base.xml
+-r--r--r--  1 root root   777 2026-08-11 06:08 android.test.mock.xml
+-r--r--r--  1 root root   781 2026-08-11 06:08 android.test.runner.xml
+-r--r--r--  1 root root   719 2026-08-11 06:08 arcsoft.dms.socket.xml
+-r--r--r--  1 root root   699 2026-08-11 06:08 byd.ota.master.xml
+-r--r--r--  1 root root   864 2026-08-11 06:05 com.android.car.activityresolver.xml
+-r--r--r--  1 root root  1018 2026-08-11 06:05 com.android.car.shell.xml
+-r--r--r--  1 root root  1430 2026-08-11 06:30 com.android.car.xml
+-r--r--r--  1 root root   807 2026-08-11 06:08 com.android.future.usb.accessory.xml
+-r--r--r--  1 root root   801 2026-08-11 06:08 com.android.location.provider.xml
+-r--r--r--  1 root root   805 2026-08-11 06:08 com.android.media.remotedisplay.xml
+-r--r--r--  1 root root   797 2026-08-11 06:08 com.android.mediadrm.signer.xml
+-r--r--r--  1 root root  1331 2026-08-11 06:05 com.byd.cota.xml
+-r--r--r--  1 root root   199 2026-08-11 06:52 desaysv_platform.xml
+-r--r--r--  1 root root   763 2026-08-11 06:09 javax.obex.xml
+-r--r--r--  1 root root   787 2026-08-11 06:30 org.apache.http.legacy.xml
+-r--r--r--  1 root root 13429 2026-08-11 06:30 platform.xml
+-r--r--r--  1 root root 30740 2026-08-11 06:30 privapp-permissions-platform.xml
+-r--r--r--  1 root root  5002 2026-08-11 06:52 privapp-permissions-qti.xml
+-r--r--r--  1 root root   444 2026-08-11 06:39 ts-androidauto-adapter.xml
+-r--r--r--  1 root root   461 2026-08-11 06:39 ts-carplay-adapter.xml
+-r--r--r--  1 root root   489 2026-08-11 06:39 ts-dcm-foundation-lib.xml
+-r--r--r--  1 root root   625 2026-08-11 06:05 ts-dm-foundation-lib.xml
+-r--r--r--  1 root root   462 2026-08-11 06:39 ts-enhancedaudio-foundation-lib.xml
+-r--r--r--  1 root root   162 2026-08-11 06:39 ts-framework.xml
+-r--r--r--  1 root root   406 2026-08-11 06:39 ts-ncm-foundtion-lib.xml
+-r--r--r--  1 root root   167 2026-08-11 06:39 ts-platform-library.xml
+
+/system/etc/sysconfig:
+total 48
+dr-xr-xr-x  2 root root  4096 2026-08-11 06:52 .
+dr-xr-xr-x 23 root root  4096 2026-08-11 07:11 ..
+-r--r--r--  1 root root  3606 2026-08-11 06:08 framework-sysconfig.xml
+-r--r--r--  1 root root  3677 2026-08-11 06:09 hiddenapi-package-whitelist.xml
+-r--r--r--  1 root root  5206 2026-08-11 06:30 preinstalled-packages-platform.xml
+-r--r--r--  1 root root 13702 2026-08-11 06:52 preinstalled-packages-product-car-base.xml
+-r--r--r--  1 root root  7657 2026-08-11 06:52 qti_whitelist.xml
+
+/system/framework:
+total 124408
+dr-xr-xr-x  5 root root     4096 2026-08-11 07:11 .
+drwxr-xr-x 13 root root     4096 2026-08-11 07:11 ..
+-r--r--r--  1 root root     2926 2026-08-11 07:07 QnxHelperService.jar
+-r--r--r--  1 root root   543774 2026-08-11 07:03 am.jar
+-r--r--r--  1 root root   710234 2026-08-11 07:09 android.car.jar
+-r--r--r--  1 root root    12718 2026-08-11 06:59 android.hidl.base-V1.0-java.jar
+-r--r--r--  1 root root    29738 2026-08-11 06:59 android.hidl.manager-V1.0-java.jar
+-r--r--r--  1 root root    33134 2026-08-11 07:03 android.test.base.jar
+-r--r--r--  1 root root   202817 2026-08-11 07:04 android.test.mock.jar
+-r--r--r--  1 root root   106974 2026-08-11 07:04 android.test.runner.jar
+-r--r--r--  1 root root     5682 2026-08-11 07:03 appwidget.jar
+-r--r--r--  1 root root     8314 2026-08-11 07:03 arcsoft.dms.socket.jar
+dr-xr-xr-x  2 root root     4096 2026-08-11 07:10 arm
+dr-xr-xr-x  2 root root     4096 2026-08-11 07:10 arm64
+-r--r--r--  1 root root    31258 2026-08-11 07:04 bmgr.jar
+-r--r--r--  1 root root     1401 2026-08-11 07:10 boot-android.car.vdex
+-r--r--r--  1 root root      126 2026-08-11 07:10 boot-ext.vdex
+-r--r--r--  1 root root       41 2026-08-11 07:10 boot-framework-atb-backward-compatibility.vdex
+-r--r--r--  1 root root    37850 2026-08-11 07:10 boot-framework.vdex
+-r--r--r--  1 root root      159 2026-08-11 07:10 boot-ims-common.vdex
+-r--r--r--  1 root root       41 2026-08-11 07:10 boot-tcmiface.vdex
+-r--r--r--  1 root root     2819 2026-08-11 07:10 boot-telephony-common.vdex
+-r--r--r--  1 root root       78 2026-08-11 07:10 boot-telephony-ext.vdex
+-r--r--r--  1 root root     1677 2026-08-11 07:10 boot-ts-framework.vdex
+-r--r--r--  1 root root     1109 2026-08-11 07:10 boot-voip-common.vdex
+-r--r--r--  1 root root   226785 2026-08-11 07:04 btstack.jar
+-r--r--r--  1 root root     7310 2026-08-11 07:04 bu.jar
+-r--r--r--  1 root root      863 2026-08-11 07:04 byd.ota.master.dex.build.jar
+-r--r--r--  1 root root   666424 2026-08-11 06:05 byd.ota.master.jar
+-r--r--r--  1 root root  3323841 2026-08-11 07:08 car-frameworks-service.jar
+-r--r--r--  1 root root     5334 2026-08-11 07:04 com.android.future.usb.accessory.jar
+-r--r--r--  1 root root    20326 2026-08-11 07:04 com.android.location.provider.jar
+-r--r--r--  1 root root     9250 2026-08-11 07:04 com.android.media.remotedisplay.jar
+-r--r--r--  1 root root     2926 2026-08-11 07:04 com.android.mediadrm.signer.jar
+-r--r--r--  1 root root    19646 2026-08-11 07:04 content.jar
+-r--r--r--  1 root root     9218 2026-08-11 07:04 dpm.jar
+-r--r--r--  1 root root    45202 2026-08-11 07:08 ethernet-service.jar
+-r--r--r--  1 root root  2220354 2026-08-11 07:09 ext.jar
+-r--r--r--  1 root root      890 2026-08-11 07:09 framework-atb-backward-compatibility.jar
+-r--r--r--  1 root root 44690022 2026-08-11 06:55 framework-res.apk
+-r--r--r--  1 root root 30456768 2026-08-11 07:09 framework.jar
+-r--r--r--  1 root root    20566 2026-08-11 07:04 hid.jar
+-r--r--r--  1 root root     8604 2026-08-11 07:10 idd-idps-comm.jar
+-r--r--r--  1 root root    15821 2026-08-11 07:10 idd-sec-defend.jar
+-r--r--r--  1 root root   259306 2026-08-11 07:09 ims-common.jar
+-r--r--r--  1 root root    15706 2026-08-11 07:04 incident-helper-cmd.jar
+-r--r--r--  1 root root    13566 2026-08-11 07:04 input.jar
+-r--r--r--  1 root root    54590 2026-08-11 07:04 javax.obex.jar
+-r--r--r--  1 root root     3714 2026-08-11 07:04 locksettings.jar
+-r--r--r--  1 root root   117613 2026-08-11 07:10 monkey.jar
+dr-xr-xr-x  4 root root     4096 2026-08-11 07:10 oat
+-r--r--r--  1 root root   487310 2026-08-11 07:05 org.apache.http.legacy.jar
+-r--r--r--  1 root root     1362 2026-08-11 07:11 org.apache.http.legacy.jar.prof
+-r--r--r--  1 root root    12438 2026-08-11 07:05 requestsync.jar
+-r--r--r--  1 root root   106554 2026-08-11 07:08 service-blobstore.jar
+-r--r--r--  1 root root   427282 2026-08-11 07:08 service-jobscheduler.jar
+-r--r--r--  1 root root 15187999 2026-08-11 07:09 services.jar
+-r--r--r--  1 root root     4708 2026-08-11 07:11 services.jar.bprof
+-r--r--r--  1 root root    30356 2026-08-11 07:11 services.jar.prof
+-r--r--r--  1 root root    10926 2026-08-11 07:05 sm.jar
+-r--r--r--  1 root root    11950 2026-08-11 07:05 svc.jar
+-r--r--r--  1 root root      814 2026-08-11 07:09 tcmiface.jar
+-r--r--r--  1 root root    15274 2026-08-11 07:05 telecom.jar
+-r--r--r--  1 root root  3505858 2026-08-11 07:09 telephony-common.jar
+-r--r--r--  1 root root    60098 2026-08-11 07:09 telephony-ext.jar
+-r--r--r--  1 root root  5124734 2026-08-11 07:06 ts-androidauto-adapter.jar
+-r--r--r--  1 root root  5973338 2026-08-11 07:06 ts-carplay-adapter.jar
+-r--r--r--  1 root root   203614 2026-08-11 07:05 ts-dcm-foundation-lib.jar
+-r--r--r--  1 root root   399518 2026-08-11 07:05 ts-dm-foundation-lib.jar
+-r--r--r--  1 root root  3650754 2026-08-11 07:06 ts-enhancedaudio-foundation-lib.jar
+-r--r--r--  1 root root  5719090 2026-08-11 07:09 ts-framework.jar
+-r--r--r--  1 root root    87394 2026-08-11 07:05 ts-ncm-foundtion-lib.jar
+-r--r--r--  1 root root   878103 2026-08-11 07:06 ts-platform-library.jar
+-r--r--r--  1 root root   366758 2026-08-11 07:06 uiautomator.jar
+-r--r--r--  1 root root    43206 2026-08-11 06:59 vendor.bosch.diag-V1.0-java.jar
+-r--r--r--  1 root root    36958 2026-08-11 06:59 vendor.bosch.log-V1.0-java.jar
+-r--r--r--  1 root root    31838 2026-08-11 06:59 vendor.rbxc.usbext-V1.0-java.jar
+-r--r--r--  1 root root   819682 2026-08-11 07:09 voip-common.jar
+<!-- These features determine that the device running android is a car. -->
+    <feature name="android.hardware.type.automotive" />
+  @file    byd.ota.master.xml
+  @brief   byd.ota.master.xml
+  @details byd.ota.master.xml
+    <library name="byd.ota.master" file="/system/framework/byd.ota.master.jar" />
+    <privapp-permissions package="com.android.car.activityresolver">
+    <!-- CarShell now overrides the shell package and adding permission here
+    <privapp-permissions package="com.android.car">
+    <privapp-permissions package="com.byd.cota">
+        <permission name="android.permission.BYDAUTO_POWER_GET"/>
+		<group gid="sdcard_rw" />
+     Be VERY careful when editing this file!  Mistakes made here can open
+         This is for carrier and manufacture diagnostics tools that must be
+         installable from the framework. Be careful. -->
+    <permission name="android.permission.BYDAUTO_READ_MEDIA_RW">
+    <permission name="android.permission.BYDAUTO_WRITE_MEDIA_RW">
+    <privapp-permissions package="android.car.usb.handler">
+        <permission name="android.permission.BIND_CARRIER_MESSAGING_SERVICE"/>
+        <permission name="android.permission.BIND_CARRIER_SERVICES"/>
+        <permission name="android.permission.BIND_CARRIER_MESSAGING_SERVICE"/>
+        <permission name="android.permission.BIND_CARRIER_SERVICES"/>
+        <permission name="android.permission.HANDLE_CAR_MODE_CHANGES"/>
+        <permission name="android.permission.READ_CARRIER_APP_INFO"/>
+        <permission name="android.permission.HANDLE_CAR_MODE_CHANGES"/>
+        <permission name="android.permission.READ_CARRIER_APP_INFO"/>
+        <permission name="android.permission.ENTER_CAR_MODE_PRIORITIZED"/>
+        <!-- Permission required for Telecom car mode CTS tests. -->
+    <privapp-permissions package="com.ts.car.ncm">
+    <privapp-permissions package="com.qualcomm.qti.carrierswitch">
+ <library name="ts.androidauto.adapter"
+          file="/system/framework/ts-androidauto-adapter.jar" />
+    <library name="ts.carplay.adapter"
+        file="/system/framework/ts-carplay-adapter.jar"

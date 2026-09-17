@@ -1,0 +1,136 @@
+﻿Captured at: 07:32:53.079
+Sensor Device:
+Total 4 h/w sensors, 4 running 0 disabled clients:
+0x00000001) active-count = 1; sampling_period(ms) = {76.9}, selected = 76.92 ms; batching_period(ms) = {0.0}, selected = 0.00 ms
+0x00000004) active-count = 1; sampling_period(ms) = {76.9}, selected = 76.92 ms; batching_period(ms) = {0.0}, selected = 0.00 ms
+Sensor List:
+0x00000001) ASM330LHH 3-axis Accelerometer Sensor | STMicroelectronics | ver: 1 | type: android.sensor.accelerometer(1) | perm: n/a | flags: 0x00000000
+	continuous | minRate=13.00Hz | maxRate=200.00Hz | no batching | non-wakeUp | 
+0x00000002) ASM330LHH 3-axis Gyroscope sensor | STMicroelectronics | ver: 1 | type: android.sensor.gyroscope(4) | perm: n/a | flags: 0x00000000
+	continuous | minRate=13.00Hz | maxRate=200.00Hz | no batching | non-wakeUp | 
+0x00000003) ASM330LHH Temperature sensor | STMicroelectronics | ver: 1 | type: android.sensor.ambient_temperature(13) | perm: n/a | flags: 0x00000002
+	on-change | minRate=1.00Hz | maxRate=13.00Hz | no batching | non-wakeUp | 
+0x00000004) ASM330LHH Temperature sensor | STMicroelectronics | ver: 1 | type: android.sensor.gravity(9) | perm: n/a | flags: 0x00000000
+	continuous | minRate=1.00Hz | maxRate=13.00Hz | no batching | non-wakeUp | 
+0x5f676172) Game Rotation Vector Sensor | AOSP            | ver: 3 | type: android.sensor.game_rotation_vector(15) | perm: n/a | flags: 0x00000000
+	continuous | maxDelay=0us | maxRate=200.00Hz | no batching | non-wakeUp | 
+0x5f677276) Gravity Sensor            | AOSP            | ver: 3 | type: android.sensor.gravity(9) | perm: n/a | flags: 0x00000000
+	continuous | maxDelay=0us | maxRate=200.00Hz | no batching | non-wakeUp | 
+0x5f6c696e) Linear Acceleration Sensor | AOSP            | ver: 3 | type: android.sensor.linear_acceleration(10) | perm: n/a | flags: 0x00000000
+	continuous | maxDelay=0us | maxRate=200.00Hz | no batching | non-wakeUp | 
+Fusion States:
+9-axis fusion disabled (0 clients), gyro-rate= 200.00Hz, q=< 0, 0, 0, 0 > (0), b=< 0, 0, 0 >
+game fusion(no mag) disabled (0 clients), gyro-rate= 200.00Hz, q=< 0, 0, 0, 0 > (0), b=< 0, 0, 0 >
+geomag fusion (no gyro) disabled (0 clients), gyro-rate= 200.00Hz, q=< 0, 0, 0, 0 > (0), b=< 0, 0, 0 >
+Recent Sensor events:
+ASM330LHH Temperature sensor: last 10 events
+	 1 (ts=17912.202041351, wall=07:32:43.744) 53.09, 0.00, 0.00, 
+	 2 (ts=17913.202354945, wall=07:32:44.744) 53.05, 0.00, 0.00, 
+	 3 (ts=17914.202558590, wall=07:32:45.745) 53.05, 0.00, 0.00, 
+	 4 (ts=17915.202288329, wall=07:32:46.744) 53.09, 0.00, 0.00, 
+	 5 (ts=17916.202367965, wall=07:32:47.744) 53.07, 0.00, 0.00, 
+	 6 (ts=17917.202218277, wall=07:32:48.744) 53.08, 0.00, 0.00, 
+	 7 (ts=17918.202435464, wall=07:32:49.745) 53.09, 0.00, 0.00, 
+	 8 (ts=17919.202235151, wall=07:32:50.744) 53.10, 0.00, 0.00, 
+	 9 (ts=17920.202123067, wall=07:32:51.744) 53.06, 0.00, 0.00, 
+	10 (ts=17921.201960567, wall=07:32:52.744) 53.10, 0.00, 0.00, 
+ASM330LHH Temperature sensor: last 10 events
+	 1 (ts=17920.590659057, wall=07:32:52.132) 0.93, 9.50, -1.97, 
+	 2 (ts=17920.690879786, wall=07:32:52.233) 0.92, 9.50, -1.97, 
+	 3 (ts=17920.790110567, wall=07:32:52.332) 0.91, 9.49, -1.97, 
+	 4 (ts=17920.890644629, wall=07:32:52.432) 0.92, 9.49, -1.97, 
+	 5 (ts=17920.990401452, wall=07:32:52.532) 0.92, 9.49, -1.97, 
+	 6 (ts=17921.090527390, wall=07:32:52.632) 0.92, 9.49, -1.97, 
+	 7 (ts=17921.191474421, wall=07:32:52.733) 0.92, 9.50, -1.96, 
+	 8 (ts=17921.290222546, wall=07:32:52.832) 0.92, 9.49, -1.97, 
+	 9 (ts=17921.389919629, wall=07:32:52.932) 0.92, 9.49, -1.97, 
+	10 (ts=17921.491440827, wall=07:32:53.033) 0.92, 9.49, -1.96, 
+ASM330LHH 3-axis Gyroscope sensor: last 10 events
+	 1 (ts=17920.602280880, wall=07:32:52.144) 0.00, -0.01, 0.00, 
+	 2 (ts=17920.702028171, wall=07:32:52.244) 0.00, -0.01, 0.00, 
+	 3 (ts=17920.801951817, wall=07:32:52.344) 0.00, -0.01, 0.00, 
+	 4 (ts=17920.902294681, wall=07:32:52.444) 0.00, -0.01, 0.00, 
+	 5 (ts=17921.002216869, wall=07:32:52.544) 0.01, -0.01, 0.00, 
+	 6 (ts=17921.102916036, wall=07:32:52.645) 0.01, -0.01, 0.00, 
+	 7 (ts=17921.201949838, wall=07:32:52.744) 0.00, -0.01, 0.01, 
+	 8 (ts=17921.302351088, wall=07:32:52.844) 0.01, -0.01, 0.00, 
+	 9 (ts=17921.402259317, wall=07:32:52.944) 0.01, -0.01, 0.00, 
+	10 (ts=17921.502906660, wall=07:32:53.045) 0.01, -0.01, 0.00, 
+ASM330LHH 3-axis Accelerometer Sensor: last 50 events
+	 1 (ts=17916.602324944, wall=07:32:48.144) 0.88, 0.37, 9.87, 
+	 2 (ts=17916.701911298, wall=07:32:48.244) 0.87, 0.36, 9.91, 
+	 3 (ts=17916.801833173, wall=07:32:48.344) 0.86, 0.32, 9.87, 
+	 4 (ts=17916.902189527, wall=07:32:48.444) 0.86, 0.36, 9.88, 
+	 5 (ts=17917.002358850, wall=07:32:48.544) 0.88, 0.36, 9.88, 
+	 6 (ts=17917.102864839, wall=07:32:48.645) 0.87, 0.34, 9.87, 
+	 7 (ts=17917.202183850, wall=07:32:48.744) 0.86, 0.34, 9.89, 
+	 8 (ts=17917.302199891, wall=07:32:48.844) 0.85, 0.36, 9.89, 
+	 9 (ts=17917.402234266, wall=07:32:48.944) 0.88, 0.35, 9.87, 
+	10 (ts=17917.501879787, wall=07:32:49.044) 0.88, 0.35, 9.89, 
+	11 (ts=17917.602262756, wall=07:32:49.144) 0.86, 0.35, 9.87, 
+	12 (ts=17917.702170620, wall=07:32:49.244) 0.85, 0.35, 9.89, 
+	13 (ts=17917.802302235, wall=07:32:49.344) 0.86, 0.35, 9.89, 
+	14 (ts=17917.901846610, wall=07:32:49.443) 0.88, 0.34, 9.87, 
+	15 (ts=17918.002508224, wall=07:32:49.544) 0.87, 0.36, 9.89, 
+	16 (ts=17918.102034474, wall=07:32:49.644) 0.85, 0.35, 9.89, 
+	17 (ts=17918.202391089, wall=07:32:49.745) 0.86, 0.34, 9.88, 
+	18 (ts=17918.302975724, wall=07:32:49.845) 0.87, 0.35, 9.89, 
+	19 (ts=17918.402305828, wall=07:32:49.944) 0.88, 0.36, 9.89, 
+	20 (ts=17918.502227182, wall=07:32:50.044) 0.86, 0.34, 9.88, 
+	21 (ts=17918.602329526, wall=07:32:50.144) 0.86, 0.36, 9.89, 
+	22 (ts=17918.702913484, wall=07:32:50.245) 0.87, 0.36, 9.89, 
+	23 (ts=17918.802231505, wall=07:32:50.344) 0.87, 0.35, 9.88, 
+	24 (ts=17918.902236661, wall=07:32:50.444) 0.87, 0.35, 9.89, 
+	25 (ts=17919.002175724, wall=07:32:50.544) 0.86, 0.35, 9.88, 
+	26 (ts=17919.102907703, wall=07:32:50.645) 0.86, 0.35, 9.88, 
+	27 (ts=17919.202203276, wall=07:32:50.744) 0.87, 0.35, 9.89, 
+	28 (ts=17919.302232234, wall=07:32:50.844) 0.87, 0.35, 9.87, 
+	29 (ts=17919.402241974, wall=07:32:50.944) 0.86, 0.35, 9.88, 
+	30 (ts=17919.502904526, wall=07:32:51.045) 0.86, 0.35, 9.88, 
+	31 (ts=17919.602340828, wall=07:32:51.144) 0.87, 0.35, 9.88, 
+	32 (ts=17919.702270047, wall=07:32:51.244) 0.87, 0.35, 9.88, 
+	33 (ts=17919.802175776, wall=07:32:51.344) 0.87, 0.35, 9.88, 
+	34 (ts=17919.902330463, wall=07:32:51.444) 0.86, 0.35, 9.88, 
+	35 (ts=17920.001890619, wall=07:32:51.544) 0.86, 0.34, 9.88, 
+	36 (ts=17920.102278015, wall=07:32:51.644) 0.87, 0.36, 9.88, 
+	37 (ts=17920.201984526, wall=07:32:51.744) 0.87, 0.35, 9.88, 
+	38 (ts=17920.302914890, wall=07:32:51.845) 0.87, 0.35, 9.89, 
+	39 (ts=17920.402209109, wall=07:32:51.944) 0.86, 0.35, 9.88, 
+	40 (ts=17920.502223380, wall=07:32:52.044) 0.87, 0.35, 9.88, 
+	41 (ts=17920.602281557, wall=07:32:52.144) 0.87, 0.35, 9.89, 
+	42 (ts=17920.701957286, wall=07:32:52.244) 0.87, 0.35, 9.89, 
+	43 (ts=17920.801900307, wall=07:32:52.344) 0.86, 0.36, 9.88, 
+	44 (ts=17920.902278588, wall=07:32:52.444) 0.87, 0.35, 9.89, 
+	45 (ts=17921.002210202, wall=07:32:52.544) 0.87, 0.35, 9.88, 
+	46 (ts=17921.102916036, wall=07:32:52.645) 0.86, 0.36, 9.88, 
+	47 (ts=17921.201914786, wall=07:32:52.744) 0.87, 0.35, 9.88, 
+	48 (ts=17921.302311765, wall=07:32:52.844) 0.86, 0.35, 9.89, 
+	49 (ts=17921.402235619, wall=07:32:52.944) 0.87, 0.35, 9.88, 
+	50 (ts=17921.502890567, wall=07:32:53.045) 0.87, 0.35, 9.88, 
+Active sensors:
+ASM330LHH 3-axis Accelerometer Sensor (handle=0x00000001, connections=1)
+ASM330LHH Temperature sensor (handle=0x00000004, connections=1)
+Socket Buffer size = 39 events
+WakeLock Status: not held 
+Mode : NORMAL
+Sensor Privacy: disabled
+2 active connections
+Connection Number: 0 
+	Operating Mode: NORMAL
+	 com.android.server.policy.WindowOrientationListener | WakeLockRefCount 0 | uid 1000 | cache size 0 | max cache size 0
+	 ASM330LHH Temperature sensor 0x00000004 | status: active | pending flush events 0 
+Connection Number: 1 
+	Operating Mode: NORMAL
+	 com.neusoft.na.ocservice.LocationHandler | WakeLockRefCount 0 | uid 10010 | cache size 0 | max cache size 0
+	 ASM330LHH 3-axis Accelerometer Sensor 0x00000001 | status: active | pending flush events 0 
+0 direct connections
+Previous Registrations:
+07:07:54 - 0x00000002 pid= 2478 uid= 1000 package=com.ts.androidauto.fsdk.vehicle.VehicleControllerAdapter
+07:07:54 - 0x00000001 pid= 2478 uid= 1000 package=com.ts.androidauto.fsdk.vehicle.VehicleControllerAdapter
+07:01:20 + 0x00000001 pid= 2478 uid= 1000 package=com.ts.androidauto.fsdk.vehicle.VehicleControllerAdapter samplingPeriod=5000us batchingPeriod=0us
+07:01:20 + 0x00000002 pid= 2478 uid= 1000 package=com.ts.androidauto.fsdk.vehicle.VehicleControllerAdapter samplingPeriod=5000us batchingPeriod=0us
+02:47:04 + 0x00000004 pid=  979 uid= 1000 package=com.android.server.policy.WindowOrientationListener samplingPeriod=76923us batchingPeriod=0us
+02:35:04 + 0x00000001 pid= 5632 uid=10010 package=com.neusoft.na.ocservice.LocationHandler samplingPeriod=76923us batchingPeriod=2us
+02:35:03 - 0x00000004 pid=  979 uid= 1000 package=com.android.server.policy.WindowOrientationListener
+02:34:27 + 0x00000001 pid= 3387 uid=10010 package=com.neusoft.na.ocservice.LocationHandler samplingPeriod=76923us batchingPeriod=2us
+02:34:21 + 0x00000004 pid=  979 uid= 1000 package=com.android.server.policy.WindowOrientationListener samplingPeriod=76923us batchingPeriod=0us

@@ -1,0 +1,69 @@
+﻿Linux localhost 5.4.86-qgki-gfd8d6614a4a1-dirty #2 SMP PREEMPT Fri Jul 31 15:08:19 CST 2026 aarch64
+Linux version 5.4.86-qgki-gfd8d6614a4a1-dirty (ici2@5dcb5037ba9b) (Android (6877366 based on r383902b1) clang version 11.0.2 (https://android.googlesource.com/toolchain/llvm-project b397f81060ce6d701042b782172ed13bee898b79), LLD 11.0.2 (https://android.googlesource.com/toolchain/llvm-project b397f81060ce6d701042b782172ed13bee898b79)) #2 SMP PREEMPT Fri Jul 31 15:08:19 CST 2026
+processor	: 0
+BogoMIPS	: 38.40
+Features	: fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm lrcpc dcpop asimddp
+CPU implementer	: 0x51
+CPU architecture: 8
+CPU variant	: 0xd
+CPU part	: 0x804
+CPU revision	: 14
+
+processor	: 1
+BogoMIPS	: 38.40
+Features	: fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm lrcpc dcpop asimddp
+CPU implementer	: 0x51
+CPU architecture: 8
+CPU variant	: 0xd
+CPU part	: 0x804
+CPU revision	: 14
+
+processor	: 2
+BogoMIPS	: 38.40
+Features	: fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm lrcpc dcpop asimddp
+CPU implementer	: 0x51
+CPU architecture: 8
+CPU variant	: 0xd
+CPU part	: 0x804
+CPU revision	: 14
+
+processor	: 3
+BogoMIPS	: 38.40
+Features	: fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm lrcpc dcpop asimddp
+CPU implementer	: 0x51
+CPU architecture: 8
+CPU variant	: 0xd
+CPU part	: 0x804
+CPU revision	: 14
+
+processor	: 4
+BogoMIPS	: 38.40
+Features	: fp asimd evtstrm aes pmull sha1 sha2 crc32 atomics fphp asimdhp cpuid asimdrdm lrcpc dcpop asimddp
+CPU implementer	: 0x51
+MemTotal:        7961928 kB
+MemFree:          143676 kB
+MemAvailable:    3765292 kB
+Buffers:          187836 kB
+Cached:          3462780 kB
+Filesystem       Size  Used Avail Use% Mounted on
+tmpfs            3.7G  1.8M  3.7G   1% /dev
+tmpfs            3.7G  8.0K  3.7G   1% /mnt
+/dev/block/vdd55  11M  108K   11M   1% /metadata
+/dev/block/dm-8  4.4G  4.4G     0 100% /
+/dev/block/dm-9  155M  154M     0 100% /system_ext
+/dev/block/dm-10 403M  402M     0 100% /vendor
+/dev/block/dm-11 569M  567M     0 100% /product
+tmpfs            3.7G     0  3.7G   0% /apex
+/dev/block/vdd78  89G  8.2G   81G  10% /data
+/dev/block/vdd60 1.7G  1.1G  568M  68% /log
+/dev/block/vdd25 180M   58M  122M  33% /vendor/firmware_mnt
+/dev/block/vdd21  64M  624K   63M   1% /vendor/bt_firmware
+/dev/block/vdd58 0.9G  4.0K  0.9G   1% /share
+/dev/block/vdd63  26M   28K   25M   1% /vehicledefcfg
+/dev/block/vdd64 104M  644K  100M   1% /vehicleconfig
+/dev/block/vdd65  43G  2.0G   41G   5% /navi
+/dev/block/vdd67 1.5G  807M  704M  54% /navi_tts
+/dev/block/vdd68  10G   26M   10G   1% /isa
+/dev/block/vdd72 1.5G  884M  626M  59% /vr
+/dev/block/vdd74  12G  1.8G   10G  16% /vr_ext
+/dev/fuse         89G  8.2G   81G  10% /storage/emulated

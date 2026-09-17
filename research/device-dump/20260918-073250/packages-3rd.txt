@@ -1,0 +1,8 @@
+﻿package:com.uptodown
+package:com.byd.browser
+package:xyz.apeapk.collectivestreams
+package:com.aurora.store
+package:com.google.android.apps.automotive.youtube
+package:com.byd.abroadgamecollection
+package:com.esaba.downloader
+package:com.byd.youtube

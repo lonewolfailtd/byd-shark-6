@@ -5,10 +5,11 @@
 param(
   [Parameter(Mandatory=$true)][string]$Ip,
   [string]$Adb = "$env:USERPROFILE\Downloads\platform-tools-latest-windows\platform-tools\adb.exe",
-  [string]$Out = (Join-Path $PSScriptRoot "..\research\device-dump")
+  [string]$Out = ""
 )
 
 $ErrorActionPreference = "Continue"
+if (-not $Out) { $Out = Join-Path (Split-Path -Parent $PSCommandPath) "..\research\device-dump" }
 New-Item -ItemType Directory -Force $Out | Out-Null
 $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $Out = Join-Path $Out $stamp
