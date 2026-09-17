@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,6 +74,7 @@ class MainActivity : ComponentActivity() {
 
 private data class Row(val label: String, val value: String, val ok: Boolean?)
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Diagnostics(inclinometer: Inclinometer) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
@@ -110,9 +113,8 @@ private fun Diagnostics(inclinometer: Inclinometer) {
             add(Row("Steering / VIN", "${t.steeringAngle}, ${t.vin}", t.vin != null))
         }
         VehicleService.lights.value?.let { l ->
-            add(Row("Ambient", "state ${l.ambientState} support ${l.ambientColoursSupport} cfg ${l.ambientSwitchConfig} ring ${l.ringColour}/${l.ringBrightness} theme ${l.themeLinked} night ${l.nightWeaken} lux ${l.lightIntensity}", l.ambientState != null))
-            add(Row("Ambient zones", l.zones.joinToString(" | ") { "z${it.area} c${it.colour} b${it.brightness} m${it.multicolourMode}/${it.multicolourState}" }, null))
-            add(Row("Ambient palette", l.palette.entries.joinToString(" | ") { "z${it.key}=${it.value}" }, null))
+            add(Row("Ambient", "area ${l.area} colour ${l.colour} bright ${l.brightness} on ${l.on} mode ${l.mode} music ${l.musicMode} support ${l.ambientSupport}/${l.colourSupport} lux ${l.lightIntensity}", l.colour != null))
+            add(Row("Lights", "welcome ${l.welcomeLight} leave ${l.leaveHomeDelay} back ${l.backHomeDelay} tub ${l.cargoLight} drl ${l.drl} fog ${l.frontFog}/${l.rearFog} headlight mode ${l.headlightMode}", l.cargoLight != null))
             add(Row("Vehicle slope", "${VehicleService.slope.value}", VehicleService.slope.value != null))
         }
         add(Row("Tilt", "pitch %.1f roll %.1f (%s)".format(tilt.pitch, tilt.roll, tilt.sensorName ?: "no sensor"), tilt.sensorName != null))
@@ -122,7 +124,7 @@ private fun Diagnostics(inclinometer: Inclinometer) {
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(16.dp)) {
         Text("Lonewolf Shark diagnostics", fontSize = 26.sp, color = Color.White)
         Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = { scope.launch { LocalAdb.setup(ctx) } }) { Text("1. Grant permissions") }
             Button(onClick = { VehicleService.start(ctx) }) { Text("2. Start vehicle link") }
             OutlinedButton(onClick = { inclinometer.calibrate() }) { Text("Level here") }
@@ -143,6 +145,7 @@ private fun Diagnostics(inclinometer: Inclinometer) {
                     runCatching {
                         VehicleService.climate.value = Vehicle.climate.read()
                         VehicleService.seats.value = Vehicle.seats.read()
+                        VehicleService.lights.value = Vehicle.lights.read()
                     }
                     r.toString()
                 }
@@ -150,7 +153,7 @@ private fun Diagnostics(inclinometer: Inclinometer) {
         }
         val c = Vehicle.climate
         val s = Vehicle.seats
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             OutlinedButton(onClick = { write { c.power(climate?.powerOn != true) } }) { Text(if (climate?.powerOn == true) "Climate OFF" else "Climate ON") }
             OutlinedButton(onClick = { write { c.nudgeDriverTemp(+1) } }) { Text("Temp +1") }
             OutlinedButton(onClick = { write { c.nudgeDriverTemp(-1) } }) { Text("Temp -1") }
@@ -161,17 +164,20 @@ private fun Diagnostics(inclinometer: Inclinometer) {
             OutlinedButton(onClick = { write { c.setFrontDemist(climate?.frontDemist != true) } }) { Text("Demist") }
         }
         Spacer(Modifier.height(6.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             OutlinedButton(onClick = { write { s.setHeat(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.LOW) } }) { Text("Seat heat low") }
             OutlinedButton(onClick = { write { s.setHeat(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.HIGH) } }) { Text("Seat heat high") }
             OutlinedButton(onClick = { write { s.setHeat(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.OFF) } }) { Text("Seat heat off") }
             OutlinedButton(onClick = { write { s.setVent(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.LOW) } }) { Text("Seat vent low") }
             OutlinedButton(onClick = { write { s.setVent(1, nz.lonewolf.shark.core.byd.SeatBridge.Level.OFF) } }) { Text("Seat vent off") }
             OutlinedButton(onClick = { write { Vehicle.lights.setAmbientOn(true) } }) { Text("Ambient on") }
-            OutlinedButton(onClick = { write { Vehicle.lights.setZoneColour(0, 1) } }) { Text("Zone0 colour 1") }
-            OutlinedButton(onClick = { write { Vehicle.lights.setZoneColour(0, 3) } }) { Text("Zone0 colour 3") }
-            OutlinedButton(onClick = { write { Vehicle.lights.setZoneColour(1, 5) } }) { Text("Zone1 colour 5") }
-            OutlinedButton(onClick = { write { Vehicle.lights.setZoneBrightness(0, 5) } }) { Text("Zone0 bright 5") }
+            OutlinedButton(onClick = { write { Vehicle.lights.setAmbientOn(false) } }) { Text("Ambient off") }
+            OutlinedButton(onClick = { write { Vehicle.lights.nudgeColour(+10) } }) { Text("Colour +10") }
+            OutlinedButton(onClick = { write { Vehicle.lights.nudgeColour(-10) } }) { Text("Colour -10") }
+            OutlinedButton(onClick = { write { Vehicle.lights.nudgeBrightness(+1) } }) { Text("Bright +1") }
+            OutlinedButton(onClick = { write { Vehicle.lights.nudgeBrightness(-1) } }) { Text("Bright -1") }
+            OutlinedButton(onClick = { write { Vehicle.lights.setCargoLight(true) } }) { Text("Tub light on") }
+            OutlinedButton(onClick = { write { Vehicle.lights.setCargoLight(false) } }) { Text("Tub light off") }
         }
         if (log.isNotBlank()) Text(log, color = Color(0xFFFFD54F), fontSize = 14.sp)
         Spacer(Modifier.height(12.dp))

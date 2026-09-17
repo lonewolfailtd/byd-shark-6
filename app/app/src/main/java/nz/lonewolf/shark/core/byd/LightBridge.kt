@@ -3,74 +3,86 @@ package nz.lonewolf.shark.core.byd
 import android.content.Context
 
 /**
- * Ambient lighting and the cabin light sensor, using the method names dumped from the
- * Shark 6 itself (research/device-dump/methods.txt). "IAL" is BYD's interior ambient light.
- * Zones and colour encoding are learned from the probe (getAmbientColors gives the palette).
+ * Ambient lighting, exterior light settings and the cabin light sensor.
+ *
+ * Calls mirror what BYD's own CarSettings app does on the Shark 6 (decompiled, see
+ * research/lighting-api.md):
+ *   area   = SettingDevice.getIALArea()
+ *   colour = SettingDevice.setIALColor(area, sliderValue, 0)   read getIALColor(area)
+ *   bright = SettingDevice.setIALBrightness(area, level, 0)    read getIALBrightness(area)
+ *   on/off = LightDevice.setAmbientMulticolorState(area, 1 on / 2 off)
+ *   mode   = LightDevice.setAmbientMulticolorMode(area, mode)
+ *   music  = SettingDevice.setAmbientMusicModeState(area, 1 / 2)
+ * BYD's convention for switches is 1 = on, 2 = off.
  */
 class LightBridge(context: Context) {
     val device = BydDevice(context, "android.hardware.bydauto.light.BYDAutoLightDevice")
+    val setting = BydDevice(context, "android.hardware.bydauto.setting.BYDAutoSettingDevice")
     val sensor = BydDevice(context, "android.hardware.bydauto.sensor.BYDAutoSensorDevice")
 
-    data class Zone(val area: Int, val colour: Int?, val brightness: Int?, val multicolourMode: Int?, val multicolourState: Int?)
     data class State(
         val bound: Boolean, val error: String?,
-        val lightIntensity: Int?, val headlightsOn: Boolean?, val lowBeam: Int?,
-        val ambientState: Int?, val ambientColoursSupport: Int?, val ambientSwitchConfig: Int?,
-        val ringColour: Int?, val ringBrightness: Int?, val themeLinked: Int?, val nightWeaken: Int?,
-        val palette: Map<Int, List<Int>>, val zones: List<Zone>,
+        val lightIntensity: Int?, val headlightsOn: Boolean?,
+        val area: Int?, val colour: Int?, val brightness: Int?,
+        val on: Boolean?, val mode: Int?, val musicMode: Boolean?,
+        val ambientSupport: Int?, val colourSupport: Int?,
+        val welcomeLight: Int?, val leaveHomeDelay: Int?, val backHomeDelay: Int?,
+        val cargoLight: Int?, val drl: Int?, val frontFog: Int?, val rearFog: Int?, val headlightMode: Int?,
     )
 
+    private fun area(): Int = setting.getInt("getIALArea") ?: 0
+
     fun read(): State {
-        val bound = device.bind()
-        val areas = 0..4
+        val bound = device.bind() && setting.bind()
+        val a = area()
         return State(
-            bound, device.bindError,
+            bound, device.bindError ?: setting.bindError,
             lightIntensity = sensor.getInt("getLightIntensity"),
             headlightsOn = device.getInt("getLightStatus", LOW_BEAM)?.let { it != 0 },
-            lowBeam = device.getInt("getLightStatus", LOW_BEAM),
-            ambientState = device.getInt("getAmbientState"),
-            ambientColoursSupport = device.getInt("getAmbientColorsSupport"),
-            ambientSwitchConfig = device.getInt("getAmbientSwitchConfig"),
-            ringColour = device.getInt("getAmbRingColor"),
-            ringBrightness = device.getInt("getAmbRingBrightness"),
-            themeLinked = device.getInt("getThemeColorSwitchState"),
-            nightWeaken = device.getInt("getAtmospereLightNightWeakenMode"),
-            palette = areas.associateWith { a -> intArray("getAmbientColors", a) }.filterValues { it.isNotEmpty() },
-            zones = areas.map { a ->
-                Zone(a, device.getInt("getIALColor", a), device.getInt("getIALBrightness", a),
-                    device.getInt("getAmbientMulticolorMode", a), device.getInt("getAmbientMulticolorState", a))
-            },
+            area = a,
+            colour = setting.getInt("getIALColor", a),
+            brightness = setting.getInt("getIALBrightness", a),
+            on = device.getInt("getAmbientMulticolorState", a)?.let { it == ON },
+            mode = device.getInt("getAmbientMulticolorMode", a),
+            musicMode = setting.getInt("getAmbientMusicModeState", a)?.let { it == ON },
+            ambientSupport = setting.getInt("getAmbientLightSupport"),
+            colourSupport = setting.getInt("getAmbientLightColorSupport"),
+            welcomeLight = setting.getInt("getSmartWelcomeLightState"),
+            leaveHomeDelay = setting.getInt("getLeftHomeLightDelayValue"),
+            backHomeDelay = setting.getInt("getBackHomeLightDelayValue"),
+            cargoLight = device.getInt("getCargoLightSwitchState"),
+            drl = device.getInt("getDayTimeLightState"),
+            frontFog = device.getInt("getFrontFogLightSwitchState"),
+            rearFog = device.getInt("getRearFogLightSwitchState"),
+            headlightMode = device.getInt("getHeadlightControlMode"),
         )
     }
 
-    fun setAmbientOn(on: Boolean): CommandResult = device.call("setAmbientState", if (on) 1 else 0)
+    fun setAmbientOn(on: Boolean) = device.call("setAmbientMulticolorState", area(), if (on) ON else OFF)
+    fun setColour(value: Int) = setting.call("setIALColor", area(), value, 0)
+    fun setBrightness(level: Int) = setting.call("setIALBrightness", area(), level, 0)
+    fun setMode(mode: Int) = device.call("setAmbientMulticolorMode", area(), mode)
+    fun setMusicMode(on: Boolean) = setting.call("setAmbientMusicModeState", area(), if (on) ON else OFF)
 
-    /**
-     * Colour is whatever getIALColor returns for the zone: a palette index or a packed value.
-     * Third argument is the source flag BYD's own UI passes; both variants are tried.
-     */
-    fun setZoneColour(area: Int, colour: Int): CommandResult = device.firstOk(
-        { device.call("setIALColor", area, colour, 1) },
-        { device.call("setIALColor", area, colour, 0) },
-    )
-
-    fun setZoneBrightness(area: Int, level: Int): CommandResult = device.firstOk(
-        { device.call("setIALBrightness", area, level, 1) },
-        { device.call("setIALBrightness", area, level, 0) },
-    )
-
-    fun setMulticolourMode(area: Int, mode: Int): CommandResult = device.call("setAmbientMulticolorMode", area, mode)
-    fun setNightWeaken(on: Boolean): CommandResult = device.call("setAtmospereLightNightWeakenMode", if (on) 1 else 0)
-
-    /** Vehicle slope from the sensor device, degrees or tenths, to be calibrated against the IMU. */
-    fun slope(): Int? = sensor.getInt("getSlope")
-
-    private fun intArray(name: String, arg: Int): List<Int> {
-        val dev = device.instance ?: return emptyList()
-        return runCatching {
-            (dev.javaClass.getMethod(name, Int::class.javaPrimitiveType).invoke(dev, arg) as? IntArray)?.toList()
-        }.getOrNull() ?: emptyList()
+    fun nudgeColour(delta: Int): CommandResult {
+        val cur = setting.getInt("getIALColor", area()) ?: 0
+        return setColour((cur + delta).coerceAtLeast(0))
     }
 
-    companion object { const val LOW_BEAM = 2 }
+    fun nudgeBrightness(delta: Int): CommandResult {
+        val cur = setting.getInt("getIALBrightness", area()) ?: 0
+        return setBrightness((cur + delta).coerceAtLeast(0))
+    }
+
+    // Exterior and convenience lights that BYD's own settings screen exposes.
+    fun setWelcomeLight(on: Boolean) = setting.call("setSmartWelcomeLightState", if (on) ON else OFF)
+    fun setCargoLight(on: Boolean) = device.call("setCargoLightSwitchState", if (on) ON else OFF)
+    fun setDaytimeRunningLights(on: Boolean) = device.call("setDayTimeLightState", if (on) ON else OFF)
+    fun setFrontFog(on: Boolean) = device.call("setFrontFogLightSwitchState", if (on) ON else OFF)
+    fun setRearFog(on: Boolean) = device.call("setRearFogLightSwitchState", if (on) ON else OFF)
+
+    /** Vehicle slope from the sensor device; returned null so far on the Shark 6. */
+    fun slope(): Int? = sensor.getInt("getSlope")
+
+    companion object { const val LOW_BEAM = 2; const val ON = 1; const val OFF = 2 }
 }
