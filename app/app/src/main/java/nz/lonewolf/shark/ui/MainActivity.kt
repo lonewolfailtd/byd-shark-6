@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
     override fun onPause() { inclinometer.stop(); super.onPause() }
 }
 
-private val tabs = listOf("Climate", "Gauges", "Off Road", "Towing", "Settings")
+private val tabs = listOf("Climate", "Gauges", "Off Road", "Towing", "Cameras", "Settings")
 
 @Composable
 private fun Shell(inclinometer: Inclinometer) {
@@ -82,6 +82,7 @@ private fun Shell(inclinometer: Inclinometer) {
                 1 -> GaugesScreen()
                 2 -> OffRoadScreen(inclinometer)
                 3 -> TowingScreen()
+                4 -> CamerasScreen()
                 else -> SettingsScreen(inclinometer)
             }
         }

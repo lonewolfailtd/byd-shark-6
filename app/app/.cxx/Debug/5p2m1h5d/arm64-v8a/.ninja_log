@@ -1,0 +1,9 @@
+# ninja log v5
+21	224	8113907622442719	CMakeFiles/vendor_libcpp_compat.dir/empty_vendor_compat.c.o	1546da5776f61b82
+36	252	8113907622530643	CMakeFiles/vendor_libutils_compat.dir/empty_vendor_compat.c.o	973afaca77b788cf
+50	286	8113907623060693	CMakeFiles/vendor_libcutils_compat.dir/empty_vendor_compat.c.o	cf818b1c7b76163c
+253	635	8113907626369985	C:/Users/Hodgs/byd-shark-6/app/app/build/intermediates/cxx/Debug/5p2m1h5d/obj/arm64-v8a/libutils.so	39db7acdbee6f3eb
+225	639	8113907626409097	C:/Users/Hodgs/byd-shark-6/app/app/build/intermediates/cxx/Debug/5p2m1h5d/obj/arm64-v8a/libc++.so	48d94fef7a7b9c4
+287	644	8113907626478042	C:/Users/Hodgs/byd-shark-6/app/app/build/intermediates/cxx/Debug/5p2m1h5d/obj/arm64-v8a/libcutils.so	7a40ae69c744e85d
+1	12120	8113907741389160	CMakeFiles/sharkcam.dir/qcarcam_bridge.cpp.o	a57d8e2b5c1c679
+12126	12346	8113907743646538	C:/Users/Hodgs/byd-shark-6/app/app/build/intermediates/cxx/Debug/5p2m1h5d/obj/arm64-v8a/libsharkcam.so	3669fdda6afed537

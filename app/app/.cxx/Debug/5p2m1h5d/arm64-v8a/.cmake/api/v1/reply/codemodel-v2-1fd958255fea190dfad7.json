@@ -1,0 +1,87 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "sharkcam",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "sharkcam::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-sharkcam-Debug-250f99196259c856b0b9.json",
+					"name" : "sharkcam",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "vendor_libcpp_compat::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-vendor_libcpp_compat-Debug-288c57ff50fdf2a48664.json",
+					"name" : "vendor_libcpp_compat",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "vendor_libcutils_compat::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-vendor_libcutils_compat-Debug-768a70c4c99a484f765b.json",
+					"name" : "vendor_libcutils_compat",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "vendor_libutils_compat::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-vendor_libutils_compat-Debug-e4db6bdcb8547fcab55a.json",
+					"name" : "vendor_libutils_compat",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/Hodgs/byd-shark-6/app/app/.cxx/Debug/5p2m1h5d/arm64-v8a",
+		"source" : "C:/Users/Hodgs/byd-shark-6/app/app/src/main/cpp"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}
