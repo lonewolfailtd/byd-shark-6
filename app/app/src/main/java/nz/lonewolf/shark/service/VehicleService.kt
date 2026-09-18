@@ -82,6 +82,8 @@ class VehicleService : Service() {
             if (recording && rec.status.value.mode == nz.lonewolf.shark.camera.Recorder.Mode.DRIVE && gear == 1 && parkedTicks >= prefs.parkStopSeconds) rec.stop()
             if (prefs.autoSentry && gear == 1 && parkedTicks >= prefs.parkStopSeconds + 5 && !recording && !rec.isPaused) rec.start(nz.lonewolf.shark.camera.QCarCam.Cam.entries.filter { it.exterior }, nz.lonewolf.shark.camera.Recorder.Mode.SENTRY)
             if (recording && rec.status.value.mode == nz.lonewolf.shark.camera.Recorder.Mode.SENTRY && driving) rec.stop()
+            // Battery log: once soon after start, then every 30 minutes.
+            telemetry.value?.let { t -> if (t.soc != null && (tick == 5 || tick % 1800 == 0)) runCatching { Vehicle.batteryLog.record(t.battery12v, t.soc, t.odometerKm, t.fuelPercent) } }
             if (!startApplied && tick >= 4 && climate.value?.bound == true) {
                 startApplied = true
                 Vehicle.profiles.startProfile()?.let { p -> runCatching { android.util.Log.w("SharkProbe", "start profile ${p.name}: ${Vehicle.profiles.apply(p)}") } }

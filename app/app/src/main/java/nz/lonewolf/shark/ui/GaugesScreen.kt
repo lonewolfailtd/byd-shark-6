@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import nz.lonewolf.shark.service.VehicleService
+import nz.lonewolf.shark.core.byd.Vehicle
+import nz.lonewolf.shark.data.BatteryLog
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -38,6 +40,16 @@ fun GaugesScreen() {
                 Gauge("12 V", fmt(t?.battery12v, " V"), t?.battery12v?.let { ((it - 10) / 6).toFloat() }, colour = if ((t?.battery12v ?: 13.0) < 12.2) Shark.bad else Shark.accent)
                 Gauge("Battery health", fmt(t?.soh, "%"), t?.soh?.let { it / 100f })
             }
+        }
+        Panel("Battery log") {
+            val rows by Vehicle.batteryLog.rows.collectAsStateWithLifecycle()
+            val losses = Vehicle.batteryLog.parkedLosses()
+            val avg = Vehicle.batteryLog.averagePerDay()
+            val v12 = t?.battery12v
+            if (v12 != null && v12 < 12.2) Text("12 V battery is low at ${fmt(v12, " V")}. Under 12.2 V at start means it is struggling; the Shark's 13.8 Ah 12 V is a known weak point.", color = Shark.bad, fontSize = 14.sp)
+            Text(if (avg == null) "Parked loss: not enough data yet. It needs two starts at the same odometer at least three hours apart." else "Parked loss: about %.1f%% of traction battery per day over ${losses.size} parked periods.".format(avg), color = Shark.text, fontSize = 15.sp)
+            losses.takeLast(5).reversed().forEach { l -> Text("${BatteryLog.stamp.format(java.util.Date(l.start))} to ${BatteryLog.stamp.format(java.util.Date(l.end))}: ${l.socDrop}%% in %.0f h".format(l.hours), color = Shark.muted, fontSize = 12.sp) }
+            rows.takeLast(6).reversed().forEach { r -> Text("${BatteryLog.stamp.format(java.util.Date(r.time))}  12 V ${fmt(r.v12, " V")}  battery ${fmt(r.soc, "%")}  fuel ${fmt(r.fuel, "%")}  ${fmt(r.odometer, " km")}", color = Shark.muted, fontSize = 12.sp) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Panel("Tyres ($tyreUnit)", Modifier.weight(1f)) {
