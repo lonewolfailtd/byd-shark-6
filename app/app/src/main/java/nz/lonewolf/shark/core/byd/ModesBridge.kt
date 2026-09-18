@@ -15,7 +15,8 @@ class ModesBridge(context: Context) {
     data class State(val energyMode: Int?, val operationMode: Int?, val roadSurface: Int?, val sportState: Int?, val driveMode: Int?,
                      val creepState: Int?, val creepWork: Int?, val wadingState: Int?, val wadingSpeedTip: Int?, val wadingSocTip: Int?) {
         val energyName get() = when (energyMode) { 0 -> "EV"; 1 -> "HEV"; null -> "--"; else -> "energy $energyMode" }
-        val driveName get() = when (operationMode) { 1 -> "Eco"; 2 -> "Normal"; 3 -> "Sport"; null -> "--"; else -> "drive $operationMode" }
+        /** Confirmed on the ute 18 Sep 2026: 1 Sport, 2 Eco, 3 Normal. */
+        val driveName get() = when (operationMode) { 1 -> "Sport"; 2 -> "Eco"; 3 -> "Normal"; null -> "--"; else -> "drive $operationMode" }
         val terrainName get() = when (roadSurface) { 0, 1 -> "Normal"; 2 -> "Snow"; 3 -> "Sand"; 4 -> "Mud"; 5 -> "Mountain"; null -> "--"; else -> "terrain $roadSurface" }
         val crawlName get() = when (creepState) { 1 -> "on"; 2, 0 -> "off"; null -> "--"; else -> "state $creepState" }
     }

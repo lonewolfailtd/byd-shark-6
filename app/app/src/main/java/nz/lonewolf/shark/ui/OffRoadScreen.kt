@@ -82,22 +82,19 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
                     Text("Drive: ${m?.driveName ?: "--"}   Power: ${m?.energyName ?: "--"}   Terrain: ${m?.terrainName ?: "--"}   Crawl: ${m?.crawlName ?: "--"}", color = Shark.text, fontSize = 15.sp)
                     Text("raw: operation ${m?.operationMode} energy ${m?.energyMode} terrain ${m?.roadSurface} sport ${m?.sportState} drive ${m?.driveMode} crawl ${m?.creepState}", color = Shark.muted, fontSize = 12.sp)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-                        Tile("Eco", m?.operationMode == 1, Modifier.width(100.dp), height = 56.dp) { write("Eco") { Vehicle.modes.setDrive(1) } }
-                        Tile("Normal", m?.operationMode == 2, Modifier.width(100.dp), height = 56.dp) { write("Normal") { Vehicle.modes.setDrive(2) } }
-                        Tile("Sport", m?.operationMode == 3, Modifier.width(100.dp), height = 56.dp) { write("Sport") { Vehicle.modes.setDrive(3) } }
-                        Tile("EV", m?.energyMode == 0, Modifier.width(90.dp), height = 56.dp) { write("EV") { Vehicle.modes.setPower(0) } }
-                        Tile("HEV", m?.energyMode == 1, Modifier.width(90.dp), height = 56.dp) { write("HEV") { Vehicle.modes.setPower(1) } }
-                        Tile("Crawl", m?.creepState == 1, Modifier.width(100.dp), height = 56.dp) { write("Crawl") { Vehicle.modes.setCrawl(m?.creepState != 1) } }
+                        Tile("Eco", m?.operationMode == 2, Modifier.width(100.dp), height = 56.dp) { write("Eco") { Vehicle.modes.setDrive(2) } }
+                        Tile("Normal", m?.operationMode == 3, Modifier.width(100.dp), height = 56.dp) { write("Normal") { Vehicle.modes.setDrive(3) } }
+                        Tile("Sport", m?.operationMode == 1, Modifier.width(100.dp), height = 56.dp) { write("Sport") { Vehicle.modes.setDrive(1) } }
                     }
                     if (status.isNotBlank()) Text(status, color = androidx.compose.ui.graphics.Color(0xFFFFD54F), fontSize = 13.sp)
-                    Text("Each tap is checked against what the vehicle reports back. If a label and BYD's screen disagree, tell Tane which and the numbering gets fixed.", color = Shark.muted, fontSize = 11.sp)
+                    Text("EV/HEV and Crawl stay on the physical buttons and BYD's screen until their numbering is confirmed. Press the EV/HEV button and read the energy number above.", color = Shark.muted, fontSize = 11.sp)
                 }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Tile("Rage mode", false, Modifier.width(200.dp), height = 56.dp, sub = "BYD screen") {
                         runCatching { ctx.startActivity(ctx.packageManager.getLaunchIntentForPackage("com.byd.dlc.drivingmode")?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
                     }
-                    Tile("Terrain and wading", false, Modifier.width(200.dp), height = 56.dp, sub = "BYD vehicle screen") {
-                        runCatching { ctx.startActivity(ctx.packageManager.getLaunchIntentForPackage("com.byd.mycar")?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                    Tile("Terrain and wading", false, Modifier.width(200.dp), height = 56.dp, sub = "BYD vehicle settings") {
+                        runCatching { ctx.startActivity(ctx.packageManager.getLaunchIntentForPackage("com.byd.carsettings")?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
                     }
                 }
             }
