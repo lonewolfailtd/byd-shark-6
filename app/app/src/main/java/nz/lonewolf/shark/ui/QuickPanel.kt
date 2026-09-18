@@ -36,7 +36,6 @@ class QuickPanel(private val context: Context) {
     private var panel: View? = null
     private var params: WindowManager.LayoutParams? = null
     private var expanded = false
-    private var disabled = false
     private var sharkView: TextView? = null
     private val labels = mutableMapOf<String, TextView>()
 
@@ -99,13 +98,9 @@ class QuickPanel(private val context: Context) {
             text = "✕"; textSize = 12f; gravity = Gravity.CENTER; setTextColor(Color.WHITE)
             background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(0xFF37474F.toInt()); setStroke(dp(1), 0xFF8FA3BF.toInt()) }
             layoutParams = android.widget.FrameLayout.LayoutParams(dp(24), dp(24)).apply { gravity = Gravity.TOP or Gravity.END }
-            setOnClickListener {
-                // Dim the bubble and ignore taps; tap the badge again to wake it.
-                disabled = !disabled
-                if (disabled) collapse()
-                shark.alpha = if (disabled) 0.35f else 1f
-                text = if (disabled) "●" else "✕"
-            }
+            // Hides the bubble and unticks the Settings tile; the tile brings it back.
+            setOnClickListener { VehicleService.setFloating(context, false) }
+        }
         }
         sharkView = shark
         val root = android.widget.FrameLayout(context).apply { addView(shark); addView(close) }
@@ -121,7 +116,7 @@ class QuickPanel(private val context: Context) {
                     true
                 }
                 MotionEvent.ACTION_UP -> {
-                    if (moved) prefs.edit().putInt("x", lp.x).putInt("y", lp.y).apply() else if (!disabled) toggle()
+                    if (moved) prefs.edit().putInt("x", lp.x).putInt("y", lp.y).apply() else toggle()
                     true
                 }
                 else -> false
