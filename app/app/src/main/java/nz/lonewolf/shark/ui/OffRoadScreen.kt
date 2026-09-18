@@ -60,8 +60,10 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
                 Spacer(Modifier.height(20.dp))
                 Tile("Level here", false, Modifier.width(160.dp), sub = "sets zero") { inclinometer.calibrate(); peakPitch = 0f; peakRoll = 0f }
                 Spacer(Modifier.height(8.dp))
-                Tile(if (inclinometer.smoothing < 0.1f) "Smooth" else "Quick", false, Modifier.width(160.dp), sub = "response") {
-                    inclinometer.smoothing = if (inclinometer.smoothing < 0.1f) 0.25f else 0.06f
+                var sens by remember { androidx.compose.runtime.mutableStateOf(when { inclinometer.smoothing <= 0.07f -> "Smooth"; inclinometer.smoothing >= 0.2f -> "Quick"; else -> "Normal" }) }
+                Tile("Sensitivity: $sens", false, Modifier.width(200.dp), sub = "tap to change") {
+                    sens = when (sens) { "Smooth" -> "Normal"; "Normal" -> "Quick"; else -> "Smooth" }
+                    inclinometer.smoothing = when (sens) { "Smooth" -> 0.05f; "Normal" -> 0.12f; else -> 0.28f }
                 }
                 Spacer(Modifier.height(20.dp))
                 Text("Speed ${fmt(t?.speedKmh, " km/h")}   Wading limit 700 mm", color = Shark.muted, fontSize = 13.sp)
