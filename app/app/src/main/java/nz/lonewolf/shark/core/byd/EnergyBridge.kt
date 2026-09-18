@@ -14,8 +14,9 @@ class EnergyBridge(context: Context) {
 
     data class Trailer(val modeState: Int?, val modeCode: Int?, val dragType: Int?, val lightCheck: Int?, val towingProhibited: Int?,
                        val smallLimit: Int?, val middleLimit: Int?, val largeLimit: Int?, val modeMileage: Int?) {
+        /** BYD switch convention: 1 on, 2 off. */
         val active: Boolean? get() = modeState?.let { it == 1 }
-        val sizeName: String get() = when (dragType) { 1 -> "small"; 2 -> "medium"; 3 -> "large"; null -> "--"; else -> "type $dragType" }
+        val sizeName: String get() = when (dragType) { 1 -> "small"; 2 -> "medium"; 3 -> "large"; 15, 0 -> "none"; null -> "--"; else -> "type $dragType" }
     }
 
     data class V2L(val toggle: Int?, val carState: Int?, val volts: Int?, val amps: Double?, val energyKwh: Double?, val remainMin: Int?, val limitPercent: Int?,
