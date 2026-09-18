@@ -75,8 +75,9 @@ class Inclinometer(private val context: Context) : SensorEventListener {
     // The Shark's IMU sits flat inside the unit: gravity reads on Z when level. Nose up tips the
     // body so gravity gains a Y component; right side down gains an X component. Level here removes
     // the mounting offset so only the signs matter, and those are checked on a real slope.
-    private fun rawPitch(): Float = Math.toDegrees(atan2(filtered[1].toDouble(), filtered[2].toDouble())).toFloat()
-    private fun rawRoll(): Float = Math.toDegrees(atan2(-filtered[0].toDouble(), filtered[2].toDouble())).toFloat()
+    // Signs confirmed on the ute 18 Sep 2026: nose up positive, driver side down positive.
+    private fun rawPitch(): Float = -Math.toDegrees(atan2(filtered[1].toDouble(), filtered[2].toDouble())).toFloat()
+    private fun rawRoll(): Float = Math.toDegrees(atan2(filtered[0].toDouble(), filtered[2].toDouble())).toFloat()
 
     /** Fold the rotating screen's orientation back into the landscape device frame. */
     private fun orient(v: FloatArray): FloatArray {
