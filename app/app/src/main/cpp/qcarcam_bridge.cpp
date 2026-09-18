@@ -250,12 +250,17 @@ extern "C" JNIEXPORT jintArray JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nat
     QCarCamFrameInfo f{};
     if (lib.getFrame(s->camera, &f, 500000000ULL, 0) != 0 || f.bufferIndex >= kBufferCount) return nullptr;
     auto src = static_cast<const uint8_t*>(s->maps[f.bufferIndex]);
+    thread_local std::vector<uint8_t> scratch;
+    const size_t rowBytes = s->stride;
+    if (scratch.size() < rowBytes * (size_t) oh) scratch.resize(rowBytes * (size_t) oh);
+    for (int y = 0; y < oh; ++y) memcpy(scratch.data() + (size_t) y * rowBytes, src + (size_t) ((uint32_t) y * s->height / oh) * rowBytes, rowBytes);
+    lib.releaseFrame(s->camera, f.bufferIndex);
     jintArray px = env->NewIntArray(ow * oh);
     auto dst = static_cast<jint*>(env->GetPrimitiveArrayCritical(px, nullptr));
     if (dst) {
         std::vector<uint32_t> xmap(ow); for (int x = 0; x < ow; ++x) xmap[x] = ((uint32_t) x * s->width / ow) & ~1u;
         for (int y = 0; y < oh; ++y) {
-            const uint8_t* row = src + (size_t) ((uint32_t) y * s->height / oh) * s->stride;
+            const uint8_t* row = scratch.data() + (size_t) y * rowBytes;
             jint* drow = dst + (size_t) y * ow;
             for (int x = 0; x < ow; ++x) {
                 const uint8_t* p = row + xmap[x] * 2;
@@ -266,7 +271,6 @@ extern "C" JNIEXPORT jintArray JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nat
         }
         env->ReleasePrimitiveArrayCritical(px, dst, 0);
     }
-    lib.releaseFrame(s->camera, f.bufferIndex);
     return px;
 }
 
@@ -287,21 +291,26 @@ extern "C" JNIEXPORT jint JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nativeRe
     QCarCamFrameInfo f{};
     if (lib.getFrame(s->camera, &f, 500000000ULL, 0) != 0 || f.bufferIndex >= kBufferCount) return 0;
     auto src = static_cast<const uint8_t*>(s->maps[f.bufferIndex]);
-    std::vector<uint32_t> xmap(ow); for (int x = 0; x < ow; ++x) xmap[x] = ((uint32_t) x * s->width / ow) & ~1u;
+    // Camera buffers are uncached DMA memory: scattered byte reads are 10x slower than a
+    // sequential copy. Copy the rows we need into cached memory, hand the buffer back, convert.
+    thread_local std::vector<uint8_t> scratch;
+    thread_local std::vector<uint32_t> rowMap, xmap;
+    if ((int) rowMap.size() != oh) { rowMap.resize(oh); for (int y = 0; y < oh; ++y) rowMap[y] = (uint32_t) y * s->height / oh; }
+    if ((int) xmap.size() != ow) { xmap.resize(ow); for (int x = 0; x < ow; ++x) xmap[x] = ((uint32_t) x * s->width / ow) & ~1u; }
+    const size_t rowBytes = s->stride;
+    if (scratch.size() < rowBytes * (size_t) oh) scratch.resize(rowBytes * (size_t) oh);
+    for (int y = 0; y < oh; ++y) memcpy(scratch.data() + (size_t) y * rowBytes, src + (size_t) rowMap[y] * rowBytes, rowBytes);
+    lib.releaseFrame(s->camera, f.bufferIndex);
     uint8_t* yPlane = dst; uint8_t* uvPlane = dst + (size_t) ow * oh;
     for (int y = 0; y < oh; ++y) {
-        const uint8_t* row = src + (size_t) ((uint32_t) y * s->height / oh) * s->stride;
+        const uint8_t* row = scratch.data() + (size_t) y * rowBytes;
         uint8_t* yrow = yPlane + (size_t) y * ow;
-        for (int x = 0; x < ow; x += 2) {
-            const uint8_t* p = row + xmap[x] * 2;
-            yrow[x] = p[1]; yrow[x + 1] = p[3];
-        }
+        for (int x = 0; x < ow; x += 2) { const uint8_t* p = row + xmap[x] * 2; yrow[x] = p[1]; yrow[x + 1] = p[3]; }
         if ((y & 1) == 0) {
             uint8_t* uvrow = uvPlane + (size_t) (y / 2) * ow;
             for (int x = 0; x < ow; x += 2) { const uint8_t* p = row + xmap[x] * 2; uvrow[x] = p[0]; uvrow[x + 1] = p[2]; }
         }
     }
-    lib.releaseFrame(s->camera, f.bufferIndex);
     return need;
 }
 
