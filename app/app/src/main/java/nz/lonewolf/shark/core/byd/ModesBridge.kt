@@ -28,7 +28,23 @@ class ModesBridge(context: Context) {
         val after = readback()
         return if (r.ok && after == target) r else r.copy(ok = false, detail = if (r.ok) "vehicle stayed at $after" else r.detail)
     }
-    fun setDrive(mode: Int) = verified({ energy.getInt("getOperationMode") }, mode) { energy.call("setOperationMode", mode) }
+    /**
+     * On the Shark 6 setOperationMode steps to the next mode like the wheel button
+     * (Normal 3 to Sport 1 to Eco 2 to Normal) whatever value is sent, so step until the
+     * vehicle reports the one asked for.
+     */
+    fun setDrive(mode: Int): CommandResult {
+        var last = CommandResult(true, "setOperationMode", 0, "already there")
+        repeat(3) {
+            val now = energy.getInt("getOperationMode")
+            if (now == mode) return last
+            last = energy.call("setOperationMode", mode)
+            if (!last.ok) return last
+            Thread.sleep(400)
+        }
+        val after = energy.getInt("getOperationMode")
+        return if (after == mode) last else last.copy(ok = false, detail = "vehicle settled on $after")
+    }
     fun setPower(mode: Int) = verified({ energy.getInt("getEnergyMode") }, mode) { energy.call("setEnergyMode", mode) }
     fun setCrawl(on: Boolean) = verified({ setting.getInt("getCreepModeState") }, if (on) 1 else 2) { setting.call("setCreepModeState", if (on) 1 else 2) }
 
