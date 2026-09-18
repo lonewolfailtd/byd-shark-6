@@ -11,6 +11,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,7 +30,7 @@ fun TowingScreen() {
     val e by VehicleService.energy.collectAsStateWithLifecycle()
     val tr = e?.trailer
     val scope = androidx.compose.runtime.rememberCoroutineScope()
-    var status by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf("") }
+    var status by remember { mutableStateOf("") }
     fun write(label: String, block: () -> nz.lonewolf.shark.core.byd.CommandResult) {
         scope.launch { status = withContext(Dispatchers.IO) { val r = block(); runCatching { VehicleService.energy.value = Vehicle.energy.read() }; if (r.ok) "$label done" else "$label: ${r.detail}" } }
     }
