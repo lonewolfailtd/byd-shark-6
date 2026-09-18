@@ -138,7 +138,7 @@ class QuickPanel(private val context: Context) {
         p.tag = lp
         // Tap anywhere outside the panel to fold it away.
         p.setOnTouchListener { _, e -> if (e.actionMasked == MotionEvent.ACTION_OUTSIDE) { collapse(); true } else false }
-        runCatching { wm.addView(p, lp) }.onSuccess { panel = p; expanded = true; positionPanel(); updateLabels() }
+        runCatching { wm.addView(p, lp) }.onSuccess { panel = p; expanded = true; positionPanel(); updateLabels(); p.post { positionPanel() } }
     }
 
     /** Keep the panel beside the bubble, flipping to the left when near the right edge. */
@@ -146,9 +146,15 @@ class QuickPanel(private val context: Context) {
         val p = panel ?: return; val bp = params ?: return
         val lp = p.tag as WindowManager.LayoutParams
         val screenW = context.resources.displayMetrics.widthPixels
-        val panelW = dp(560)
-        lp.x = if (bp.x + dp(64) + panelW > screenW) bp.x - panelW - dp(8) else bp.x + dp(72)
-        lp.y = (bp.y - dp(60)).coerceAtLeast(dp(80))
+        val screenH = context.resources.displayMetrics.heightPixels
+        val panelW = if (p.width > 0) p.width else dp(600)
+        val panelH = if (p.height > 0) p.height else dp(240)
+        var x = if (bp.x + dp(64) + panelW > screenW) bp.x - panelW - dp(8) else bp.x + dp(72)
+        var y = bp.y - dp(60)
+        // Never let the panel hang off the screen edges.
+        x = x.coerceIn(dp(8), (screenW - panelW - dp(8)).coerceAtLeast(dp(8)))
+        y = y.coerceIn(dp(70), (screenH - panelH - dp(90)).coerceAtLeast(dp(70)))
+        lp.x = x; lp.y = y
         runCatching { wm.updateViewLayout(p, lp) }
     }
 

@@ -106,6 +106,10 @@ fun SettingsScreen(inclinometer: Inclinometer) {
             StatRow("Vehicle link", if (running) "running" else "stopped", running)
             StatRow("Permissions", adb.toString().substringAfterLast('.'), adb is LocalAdb.Status.Done || VehicleService.telemetry.value != null)
             StatRow("VIN", t?.vin ?: "--", t?.vin != null)
+            val fw = Vehicle.firmware
+            StatRow("Head unit build", fw.current, !fw.changed)
+            if (fw.changed) Text("BYD has updated the head unit since this app was last checked (was ${fw.tested}). Expect ADB to be off and some controls to need re testing.", color = Shark.bad, fontSize = 13.sp)
+            Tile(if (fw.tested.isBlank()) "Mark this build as tested" else "Tested on ${fw.tested}", !fw.changed && fw.tested.isNotBlank(), Modifier.width(260.dp), height = 48.dp) { fw.markTested(); status = "Marked ${fw.current} as tested" }
             StatRow("Tilt sensor", inclinometer.availableSensors().joinToString())
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
                 var floating by remember { mutableStateOf(Vehicle.prefs.floatingPanel) }

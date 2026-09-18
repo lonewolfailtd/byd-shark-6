@@ -14,6 +14,8 @@ object Vehicle {
     lateinit var batteryLog: nz.lonewolf.shark.data.BatteryLog; private set
     lateinit var trips: nz.lonewolf.shark.data.TripLog; private set
     lateinit var energy: EnergyBridge; private set
+    lateinit var modes: ModesBridge; private set
+    lateinit var firmware: nz.lonewolf.shark.data.FirmwareWatch; private set
     lateinit var profiles: nz.lonewolf.shark.data.ProfileStore; private set
     @Volatile var ready = false; private set
 
@@ -30,6 +32,8 @@ object Vehicle {
         batteryLog = nz.lonewolf.shark.data.BatteryLog(app)
         trips = nz.lonewolf.shark.data.TripLog(app)
         energy = EnergyBridge(app)
+        modes = ModesBridge(app)
+        firmware = nz.lonewolf.shark.data.FirmwareWatch(app)
         profiles = nz.lonewolf.shark.data.ProfileStore(app)
         ready = true
     }

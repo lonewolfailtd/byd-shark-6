@@ -38,6 +38,8 @@ import kotlin.math.max
 fun OffRoadScreen(inclinometer: Inclinometer) {
     val r by inclinometer.reading.collectAsStateWithLifecycle()
     val t by VehicleService.telemetry.collectAsStateWithLifecycle()
+    val m by VehicleService.modes.collectAsStateWithLifecycle()
+    val ctx = androidx.compose.ui.platform.LocalContext.current
     var peakPitch by remember { mutableFloatStateOf(0f) }
     var peakRoll by remember { mutableFloatStateOf(0f) }
     peakPitch = max(peakPitch, abs(r.pitch)); peakRoll = max(peakRoll, abs(r.roll))
@@ -59,6 +61,24 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
                 Text("Approach 31°  Ramp 17°  Departure 19°", color = Shark.muted, fontSize = 13.sp)
             }
             TiltDial("Roll", r.roll, side = false)
+        }
+        Panel("Modes") {
+            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                Column(Modifier.weight(1f)) {
+                    StatRow("Drive", m?.driveName ?: "--", m?.operationMode != null)
+                    StatRow("Power", m?.energyName ?: "--", m?.energyMode != null)
+                    StatRow("Terrain", m?.terrainName ?: "--", m?.roadSurface != null)
+                    StatRow("Crawl", m?.crawlName ?: "--", m?.creepState != null)
+                }
+                Column(Modifier.weight(1f)) {
+                    Tile("BYD drive modes", false, Modifier.width(220.dp), sub = "terrain, crawl, wading") {
+                        val pm = ctx.packageManager
+                        val i = pm.getLaunchIntentForPackage("com.byd.dlc.drivingmode") ?: pm.getLaunchIntentForPackage("com.byd.mycar")
+                        runCatching { ctx.startActivity(i?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                    }
+                    Text("Wading: BYD shows advice rather than a switch on this firmware (state ${m?.wadingState ?: "--"}). Mode switching stays on BYD's own screen and the wheel buttons.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+                }
+            }
         }
         Text(
             if (r.sensorName == null) "No accelerometer found" else "Sensor ${r.sensorName}. Angles read from the head unit, so park on flat ground and tap Level here once after fitting.",
