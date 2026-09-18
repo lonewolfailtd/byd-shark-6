@@ -13,6 +13,7 @@ object Vehicle {
     lateinit var prefs: nz.lonewolf.shark.data.Prefs; private set
     lateinit var batteryLog: nz.lonewolf.shark.data.BatteryLog; private set
     lateinit var trips: nz.lonewolf.shark.data.TripLog; private set
+    lateinit var energy: EnergyBridge; private set
     lateinit var profiles: nz.lonewolf.shark.data.ProfileStore; private set
     @Volatile var ready = false; private set
 
@@ -28,6 +29,7 @@ object Vehicle {
         prefs = nz.lonewolf.shark.data.Prefs(app)
         batteryLog = nz.lonewolf.shark.data.BatteryLog(app)
         trips = nz.lonewolf.shark.data.TripLog(app)
+        energy = EnergyBridge(app)
         profiles = nz.lonewolf.shark.data.ProfileStore(app)
         ready = true
     }

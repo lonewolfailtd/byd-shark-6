@@ -20,6 +20,8 @@ import nz.lonewolf.shark.service.VehicleService
 @Composable
 fun TowingScreen() {
     val t by VehicleService.telemetry.collectAsStateWithLifecycle()
+    val e by VehicleService.energy.collectAsStateWithLifecycle()
+    val tr = e?.trailer
     val unit = t?.tyres?.unit ?: "kPa"
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Panel("Range with the load on") {
@@ -38,6 +40,15 @@ fun TowingScreen() {
                 StatRow("Rear left", fmt(t?.tyres?.rl, "", 0))
                 StatRow("Rear right", fmt(t?.tyres?.rr, "", 0))
                 Text("Loaded target: 250 front, 290 rear (kPa)", color = Shark.muted, fontSize = 12.sp)
+            }
+            Panel("Tow mode (live)", Modifier.weight(1f)) {
+                StatRow("Tow mode", when (tr?.active) { true -> "ON"; false -> "off"; null -> "--" }, tr?.active)
+                StatRow("Trailer size set", tr?.sizeName ?: "--")
+                StatRow("Trailer lights check", when (tr?.lightCheck) { null -> "--"; 0 -> "not run"; 1 -> "passed"; else -> "state ${tr?.lightCheck}" })
+                StatRow("Towing prohibited", when (tr?.towingProhibited) { null -> "--"; 0 -> "no"; else -> "yes (${tr?.towingProhibited})" })
+                StatRow("Km in tow mode", fmt(tr?.modeMileage, " km"))
+                StatRow("Size limits", "${fmt(tr?.smallLimit)} / ${fmt(tr?.middleLimit)} / ${fmt(tr?.largeLimit)} kg")
+                Text("Tow mode arms itself 15 s after the 7 pin plug goes in. It locks Normal mode and disables 10 driver aids.", color = Shark.muted, fontSize = 12.sp)
             }
             Panel("Limits (Premium)", Modifier.weight(1f)) {
                 StatRow("Braked trailer", "2,500 kg")

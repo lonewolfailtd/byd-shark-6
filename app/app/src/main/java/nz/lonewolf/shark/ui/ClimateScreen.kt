@@ -40,6 +40,8 @@ fun ClimateScreen() {
     val c by VehicleService.climate.collectAsStateWithLifecycle()
     val s by VehicleService.seats.collectAsStateWithLifecycle()
     val profiles by Vehicle.profiles.profiles.collectAsStateWithLifecycle()
+    val e by VehicleService.energy.collectAsStateWithLifecycle()
+    val t by VehicleService.telemetry.collectAsStateWithLifecycle()
     var status by remember { mutableStateOf("") }
 
     fun write(label: String, block: () -> CommandResult) {
@@ -108,6 +110,24 @@ fun ClimateScreen() {
                 }
             }
             Text("Tap to apply. Save and manage profiles in Settings.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+        }
+        Panel("Camp and V2L") {
+            val v = e?.v2l
+            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                Column(Modifier.weight(1f)) {
+                    StatRow("V2L", when (v?.on) { true -> "ON"; false -> "off"; null -> "--" }, v?.on)
+                    StatRow("Output", if (v?.watts != null) "%.0f W (%d V, %.1f A)".format(v.watts, v.volts, v.amps) else "--")
+                    StatRow("Energy this session", fmt(v?.energyKwh, " kWh"))
+                    StatRow("Time remaining", v?.remainMin?.let { "${it / 60} h ${it % 60} min" } ?: "--")
+                }
+                Column(Modifier.weight(1f)) {
+                    StatRow("Battery", fmt(t?.soc, "%"))
+                    StatRow("Stops at", fmt(v?.limitPercent, "%"))
+                    StatRow("Camping balance", when (v?.campingBalance) { null -> "--"; 1 -> "on"; 2, 0 -> "off"; else -> "state ${v?.campingBalance}" })
+                    StatRow("Runtime at this draw", if (v?.watts != null && v.watts > 50 && t?.usableKwh != null) "%.1f h to the floor".format(((t?.soc ?: 0) - (v.limitPercent ?: 15)).coerceAtLeast(0) / 100.0 * 29.58 * 1000 / v.watts) else "--")
+                }
+            }
+            Text("V2L is switched on from BYD's Energy screen (Charging and Discharging). The engine will start itself below the floor. Camp profile above keeps the cabin comfortable at low fan.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
         }
     }
 }

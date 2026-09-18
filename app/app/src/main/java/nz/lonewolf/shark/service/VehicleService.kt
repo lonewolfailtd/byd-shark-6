@@ -68,6 +68,7 @@ class VehicleService : Service() {
                 lights.value = Vehicle.lights.read()
                 slope.value = Vehicle.lights.slope()
                 seatPosition.value = Vehicle.seatPosition.read()
+                energy.value = Vehicle.energy.read()
             }.onFailure { android.util.Log.e("SharkProbe", "poll failed", it) }
             // Camera rules: reverse hands the cameras to BYD; auto record on drive; sentry when parked.
             val gear = telemetry.value?.gear
@@ -100,6 +101,7 @@ class VehicleService : Service() {
                     appendLine("lights=${lights.value}")
                     appendLine("slope=${slope.value}")
                     appendLine("seatPosition=${seatPosition.value}")
+                    appendLine("energy=${energy.value}")
                     Vehicle.telemetry.devices.forEach { (n, d) -> appendLine("device $n bound=${d.bound} err=${d.bindError}") }
                 }
                 android.util.Log.e("SharkProbe", report)
@@ -141,6 +143,7 @@ class VehicleService : Service() {
         val lights = MutableStateFlow<nz.lonewolf.shark.core.byd.LightBridge.State?>(null)
         val slope = MutableStateFlow<Int?>(null)
         val seatPosition = MutableStateFlow<nz.lonewolf.shark.core.byd.SeatPositionBridge.Positions?>(null)
+        val energy = MutableStateFlow<nz.lonewolf.shark.core.byd.EnergyBridge.State?>(null)
 
         fun start(context: Context) {
             context.startForegroundService(Intent(context, VehicleService::class.java))

@@ -55,7 +55,7 @@ fun SettingsScreen(inclinometer: Inclinometer) {
     fun write(label: String, block: () -> CommandResult) {
         scope.launch { status = withContext(Dispatchers.IO) {
             val r = block()
-            runCatching { VehicleService.lights.value = Vehicle.lights.read() }
+            runCatching { VehicleService.lights.value = Vehicle.lights.read(); VehicleService.energy.value = Vehicle.energy.read() }
             if (r.ok) "$label done" else "$label refused: ${r.detail}"
         } }
     }
@@ -93,6 +93,17 @@ fun SettingsScreen(inclinometer: Inclinometer) {
                 Tile("Welcome light", l?.welcomeLight == 1, Modifier.width(150.dp)) { write("Welcome light") { Vehicle.lights.setWelcomeLight(l?.welcomeLight != 1) } }
                 Tile("Daytime lights", l?.drl == 1, Modifier.width(150.dp)) { write("Daytime lights") { Vehicle.lights.setDaytimeRunningLights(l?.drl != 1) } }
             }
+        }
+        Panel("Screen") {
+            val e by VehicleService.energy.collectAsStateWithLifecycle()
+            Text("Brightness now: ${e?.brightness ?: "--"}", color = Shark.muted, fontSize = 13.sp)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+                Tile("Night (dim)", false, Modifier.width(140.dp)) { write("Brightness") { Vehicle.energy.setBrightness(1) } }
+                Tile("Dimmer", false, Modifier.width(120.dp)) { write("Brightness") { Vehicle.energy.setBrightness(((e?.brightness ?: 5) - 1).coerceAtLeast(0)) } }
+                Tile("Brighter", false, Modifier.width(120.dp)) { write("Brightness") { Vehicle.energy.setBrightness(((e?.brightness ?: 5) + 1).coerceAtMost(100)) } }
+                Tile("Full", false, Modifier.width(120.dp)) { write("Brightness") { Vehicle.energy.setBrightness(10) } }
+            }
+            Text("Uses BYD's own display brightness setting. If Full does nothing, the scale is 0 to 100 and I will fix it.", color = Shark.muted, fontSize = 12.sp)
         }
         Panel("System") {
             StatRow("Vehicle SDK", "${BydSdkLoader.mode} ${BydSdkLoader.lastError ?: ""}", BydSdkLoader.mode != BydSdkLoader.Mode.UNAVAILABLE)
