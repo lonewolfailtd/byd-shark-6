@@ -36,7 +36,6 @@ class QuickPanel(private val context: Context) {
     private var panel: View? = null
     private var params: WindowManager.LayoutParams? = null
     private var expanded = false
-    private var sharkView: TextView? = null
     private val labels = mutableMapOf<String, TextView>()
 
     val showing: Boolean get() = bubble != null
@@ -101,8 +100,6 @@ class QuickPanel(private val context: Context) {
             // Hides the bubble and unticks the Settings tile; the tile brings it back.
             setOnClickListener { VehicleService.setFloating(context, false) }
         }
-        }
-        sharkView = shark
         val root = android.widget.FrameLayout(context).apply { addView(shark); addView(close) }
         var downX = 0f; var downY = 0f; var startX = 0; var startY = 0; var moved = false
         shark.setOnTouchListener { _, e ->
