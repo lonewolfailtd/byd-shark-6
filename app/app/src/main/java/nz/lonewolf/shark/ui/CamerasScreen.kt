@@ -108,24 +108,26 @@ fun CamerasScreen() {
                 Text("Park first. Stop the view before opening BYD's own 360 view.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
             }
         }
-        Panel("Drive recorder") {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Panel("Drive recorder and sentry") {
+            val prefs = Vehicle.prefs
+            var autoRec by remember { mutableStateOf(prefs.autoRecord) }
+            var autoSentry by remember { mutableStateOf(prefs.autoSentry) }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (!rec.recording) {
-                    Tile("Record 4 exterior", false, Modifier.width(180.dp)) {
-                        current = null
-                        scope.launch { withContext(Dispatchers.IO) { QCarCam.stopAll(); Vehicle.recorder.start(Cam.entries.filter { it.exterior }) } }
-                    }
-                    Tile("Record front only", false, Modifier.width(180.dp)) {
-                        current = null
-                        scope.launch { withContext(Dispatchers.IO) { QCarCam.stopAll(); Vehicle.recorder.start(listOf(Cam.FRONT)) } }
-                    }
+                    Tile("Record now", false, Modifier.width(150.dp)) { current = null; scope.launch { withContext(Dispatchers.IO) { QCarCam.stopAll(); Vehicle.recorder.start(Cam.entries.filter { it.exterior }) } } }
+                    Tile("Arm sentry", false, Modifier.width(150.dp), sub = "parked, ute on") { current = null; scope.launch { withContext(Dispatchers.IO) { QCarCam.stopAll(); Vehicle.recorder.start(Cam.entries.filter { it.exterior }, nz.lonewolf.shark.camera.Recorder.Mode.SENTRY) } } }
                 } else {
-                    Tile("Stop recording", true, Modifier.width(180.dp)) { scope.launch { withContext(Dispatchers.IO) { Vehicle.recorder.stop() } } }
+                    Tile(if (rec.mode == nz.lonewolf.shark.camera.Recorder.Mode.SENTRY) "Disarm sentry" else "Stop recording", true, Modifier.width(160.dp)) { scope.launch { withContext(Dispatchers.IO) { Vehicle.recorder.stop() } } }
+                    Tile("Save event", false, Modifier.width(150.dp), sub = "keeps last clips") { Vehicle.recorder.markEvent() }
                 }
+                Tile("Auto record when driving", autoRec, Modifier.width(230.dp)) { autoRec = !autoRec; prefs.autoRecord = autoRec }
+                Tile("Auto sentry when parked", autoSentry, Modifier.width(230.dp), sub = "while the ute stays on") { autoSentry = !autoSentry; prefs.autoSentry = autoSentry }
             }
-            Text("Saves to ${rec.folder ?: Vehicle.recorder.storageRoot().path}. USB stick is used when one is plugged in. 3 minute clips, newest kept within 8 GB.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+            val modeText = if (rec.recording) (if (rec.mode == nz.lonewolf.shark.camera.Recorder.Mode.SENTRY) "Sentry armed" else "Recording") + " on ${rec.cameras.joinToString { it.label }}" else "Idle"
+            Text("$modeText. Saves to ${rec.folder ?: Vehicle.recorder.storageRoot().path}. Events kept: ${rec.eventsKept}.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+            rec.lastAlert?.let { Text(it, color = Shark.accent, fontSize = 16.sp) }
             rec.error?.let { Text(it, color = Shark.bad, fontSize = 12.sp) }
-            val clips = remember(rec.clip, rec.recording) { Vehicle.recorder.clips().take(6) }
+            val clips = remember(rec.clip, rec.recording) { Vehicle.recorder.clips().take(4) }
             clips.forEach { f -> Text("${f.name}  ${f.length() / 1_000_000} MB", color = Shark.text, fontSize = 12.sp) }
         }
         if (report.isNotBlank()) Text(report, color = Shark.muted, fontSize = 11.sp)

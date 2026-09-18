@@ -10,6 +10,7 @@ object Vehicle {
     lateinit var telemetry: TelemetryBridge; private set
     lateinit var seatPosition: SeatPositionBridge; private set
     lateinit var recorder: nz.lonewolf.shark.camera.Recorder; private set
+    lateinit var prefs: nz.lonewolf.shark.data.Prefs; private set
     lateinit var profiles: nz.lonewolf.shark.data.ProfileStore; private set
     @Volatile var ready = false; private set
 
@@ -22,6 +23,7 @@ object Vehicle {
         telemetry = TelemetryBridge(app)
         seatPosition = SeatPositionBridge(app)
         recorder = nz.lonewolf.shark.camera.Recorder(app)
+        prefs = nz.lonewolf.shark.data.Prefs(app)
         profiles = nz.lonewolf.shark.data.ProfileStore(app)
         ready = true
     }

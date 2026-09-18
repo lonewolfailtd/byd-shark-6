@@ -54,6 +54,7 @@ class VehicleService : Service() {
         var tick = 0
         var startApplied = false
         var reverseClearTicks = 0
+        var parkedTicks = 0
         while (true) {
             runCatching {
                 telemetry.value = Vehicle.telemetry.read()
@@ -63,12 +64,20 @@ class VehicleService : Service() {
                 slope.value = Vehicle.lights.slope()
                 seatPosition.value = Vehicle.seatPosition.read()
             }.onFailure { android.util.Log.e("SharkProbe", "poll failed", it) }
-            // Hand the cameras back to BYD while reversing, take them back a few seconds after.
+            // Camera rules: reverse hands the cameras to BYD; auto record on drive; sentry when parked.
             val gear = telemetry.value?.gear
             val rec = Vehicle.recorder
-            if (gear == 2 && rec.status.value.recording) rec.pause("reverse selected")
+            val recording = rec.status.value.recording
+            val driving = gear != null && gear != 1 && gear != 3      // anything but Park or Neutral
+            if (gear == 2 && recording) rec.pause("reverse selected")
             else if (gear != null && gear != 2 && rec.isPaused) { reverseClearTicks++; if (reverseClearTicks >= 3) { reverseClearTicks = 0; rec.resume() } }
             else reverseClearTicks = 0
+            if (driving) parkedTicks = 0 else if (gear == 1) parkedTicks++
+            val prefs = Vehicle.prefs
+            if (prefs.autoRecord && driving && !recording && !rec.isPaused) rec.start(nz.lonewolf.shark.camera.QCarCam.Cam.entries.filter { it.exterior }, nz.lonewolf.shark.camera.Recorder.Mode.DRIVE)
+            if (recording && rec.status.value.mode == nz.lonewolf.shark.camera.Recorder.Mode.DRIVE && gear == 1 && parkedTicks >= prefs.parkStopSeconds) rec.stop()
+            if (prefs.autoSentry && gear == 1 && parkedTicks >= prefs.parkStopSeconds + 5 && !recording && !rec.isPaused) rec.start(nz.lonewolf.shark.camera.QCarCam.Cam.entries.filter { it.exterior }, nz.lonewolf.shark.camera.Recorder.Mode.SENTRY)
+            if (recording && rec.status.value.mode == nz.lonewolf.shark.camera.Recorder.Mode.SENTRY && driving) rec.stop()
             if (!startApplied && tick >= 4 && climate.value?.bound == true) {
                 startApplied = true
                 Vehicle.profiles.startProfile()?.let { p -> runCatching { android.util.Log.w("SharkProbe", "start profile ${p.name}: ${Vehicle.profiles.apply(p)}") } }
