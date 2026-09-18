@@ -82,9 +82,7 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
                     Text("Drive: ${m?.driveName ?: "--"}   Power: ${m?.energyName ?: "--"}   Terrain: ${m?.terrainName ?: "--"}   Crawl: ${m?.crawlName ?: "--"}", color = Shark.text, fontSize = 15.sp)
                     Text("raw: operation ${m?.operationMode} energy ${m?.energyMode} terrain ${m?.roadSurface} sport ${m?.sportState} drive ${m?.driveMode} crawl ${m?.creepState}", color = Shark.muted, fontSize = 12.sp)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-                        Tile("Eco", m?.operationMode == 2, Modifier.width(100.dp), height = 56.dp) { write("Eco") { Vehicle.modes.setDrive(2) } }
-                        Tile("Normal", m?.operationMode == 3, Modifier.width(100.dp), height = 56.dp) { write("Normal") { Vehicle.modes.setDrive(3) } }
-                        Tile("Sport", m?.operationMode == 1, Modifier.width(100.dp), height = 56.dp) { write("Sport") { Vehicle.modes.setDrive(1) } }
+                        Tile("Next drive mode", false, Modifier.width(180.dp), height = 56.dp, sub = "like the wheel button") { write("Drive mode") { Vehicle.modes.nextDrive() } }
                     }
                     if (status.isNotBlank()) Text(status, color = androidx.compose.ui.graphics.Color(0xFFFFD54F), fontSize = 13.sp)
                     Text("EV/HEV and Crawl stay on the physical buttons and BYD's screen until their numbering is confirmed. Press the EV/HEV button and read the energy number above.", color = Shark.muted, fontSize = 11.sp)

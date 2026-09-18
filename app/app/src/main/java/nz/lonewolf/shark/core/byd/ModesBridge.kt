@@ -16,7 +16,7 @@ class ModesBridge(context: Context) {
                      val creepState: Int?, val creepWork: Int?, val wadingState: Int?, val wadingSpeedTip: Int?, val wadingSocTip: Int?) {
         val energyName get() = when (energyMode) { 0 -> "EV"; 1 -> "HEV"; null -> "--"; else -> "energy $energyMode" }
         /** Confirmed on the ute 18 Sep 2026: 1 Sport, 2 Eco, 3 Normal. */
-        val driveName get() = when (operationMode) { 1 -> "Sport"; 2 -> "Eco"; 3 -> "Normal"; null -> "--"; else -> "drive $operationMode" }
+        val driveName get() = when (operationMode) { null -> "--"; else -> "mode $operationMode" }
         val terrainName get() = when (roadSurface) { 0, 1 -> "Normal"; 2 -> "Snow"; 3 -> "Sand"; 4 -> "Mud"; 5 -> "Mountain"; null -> "--"; else -> "terrain $roadSurface" }
         val crawlName get() = when (creepState) { 1 -> "on"; 2, 0 -> "off"; null -> "--"; else -> "state $creepState" }
     }
@@ -28,22 +28,13 @@ class ModesBridge(context: Context) {
         val after = readback()
         return if (r.ok && after == target) r else r.copy(ok = false, detail = if (r.ok) "vehicle stayed at $after" else r.detail)
     }
-    /**
-     * On the Shark 6 setOperationMode steps to the next mode like the wheel button
-     * (Normal 3 to Sport 1 to Eco 2 to Normal) whatever value is sent, so step until the
-     * vehicle reports the one asked for.
-     */
-    fun setDrive(mode: Int): CommandResult {
-        var last = CommandResult(true, "setOperationMode", 0, "already there")
-        repeat(3) {
-            val now = energy.getInt("getOperationMode")
-            if (now == mode) return last
-            last = energy.call("setOperationMode", mode)
-            if (!last.ok) return last
-            Thread.sleep(400)
-        }
-        val after = energy.getInt("getOperationMode")
-        return if (after == mode) last else last.copy(ok = false, detail = "vehicle settled on $after")
+    /** One step round the drive modes, like the wheel button; waits for the vehicle to report the change. */
+    fun nextDrive(): CommandResult {
+        val before = energy.getInt("getOperationMode")
+        val r = energy.call("setOperationMode", before ?: 1)
+        if (!r.ok) return r
+        repeat(12) { Thread.sleep(150); val now = energy.getInt("getOperationMode"); if (now != null && now != before) return r.copy(detail = "now $now") }
+        return r.copy(ok = false, detail = "vehicle still reports $before")
     }
     fun setPower(mode: Int) = verified({ energy.getInt("getEnergyMode") }, mode) { energy.call("setEnergyMode", mode) }
     fun setCrawl(on: Boolean) = verified({ setting.getInt("getCreepModeState") }, if (on) 1 else 2) { setting.call("setCreepModeState", if (on) 1 else 2) }
