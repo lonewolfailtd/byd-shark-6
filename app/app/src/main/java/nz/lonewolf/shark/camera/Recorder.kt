@@ -108,8 +108,7 @@ class Recorder(private val context: Context) {
             try {
                 codec = newCodec()
                 codec.start()
-                val frameUs = 1_000_000L / frameRate
-                var pts = 0L
+                val t0 = System.nanoTime()
                 while (running && !isInterrupted) {
                     // New clip when the current one is old enough
                     if (muxer == null || System.currentTimeMillis() - clipStart > clipSeconds * 1000L) {
@@ -128,7 +127,9 @@ class Recorder(private val context: Context) {
                         val buf = codec.getInputBuffer(inIndex)!!
                         buf.clear()
                         val n = QCarCam.nv12(cam.id, buf, width, height)
-                        if (n > 0) { buf.limit(n); codec.queueInputBuffer(inIndex, 0, n, pts, 0); pts += frameUs; frames++; fpsCount++ }
+                        // Real wall clock timestamps so playback speed matches even when frames arrive slower than target.
+                        val pts = (System.nanoTime() - t0) / 1000
+                        if (n > 0) { buf.limit(n); codec.queueInputBuffer(inIndex, 0, n, pts, 0); frames++; fpsCount++ }
                         else codec.queueInputBuffer(inIndex, 0, 0, pts, 0)
                     }
                     // Drain everything the encoder has
