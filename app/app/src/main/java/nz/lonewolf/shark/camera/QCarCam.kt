@@ -26,7 +26,7 @@ object QCarCam {
     @JvmStatic private external fun nativeStopOne(id: Int): String
     @JvmStatic private external fun nativeStop(): String
     @JvmStatic private external fun nativeStreamSize(id: Int): IntArray
-    @JvmStatic private external fun nativeReadFrame(id: Int, outputWidth: Int, outputHeight: Int): IntArray?
+    @JvmStatic private external fun nativeReadFrame(id: Int, outputWidth: Int, outputHeight: Int, flatten: Boolean, fishFocal: Float, outFovDeg: Float): IntArray?
     @JvmStatic private external fun nativeReadNv12(id: Int, buffer: ByteBuffer, outputWidth: Int, outputHeight: Int): Int
 
     private val open = java.util.Collections.synchronizedSet(mutableSetOf<Int>())
@@ -37,7 +37,9 @@ object QCarCam {
     fun stopOne(id: Int): String = guard { nativeStopOne(id).also { open -= id } }
     fun stopAll(): String = guard { nativeStop().also { open.clear() } }
     fun size(id: Int): Pair<Int, Int> = if (loaded) nativeStreamSize(id).let { it[0] to it[1] } else 0 to 0
-    fun frame(id: Int, w: Int, h: Int): IntArray? = if (loaded) runCatching { nativeReadFrame(id, w, h) }.getOrNull() else null
+    /** fishFocal: source pixels per radian of the lens (about 580 for the 1920 wide exterior cameras). outFov: horizontal degrees shown when flattened. */
+    fun frame(id: Int, w: Int, h: Int, flatten: Boolean = false, fishFocal: Float = 580f, outFov: Float = 110f): IntArray? =
+        if (loaded) runCatching { nativeReadFrame(id, w, h, flatten, fishFocal, outFov) }.getOrNull() else null
     fun nv12(id: Int, buffer: ByteBuffer, w: Int, h: Int): Int = if (loaded) runCatching { nativeReadNv12(id, buffer, w, h) }.getOrDefault(0) else 0
 
     private fun guard(block: () -> String) = if (loaded) runCatching(block).getOrElse { "failed: $it" } else "native library not loaded: $loadError"

@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -61,6 +63,11 @@ fun CamerasScreen() {
     var fps by remember { mutableIntStateOf(0) }
     val bitmap = remember { Bitmap.createBitmap(PW, PH, Bitmap.Config.ARGB_8888) }
     var tick by remember { mutableIntStateOf(0) }
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val prefsView = ctx.getSharedPreferences("camera_view", 0)
+    var flat by remember { mutableStateOf(prefsView.getBoolean("flat", true)) }
+    var focal by remember { mutableStateOf(prefsView.getFloat("focal", 580f)) }
+    var fov by remember { mutableStateOf(prefsView.getFloat("fov", 110f)) }
 
     fun show(cam: Cam) {
         scope.launch {
@@ -72,12 +79,12 @@ fun CamerasScreen() {
         }
     }
 
-    LaunchedEffect(current, rec.recording) {
+    LaunchedEffect(current, rec.recording, flat, focal, fov) {
         val cam = current ?: return@LaunchedEffect
         if (rec.recording) return@LaunchedEffect
         var n = 0; var last = System.currentTimeMillis()
         while (isActive) {
-            val px = withContext(Dispatchers.IO) { QCarCam.frame(cam.id, PW, PH) }
+            val px = withContext(Dispatchers.IO) { QCarCam.frame(cam.id, PW, PH, flat && cam.exterior, focal, fov) }
             if (px != null) {
                 bitmap.setPixels(px, 0, PW, 0, 0, PW, PH); tick++; n++
                 val now = System.currentTimeMillis(); if (now - last >= 1000) { fps = n; n = 0; last = now }
@@ -104,7 +111,23 @@ fun CamerasScreen() {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Cam.entries.forEach { cam -> Tile(cam.label, current == cam, Modifier.width(130.dp)) { show(cam) } }
                     Tile("Stop view", false, Modifier.width(130.dp)) { current = null; scope.launch { withContext(Dispatchers.IO) { if (!rec.recording) QCarCam.stopAll() } } }
+                    Tile("BYD 360 view", false, Modifier.width(130.dp)) {
+                        current = null
+                        scope.launch {
+                            withContext(Dispatchers.IO) { if (!rec.recording) QCarCam.stopAll() }
+                            runCatching { ctx.startActivity(android.content.Intent().setClassName("com.byd.avm", "com.byd.avm.MainActivity").addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                        }
+                    }
                 }
+                Spacer(Modifier.height(8.dp))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Tile(if (flat) "Flat" else "Original", flat, Modifier.width(110.dp), sub = "lens") { flat = !flat; prefsView.edit().putBoolean("flat", flat).apply() }
+                    Tile("Less curve", false, Modifier.width(110.dp)) { focal = (focal + 20f).coerceAtMost(900f); prefsView.edit().putFloat("focal", focal).apply() }
+                    Tile("More curve", false, Modifier.width(110.dp)) { focal = (focal - 20f).coerceAtLeast(300f); prefsView.edit().putFloat("focal", focal).apply() }
+                    Tile("Wider", false, Modifier.width(100.dp)) { fov = (fov + 10f).coerceAtMost(150f); prefsView.edit().putFloat("fov", fov).apply() }
+                    Tile("Narrower", false, Modifier.width(100.dp)) { fov = (fov - 10f).coerceAtLeast(60f); prefsView.edit().putFloat("fov", fov).apply() }
+                }
+                Text("Lens ${focal.toInt()}  view ${fov.toInt()} degrees. Tune until fence lines and the horizon are straight.", color = Shark.muted, fontSize = 12.sp)
                 Text("Park first. Stop the view before opening BYD's own 360 view.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
             }
         }

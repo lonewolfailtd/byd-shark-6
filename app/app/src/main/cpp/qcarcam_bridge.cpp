@@ -7,6 +7,7 @@
 #include <android/log.h>
 #include <android/dlext.h>
 #include <cerrno>
+#include <cmath>
 #include <cstring>
 #include <dlfcn.h>
 #include <fcntl.h>
@@ -241,8 +242,39 @@ extern "C" JNIEXPORT jintArray JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nat
     return out;
 }
 
-/** Preview: nearest neighbour UYVY to ARGB into a Java int array. */
-extern "C" JNIEXPORT jintArray JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nativeReadFrame(JNIEnv* env, jclass, jint id, jint ow, jint oh) {
+/**
+ * Preview: UYVY to ARGB. When flatten is set, output pixels are mapped through an equidistant
+ * fisheye model so straight lines come out straight. fishFocal is fisheye focal length in
+ * pixels per radian at source resolution, outFovDeg the horizontal field of view to show.
+ * Remap tables are cached per (stream size, output size, parameters).
+ */
+struct Remap { uint32_t w = 0, h = 0, sw = 0, sh = 0; float focal = 0, fov = 0; std::vector<uint32_t> sx, sy; };
+thread_local Remap remap;
+
+static void buildRemap(Remap& m, uint32_t sw, uint32_t sh, uint32_t ow, uint32_t oh, float fishFocal, float outFovDeg) {
+    m.w = ow; m.h = oh; m.sw = sw; m.sh = sh; m.focal = fishFocal; m.fov = outFovDeg;
+    m.sx.assign((size_t) ow * oh, 0); m.sy.assign((size_t) ow * oh, 0);
+    const float cx = sw / 2.0f, cy = sh / 2.0f;
+    const float fOut = (ow / 2.0f) / tanf(outFovDeg * 0.5f * 3.14159265f / 180.0f);
+    for (uint32_t y = 0; y < oh; ++y) for (uint32_t x = 0; x < ow; ++x) {
+        float dx = (x + 0.5f - ow / 2.0f) / fOut, dy = (y + 0.5f - oh / 2.0f) / fOut;
+        float r = sqrtf(dx * dx + dy * dy);
+        float theta = atanf(r);                 // angle from the optical axis
+        float rf = fishFocal * theta;           // equidistant fisheye radius in source pixels
+        float sxf = cx + (r > 1e-6f ? rf * dx / r : 0), syf = cy + (r > 1e-6f ? rf * dy / r : 0);
+        uint32_t sx = sxf < 0 ? 0 : sxf >= sw - 1 ? sw - 2 : (uint32_t) sxf;
+        uint32_t sy = syf < 0 ? 0 : syf >= sh - 1 ? sh - 1 : (uint32_t) syf;
+        m.sx[(size_t) y * ow + x] = sx & ~1u; m.sy[(size_t) y * ow + x] = sy;
+    }
+}
+
+static inline jint uyvyToArgb(const uint8_t* p) {
+    int u = p[0] - 128, yy = p[1] - 16, v = p[2] - 128; if (yy < 0) yy = 0;
+    int r = (298 * yy + 409 * v + 128) >> 8, g = (298 * yy - 100 * u - 208 * v + 128) >> 8, b = (298 * yy + 516 * u + 128) >> 8;
+    return (jint) (0xff000000u | (clamp8(r) << 16) | (clamp8(g) << 8) | clamp8(b));
+}
+
+extern "C" JNIEXPORT jintArray JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nativeReadFrame(JNIEnv* env, jclass, jint id, jint ow, jint oh, jboolean flatten, jfloat fishFocal, jfloat outFovDeg) {
     Stream* s = findStream(id);
     if (!s || ow <= 0 || oh <= 0) return nullptr;
     std::lock_guard<std::mutex> l(s->mutex);
@@ -252,21 +284,29 @@ extern "C" JNIEXPORT jintArray JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nat
     auto src = static_cast<const uint8_t*>(s->maps[f.bufferIndex]);
     thread_local std::vector<uint8_t> scratch;
     const size_t rowBytes = s->stride;
-    if (scratch.size() < rowBytes * (size_t) oh) scratch.resize(rowBytes * (size_t) oh);
-    for (int y = 0; y < oh; ++y) memcpy(scratch.data() + (size_t) y * rowBytes, src + (size_t) ((uint32_t) y * s->height / oh) * rowBytes, rowBytes);
+    const bool full = flatten;
+    const uint32_t rowsToCopy = full ? s->height : (uint32_t) oh;
+    if (scratch.size() < rowBytes * rowsToCopy) scratch.resize(rowBytes * rowsToCopy);
+    if (full) memcpy(scratch.data(), src, rowBytes * s->height);
+    else for (int y = 0; y < oh; ++y) memcpy(scratch.data() + (size_t) y * rowBytes, src + (size_t) ((uint32_t) y * s->height / oh) * rowBytes, rowBytes);
     lib.releaseFrame(s->camera, f.bufferIndex);
     jintArray px = env->NewIntArray(ow * oh);
     auto dst = static_cast<jint*>(env->GetPrimitiveArrayCritical(px, nullptr));
     if (dst) {
-        std::vector<uint32_t> xmap(ow); for (int x = 0; x < ow; ++x) xmap[x] = ((uint32_t) x * s->width / ow) & ~1u;
-        for (int y = 0; y < oh; ++y) {
-            const uint8_t* row = scratch.data() + (size_t) y * rowBytes;
-            jint* drow = dst + (size_t) y * ow;
-            for (int x = 0; x < ow; ++x) {
-                const uint8_t* p = row + xmap[x] * 2;
-                int u = p[0] - 128, yy = p[1] - 16, v = p[2] - 128; if (yy < 0) yy = 0;
-                int r = (298 * yy + 409 * v + 128) >> 8, g = (298 * yy - 100 * u - 208 * v + 128) >> 8, b = (298 * yy + 516 * u + 128) >> 8;
-                drow[x] = (jint) (0xff000000u | (clamp8(r) << 16) | (clamp8(g) << 8) | clamp8(b));
+        if (full) {
+            if (remap.w != (uint32_t) ow || remap.h != (uint32_t) oh || remap.sw != s->width || remap.sh != s->height || remap.focal != fishFocal || remap.fov != outFovDeg)
+                buildRemap(remap, s->width, s->height, ow, oh, fishFocal, outFovDeg);
+            for (int y = 0; y < oh; ++y) {
+                jint* drow = dst + (size_t) y * ow;
+                const uint32_t* mx = remap.sx.data() + (size_t) y * ow; const uint32_t* my = remap.sy.data() + (size_t) y * ow;
+                for (int x = 0; x < ow; ++x) drow[x] = uyvyToArgb(scratch.data() + (size_t) my[x] * rowBytes + mx[x] * 2);
+            }
+        } else {
+            std::vector<uint32_t> xmap(ow); for (int x = 0; x < ow; ++x) xmap[x] = ((uint32_t) x * s->width / ow) & ~1u;
+            for (int y = 0; y < oh; ++y) {
+                const uint8_t* row = scratch.data() + (size_t) y * rowBytes;
+                jint* drow = dst + (size_t) y * ow;
+                for (int x = 0; x < ow; ++x) drow[x] = uyvyToArgb(row + xmap[x] * 2);
             }
         }
         env->ReleasePrimitiveArrayCritical(px, dst, 0);
