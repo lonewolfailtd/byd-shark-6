@@ -226,8 +226,8 @@ extern "C" JNIEXPORT jstring JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nativ
     std::vector<Stream*> all;
     { std::lock_guard<std::mutex> l(streamsMutex); for (auto& kv : streams) all.push_back(kv.second); }
     for (auto s : all) { stopStream(s, r); r << " [" << s->id << "]\n"; }
-    std::lock_guard<std::mutex> l(libMutex);
-    if (lib.initialized && lib.uninitialize) { r << "uninitialize=" << lib.uninitialize() << '\n'; lib.initialized = false; }
+    // No qcarcam_uninitialize here: it tears down the AIS link that BYD's own camera
+    // pipeline shares with us and their 360 view goes blank until the head unit restarts.
     r << "STREAM_STOPPED";
     LOGW("all streams stopped");
     return js(env, r.str());
