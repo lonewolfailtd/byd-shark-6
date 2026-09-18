@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private val tabs = listOf("Climate", "Gauges", "Off Road", "Towing", "Cameras", "Settings")
+private val tabs = listOf("Climate", "Gauges", "Trips", "Off Road", "Towing", "Cameras", "Settings")
 
 @Composable
 private fun Shell(inclinometer: Inclinometer) {
@@ -68,7 +68,7 @@ private fun Shell(inclinometer: Inclinometer) {
     val t by VehicleService.telemetry.collectAsStateWithLifecycle()
     Column(Modifier.fillMaxSize().background(Shark.bg)) {
         Row(Modifier.fillMaxWidth().height(64.dp).background(Color(0xFF0F182A)), verticalAlignment = Alignment.CenterVertically) {
-            Text("LONEWOLF SHARK", color = Shark.text, fontSize = 18.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp, modifier = Modifier.padding(horizontal = 20.dp))
+            Text("SHARK", color = Shark.text, fontSize = 18.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp, modifier = Modifier.padding(horizontal = 20.dp))
             tabs.forEachIndexed { i, name ->
                 val sel = i == tab
                 Box(Modifier.weight(1f).fillMaxSize().clickable { tab = i }, contentAlignment = Alignment.Center) {
@@ -85,9 +85,10 @@ private fun Shell(inclinometer: Inclinometer) {
             when (tab) {
                 0 -> ClimateScreen()
                 1 -> GaugesScreen()
-                2 -> OffRoadScreen(inclinometer)
-                3 -> TowingScreen()
-                4 -> CamerasScreen()
+                2 -> TripsScreen()
+                3 -> OffRoadScreen(inclinometer)
+                4 -> TowingScreen()
+                5 -> CamerasScreen()
                 else -> SettingsScreen(inclinometer)
             }
         }
