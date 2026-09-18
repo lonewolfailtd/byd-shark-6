@@ -91,8 +91,8 @@ fun CamerasScreen() {
             Panel("Controls", Modifier.weight(1f)) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Tile("Probe library", false, Modifier.width(150.dp)) { io { QCarCam.probe() } }
-                    Tile("Scan ids 0 to 24", false, Modifier.width(150.dp)) { if (!streaming) io { QCarCam.scanIds() } }
-                    (0..4).forEach { id ->
+                    // Only the inputs the probe reported. Probing ids that do not exist restarted the head unit.
+                    listOf(0, 1, 2, 3, 4, 5, 8, 9).forEach { id ->
                         Tile("Open $id", streaming && cameraId == id, Modifier.width(100.dp)) {
                             if (streaming) return@Tile
                             cameraId = id
@@ -107,9 +107,9 @@ fun CamerasScreen() {
                         io { QCarCam.stop() }
                     }
                 }
-                Text("Park first. Stop the stream before opening BYD's own 360 view.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+                Text("Park first. Stop the stream before opening BYD's own 360 view. 0 cabin, 4 5 8 9 exterior.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+                Text(report, color = Shark.text, fontSize = 11.sp, modifier = Modifier.padding(top = 8.dp))
             }
         }
-        Panel("Report") { Text(report, color = Shark.text, fontSize = 12.sp) }
     }
 }

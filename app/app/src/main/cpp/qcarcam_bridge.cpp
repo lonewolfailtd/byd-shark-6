@@ -18,7 +18,7 @@
 #include <vector>
 
 #define LOG_TAG "SharkCam"
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOGI(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 // bionic's libdl uses this weak trampoline on Android 11. Declaring it weak lets the
