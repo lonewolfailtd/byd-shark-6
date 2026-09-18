@@ -104,10 +104,12 @@ class QuickPanel(private val context: Context) {
         val lp = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
             PixelFormat.TRANSLUCENT,
         ).apply { gravity = Gravity.TOP or Gravity.START }
         p.tag = lp
+        // Tap anywhere outside the panel to fold it away.
+        p.setOnTouchListener { _, e -> if (e.actionMasked == MotionEvent.ACTION_OUTSIDE) { collapse(); true } else false }
         runCatching { wm.addView(p, lp) }.onSuccess { panel = p; expanded = true; positionPanel(); updateLabels() }
     }
 
@@ -171,6 +173,7 @@ class QuickPanel(private val context: Context) {
                 collapse()
                 context.startActivity(Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             },
+            button("✕") { collapse() },
         )
         return root
     }
