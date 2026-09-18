@@ -84,6 +84,10 @@ Reuse: seat and climate call sequences from research/open-dikey/BydAcController.
 - Sentry "on only" second: armed while the ute is powered (camp mode, waiting in car parks): GPU frame diff on the mosaic, TFLite person/vehicle gate, pre event buffer, alert on screen.
 - Sentry when locked is a research track, not a promise: try OverDrive's shell UID power hold daemon on our firmware, measure daily HV drain, enforce a SOC floor and safe zones. If it cannot be kept alive, the product ships without it and says so.
 
+## Decision 18 Sep 2026: no sentry while locked
+
+Tane's call: do not touch the head unit power state. No BYDAutoPowerDevice hold calls, no wake locks past what the ute gives us, no daemons that fight the body controller. Sentry is a "while the ute is on" feature only: manual Arm sentry, or Auto sentry when parked with the ute still powered (camping, waiting in car parks). Anything that keeps the unit awake after locking is out of scope for good.
+
 ## Phase 4: polish and sellability
 
 - Signed release builds, in app update check from GitHub releases, licence key tied to VIN (bodywork.getAutoVIN), customer installer (PowerShell and a Mac script), Stripe checkout, one page site. Log it in Mission Control.
