@@ -29,11 +29,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import nz.lonewolf.shark.core.byd.Vehicle
 import nz.lonewolf.shark.core.imu.Inclinometer
 import nz.lonewolf.shark.service.VehicleService
 import kotlin.math.abs
 import kotlin.math.max
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun OffRoadScreen(inclinometer: Inclinometer) {
     val r by inclinometer.reading.collectAsStateWithLifecycle()
@@ -63,20 +70,32 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
             TiltDial("Roll", r.roll, side = false)
         }
         Panel("Modes") {
-            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                Column(Modifier.weight(1f)) {
-                    StatRow("Drive", m?.driveName ?: "--", m?.operationMode != null)
-                    StatRow("Power", m?.energyName ?: "--", m?.energyMode != null)
-                    StatRow("Terrain", m?.terrainName ?: "--", m?.roadSurface != null)
-                    StatRow("Crawl", m?.crawlName ?: "--", m?.creepState != null)
-                }
-                Column(Modifier.weight(1f)) {
-                    Tile("BYD drive modes", false, Modifier.width(220.dp), sub = "terrain, crawl, wading") {
-                        val pm = ctx.packageManager
-                        val i = pm.getLaunchIntentForPackage("com.byd.dlc.drivingmode") ?: pm.getLaunchIntentForPackage("com.byd.mycar")
-                        runCatching { ctx.startActivity(i?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+            val scope = androidx.compose.runtime.rememberCoroutineScope()
+            var status by remember { androidx.compose.runtime.mutableStateOf("") }
+            fun write(label: String, block: () -> nz.lonewolf.shark.core.byd.CommandResult) {
+                scope.launch { status = withContext(Dispatchers.IO) { val res = block(); runCatching { VehicleService.modes.value = Vehicle.modes.read() }; if (res.ok) "$label done" else "$label: ${res.detail}" } }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Column(Modifier.weight(1.4f)) {
+                    Text("Drive: ${m?.driveName ?: "--"}   Power: ${m?.energyName ?: "--"}   Terrain: ${m?.terrainName ?: "--"}   Crawl: ${m?.crawlName ?: "--"}", color = Shark.text, fontSize = 15.sp)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+                        Tile("Eco", m?.operationMode == 1, Modifier.width(100.dp), height = 56.dp) { write("Eco") { Vehicle.modes.setDrive(1) } }
+                        Tile("Normal", m?.operationMode == 2, Modifier.width(100.dp), height = 56.dp) { write("Normal") { Vehicle.modes.setDrive(2) } }
+                        Tile("Sport", m?.operationMode == 3, Modifier.width(100.dp), height = 56.dp) { write("Sport") { Vehicle.modes.setDrive(3) } }
+                        Tile("EV", m?.energyMode == 0, Modifier.width(90.dp), height = 56.dp) { write("EV") { Vehicle.modes.setPower(0) } }
+                        Tile("HEV", m?.energyMode == 1, Modifier.width(90.dp), height = 56.dp) { write("HEV") { Vehicle.modes.setPower(1) } }
+                        Tile("Crawl", m?.creepState == 1, Modifier.width(100.dp), height = 56.dp) { write("Crawl") { Vehicle.modes.setCrawl(m?.creepState != 1) } }
                     }
-                    Text("Wading: BYD shows advice rather than a switch on this firmware (state ${m?.wadingState ?: "--"}). Mode switching stays on BYD's own screen and the wheel buttons.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+                    if (status.isNotBlank()) Text(status, color = androidx.compose.ui.graphics.Color(0xFFFFD54F), fontSize = 13.sp)
+                    Text("Each tap is checked against what the vehicle reports back. If a label and BYD's screen disagree, tell Tane which and the numbering gets fixed.", color = Shark.muted, fontSize = 11.sp)
+                }
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Tile("Rage mode", false, Modifier.width(200.dp), height = 56.dp, sub = "BYD screen") {
+                        runCatching { ctx.startActivity(ctx.packageManager.getLaunchIntentForPackage("com.byd.dlc.drivingmode")?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                    }
+                    Tile("Terrain and wading", false, Modifier.width(200.dp), height = 56.dp, sub = "BYD vehicle screen") {
+                        runCatching { ctx.startActivity(ctx.packageManager.getLaunchIntentForPackage("com.byd.mycar")?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                    }
                 }
             }
         }

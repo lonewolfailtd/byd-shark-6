@@ -20,6 +20,17 @@ class ModesBridge(context: Context) {
         val crawlName get() = when (creepState) { 1 -> "on"; 2, 0 -> "off"; null -> "--"; else -> "state $creepState" }
     }
 
+    /** Verified writes: send, wait, read back; report the value the vehicle settled on. */
+    private fun verified(readback: () -> Int?, target: Int, write: () -> CommandResult): CommandResult {
+        val r = write()
+        Thread.sleep(250)
+        val after = readback()
+        return if (r.ok && after == target) r else r.copy(ok = false, detail = if (r.ok) "vehicle stayed at $after" else r.detail)
+    }
+    fun setDrive(mode: Int) = verified({ energy.getInt("getOperationMode") }, mode) { energy.call("setOperationMode", mode) }
+    fun setPower(mode: Int) = verified({ energy.getInt("getEnergyMode") }, mode) { energy.call("setEnergyMode", mode) }
+    fun setCrawl(on: Boolean) = verified({ setting.getInt("getCreepModeState") }, if (on) 1 else 2) { setting.call("setCreepModeState", if (on) 1 else 2) }
+
     fun read() = State(
         energyMode = energy.getInt("getEnergyMode"), operationMode = energy.getInt("getOperationMode"), roadSurface = energy.getInt("getRoadSurfaceMode"),
         sportState = instrument.getInt("getSportModeState"), driveMode = setting.getInt("getDriveMode"),
