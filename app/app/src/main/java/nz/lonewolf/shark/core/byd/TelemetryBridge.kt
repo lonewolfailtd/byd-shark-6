@@ -67,7 +67,8 @@ class TelemetryBridge(context: Context) {
             powerLevel = bodywork.getInt("getPowerLevel"),
             steeringAngle = bodywork.getDouble("getSteeringWheelValue", 0),
             vin = bodywork.getString("getAutoVIN"),
-            tyres = Tyres(tyreP(0), tyreP(1), tyreP(2), tyreP(3), pressureUnit),
+            // Wheels are numbered from 1 on this ute: 1 front left, 2 front right, 3 rear left, 4 rear right.
+            tyres = Tyres(tyreP(1), tyreP(2), tyreP(3), tyreP(4), pressureUnit),
         )
     }
 }
