@@ -16,7 +16,8 @@ class ModesBridge(context: Context) {
                      val creepState: Int?, val creepWork: Int?, val wadingState: Int?, val wadingSpeedTip: Int?, val wadingSocTip: Int?) {
         val energyName get() = when (energyMode) { 0 -> "EV"; 1 -> "HEV"; null -> "--"; else -> "energy $energyMode" }
         /** Confirmed on the ute 18 Sep 2026: 1 Sport, 2 Eco, 3 Normal. */
-        val driveName get() = when (operationMode) { null -> "--"; else -> "mode $operationMode" }
+        /** Confirmed from the cluster 18 Sep 2026: 1 Eco, 2 Normal, 3 Sport. */
+        val driveName get() = when (operationMode) { 1 -> "Eco"; 2 -> "Normal"; 3 -> "Sport"; null -> "--"; else -> "mode $operationMode" }
         val terrainName get() = when (roadSurface) { 0, 1 -> "Normal"; 2 -> "Snow"; 3 -> "Sand"; 4 -> "Mud"; 5 -> "Mountain"; null -> "--"; else -> "terrain $roadSurface" }
         val crawlName get() = when (creepState) { 1 -> "on"; 2, 0 -> "off"; null -> "--"; else -> "state $creepState" }
     }
@@ -36,6 +37,19 @@ class ModesBridge(context: Context) {
         repeat(12) { Thread.sleep(150); val now = energy.getInt("getOperationMode"); if (now != null && now != before) return r.copy(detail = "now $now") }
         return r.copy(ok = false, detail = "vehicle still reports $before")
     }
+    /** Step round (Eco 1, Normal 2, Sport 3) until the vehicle reports the mode asked for. */
+    fun setDrive(target: Int): CommandResult {
+        var last = CommandResult(true, "setOperationMode", 0, "already there")
+        repeat(3) {
+            val now = energy.getInt("getOperationMode")
+            if (now == target) return last
+            last = nextDrive()
+            if (!last.ok) return last
+        }
+        val after = energy.getInt("getOperationMode")
+        return if (after == target) last else last.copy(ok = false, detail = "vehicle settled on $after")
+    }
+
     fun setPower(mode: Int) = verified({ energy.getInt("getEnergyMode") }, mode) { energy.call("setEnergyMode", mode) }
     fun setCrawl(on: Boolean) = verified({ setting.getInt("getCreepModeState") }, if (on) 1 else 2) { setting.call("setCreepModeState", if (on) 1 else 2) }
 

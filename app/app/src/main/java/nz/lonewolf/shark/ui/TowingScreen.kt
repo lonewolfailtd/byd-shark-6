@@ -63,6 +63,7 @@ fun TowingScreen() {
                     Tile("Large", tr?.dragType == 3, Modifier.weight(1f), height = 52.dp) { write("Large trailer") { Vehicle.energy.setTrailerSize(3) } }
                 }
                 if (status.isNotBlank()) Text(status, color = androidx.compose.ui.graphics.Color(0xFFFFD54F), fontSize = 13.sp)
+                Text("Trailer size can only be set once the 7 pin plug is in and tow mode is on; the ute answers 15 (none) otherwise.", color = Shark.muted, fontSize = 11.sp)
                 StatRow("Tow mode", when (tr?.active) { true -> "ON"; false -> "off"; null -> "--" }, tr?.active)
                 StatRow("Trailer size set", tr?.sizeName ?: "--")
                 StatRow("Trailer lights check", when (tr?.lightCheck) { null -> "--"; 0 -> "not run"; 1 -> "passed"; else -> "state ${tr?.lightCheck}" })
