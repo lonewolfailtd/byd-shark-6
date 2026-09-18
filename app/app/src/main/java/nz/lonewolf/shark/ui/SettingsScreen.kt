@@ -95,17 +95,11 @@ fun SettingsScreen(inclinometer: Inclinometer) {
             }
         }
         Panel("Screen") {
-            val e by VehicleService.energy.collectAsStateWithLifecycle()
-            Text("Brightness now: ${e?.brightness ?: "--"}", color = Shark.muted, fontSize = 13.sp)
-            val startBrightness = remember { mutableStateOf<Int?>(null) }
-            if (startBrightness.value == null && e?.brightness != null) startBrightness.value = e?.brightness
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-                Tile("Night (dim)", false, Modifier.width(140.dp)) { write("Brightness") { Vehicle.energy.setBrightness(2) } }
-                Tile("Dimmer", false, Modifier.width(120.dp)) { write("Brightness") { Vehicle.energy.setBrightness(((e?.brightness ?: 17) - 5).coerceAtLeast(1)) } }
-                Tile("Brighter", false, Modifier.width(120.dp)) { write("Brightness") { Vehicle.energy.setBrightness((e?.brightness ?: 17) + 5) } }
-                Tile("Restore", false, Modifier.width(120.dp), sub = "as at start") { write("Brightness") { Vehicle.energy.setBrightness(startBrightness.value ?: 17) } }
+            var night by remember { mutableStateOf(VehicleService.nightShade) }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Tile(if (night) "Night shade on" else "Night shade", night, Modifier.width(180.dp), sub = "dims every screen") { night = !night; VehicleService.setNightShade(night) }
             }
-            Text("Uses BYD's own display brightness setting.", color = Shark.muted, fontSize = 12.sp)
+            Text("BYD's own brightness is on a light sensor and overrides manual changes within seconds, so night mode is a dark shade over the whole screen instead. The shark bubble also has a Night button.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
         }
         Panel("System") {
             StatRow("Vehicle SDK", "${BydSdkLoader.mode} ${BydSdkLoader.lastError ?: ""}", BydSdkLoader.mode != BydSdkLoader.Mode.UNAVAILABLE)

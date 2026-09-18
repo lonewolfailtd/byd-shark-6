@@ -46,8 +46,8 @@ import nz.lonewolf.shark.camera.QCarCam
 import nz.lonewolf.shark.camera.QCarCam.Cam
 import nz.lonewolf.shark.core.byd.Vehicle
 
-private const val PW = 640
-private const val PH = 434
+private const val PW = 1280
+private const val PH = 868
 
 /**
  * Live view of the ute's cameras and the drive recorder.

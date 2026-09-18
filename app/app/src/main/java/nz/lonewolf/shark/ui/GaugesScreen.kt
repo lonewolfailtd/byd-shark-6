@@ -57,7 +57,7 @@ fun GaugesScreen() {
                     Column { Tyre("Front left", t?.tyres?.fl); Tyre("Rear left", t?.tyres?.rl) }
                     Column { Tyre("Front right", t?.tyres?.fr); Tyre("Rear right", t?.tyres?.rr) }
                 }
-                Text("Handbook: 250 kPa unladen, 290 kPa rear when loaded", color = Shark.muted, fontSize = 12.sp)
+                Text("Handbook: 36 psi unladen, 42 psi rear when loaded", color = Shark.muted, fontSize = 12.sp)
             }
             Panel("Trip and vehicle", Modifier.weight(1f)) {
                 StatRow("Odometer", fmt(t?.odometerKm, " km"), t?.odometerKm != null)
@@ -79,8 +79,8 @@ fun GaugesScreen() {
 private fun Tyre(label: String, v: Double?) {
     Column(Modifier.padding(8.dp)) {
         Text(label, color = Shark.muted, fontSize = 12.sp)
-        val colour = when { v == null || v == 0.0 -> Shark.muted; v < 220 -> Shark.bad; else -> Shark.text }
-        Text(if (v == null || v == 0.0) "--" else "%.0f".format(v), color = colour, fontSize = 34.sp)
+        val colour = when { v == null || v == 0.0 -> Shark.muted; v < 30 -> Shark.bad; else -> Shark.text }
+        Text(if (v == null || v == 0.0) "--" else "%.1f".format(v), color = colour, fontSize = 34.sp)
     }
 }
 

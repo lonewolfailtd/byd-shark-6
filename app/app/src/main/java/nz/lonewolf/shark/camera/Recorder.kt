@@ -126,7 +126,7 @@ class Recorder(private val context: Context) {
             val info = MediaCodec.BufferInfo()
             val clipMs = (if (mode == Mode.SENTRY) sentryClipSeconds else driveClipSeconds) * 1000L
             try {
-                codec = newCodec(if (mode == Mode.SENTRY) 3_000_000 else 6_000_000)
+                codec = newCodec(if (mode == Mode.SENTRY) 4_000_000 else 10_000_000)
                 codec.start()
                 val t0 = System.nanoTime()
                 while (running && !isInterrupted) {

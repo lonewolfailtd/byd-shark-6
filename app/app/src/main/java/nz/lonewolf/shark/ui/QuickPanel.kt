@@ -40,6 +40,25 @@ class QuickPanel(private val context: Context) {
 
     val showing: Boolean get() = bubble != null
 
+    private var shade: View? = null
+    val shaded: Boolean get() = shade != null
+
+    /** Dark translucent layer over the whole screen. Touches pass through, so BYD's screens still work under it. */
+    fun setShade(on: Boolean, alpha: Float = 0.7f) {
+        if (!on) { shade?.let { runCatching { wm.removeView(it) } }; shade = null; return }
+        if (shade != null) return
+        val v = View(context).apply { setBackgroundColor(Color.BLACK); this.alpha = alpha }
+        val lp = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSLUCENT,
+        )
+        runCatching { wm.addView(v, lp) }.onSuccess { shade = v }
+        // Keep the bubble above the shade so it stays usable.
+        bubble?.let { b -> params?.let { runCatching { wm.removeView(b); wm.addView(b, it) } } }
+    }
+
     fun show() {
         if (bubble != null) return
         if (!Settings.canDrawOverlays(context)) return
@@ -59,6 +78,7 @@ class QuickPanel(private val context: Context) {
 
     fun hide() {
         ui.removeCallbacks(refresh)
+        setShade(false)
         panel?.let { runCatching { wm.removeView(it) } }; panel = null
         bubble?.let { runCatching { wm.removeView(it) } }; bubble = null
         expanded = false
@@ -181,6 +201,7 @@ class QuickPanel(private val context: Context) {
                 collapse()
                 context.startActivity(Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             },
+            button("Night", wide = true) { setShade(!shaded); collapse() },
             button("✕") { collapse() },
         )
         return root

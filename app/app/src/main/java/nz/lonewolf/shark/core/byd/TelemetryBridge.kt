@@ -38,10 +38,9 @@ class TelemetryBridge(context: Context) {
     )
 
     fun read(): Snapshot {
-        val pressureUnit = when (instrument.getInt("getInstrumentUnit", 4208) ?: instrument.getInt("getPressureUnit")) {
-            1 -> "bar"; 2 -> "psi"; 3 -> "kPa"; else -> "raw"
-        }
-        fun tyreP(area: Int) = tyre.getDouble("getTyrePressureValueByType", area) ?: tyre.getInt("getTyrePressureValue", area)?.toDouble()
+        // On the Shark 6 the raw tyre value is psi x 10 (377 = 37.7 psi, spec is 36 psi cold).
+        val pressureUnit = "psi"
+        fun tyreP(area: Int) = (tyre.getDouble("getTyrePressureValueByType", area) ?: tyre.getInt("getTyrePressureValue", area)?.toDouble())?.let { if (it > 100) it / 10.0 else it }
         return Snapshot(
             soc = statistic.getInt("getElecPercentageValue"),
             usableKwh = statistic.getDouble("getEVRemainingBatteryPower"),

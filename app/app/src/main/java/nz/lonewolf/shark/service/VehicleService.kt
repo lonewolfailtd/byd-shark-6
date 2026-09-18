@@ -156,6 +156,9 @@ class VehicleService : Service() {
             instance?.let { svc -> android.os.Handler(svc.mainLooper).post { if (on) svc.quickPanel.show() else svc.quickPanel.hide() } }
         }
 
+        fun setNightShade(on: Boolean) { instance?.let { svc -> android.os.Handler(svc.mainLooper).post { svc.quickPanel.setShade(on) } } }
+        val nightShade: Boolean get() = instance?.quickPanel?.shaded == true
+
         fun stop(context: Context) {
             context.stopService(Intent(context, VehicleService::class.java))
         }

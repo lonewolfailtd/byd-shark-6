@@ -35,11 +35,11 @@ fun TowingScreen() {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Panel("Tyres ($unit)", Modifier.weight(1f)) {
-                StatRow("Front left", fmt(t?.tyres?.fl, "", 0))
-                StatRow("Front right", fmt(t?.tyres?.fr, "", 0))
-                StatRow("Rear left", fmt(t?.tyres?.rl, "", 0))
-                StatRow("Rear right", fmt(t?.tyres?.rr, "", 0))
-                Text("Loaded target: 250 front, 290 rear (kPa)", color = Shark.muted, fontSize = 12.sp)
+                StatRow("Front left", fmt(t?.tyres?.fl, " psi", 1))
+                StatRow("Front right", fmt(t?.tyres?.fr, " psi", 1))
+                StatRow("Rear left", fmt(t?.tyres?.rl, " psi", 1))
+                StatRow("Rear right", fmt(t?.tyres?.rr, " psi", 1))
+                Text("Loaded target: 36 psi front, 42 psi rear", color = Shark.muted, fontSize = 12.sp)
             }
             Panel("Tow mode (live)", Modifier.weight(1f)) {
                 StatRow("Tow mode", when (tr?.active) { true -> "ON"; false -> "off"; null -> "--" }, tr?.active)
@@ -59,7 +59,7 @@ fun TowingScreen() {
                 StatRow("Tow mode", "auto after 15 s on the 7 pin plug; locks Normal mode and disables 10 driver aids")
             }
             Panel("Before you go", Modifier.weight(1f)) {
-                listOf("Chains crossed, breakaway cable on", "Trailer lights and brakes checked", "Mirrors set for the trailer", "Rear tyres to 290 kPa", "Load 60/40 forward, ball weight 10%", "Fuel above half before the hills").forEach {
+                listOf("Chains crossed, breakaway cable on", "Trailer lights and brakes checked", "Mirrors set for the trailer", "Rear tyres to 42 psi", "Load 60/40 forward, ball weight 10%", "Fuel above half before the hills").forEach {
                     Text("• $it", color = Shark.text, fontSize = 14.sp, modifier = Modifier.padding(vertical = 3.dp))
                 }
             }
