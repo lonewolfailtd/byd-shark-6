@@ -29,87 +29,105 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nz.lonewolf.shark.camera.QCarCam
+import nz.lonewolf.shark.camera.QCarCam.Cam
+import nz.lonewolf.shark.core.byd.Vehicle
 
-private const val PREVIEW_W = 960
-private const val PREVIEW_H = 650
+private const val PW = 640
+private const val PH = 434
 
 /**
- * Phase 3 groundwork: prove the cameras. Probe the AIS library, scan input ids,
- * open one stream and show it live. Recording comes once this works on the ute.
+ * Live view of the ute's cameras and the drive recorder.
+ * Tap a camera to switch. Preview is paused while recording so the encoders get the CPU.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CamerasScreen() {
     val scope = rememberCoroutineScope()
-    var report by remember { mutableStateOf(if (QCarCam.loaded) "Native bridge loaded. Tap Probe." else "Native bridge failed: ${QCarCam.loadError}") }
-    var streaming by remember { mutableStateOf(false) }
-    var cameraId by remember { mutableIntStateOf(0) }
+    val rec by Vehicle.recorder.status.collectAsStateWithLifecycle()
+    var current by remember { mutableStateOf<Cam?>(null) }
+    var report by remember { mutableStateOf("") }
     var fps by remember { mutableIntStateOf(0) }
-    val bitmap = remember { Bitmap.createBitmap(PREVIEW_W, PREVIEW_H, Bitmap.Config.ARGB_8888) }
-    var frameTick by remember { mutableIntStateOf(0) }
+    val bitmap = remember { Bitmap.createBitmap(PW, PH, Bitmap.Config.ARGB_8888) }
+    var tick by remember { mutableIntStateOf(0) }
 
-    fun io(block: () -> String) { scope.launch { report = withContext(Dispatchers.IO) { block() } } }
-
-    LaunchedEffect(streaming) {
-        if (!streaming) return@LaunchedEffect
-        var frames = 0; var last = System.currentTimeMillis()
-        while (isActive && streaming) {
-            val px = withContext(Dispatchers.IO) { QCarCam.frame(PREVIEW_W, PREVIEW_H) }
-            if (px != null) {
-                bitmap.setPixels(px, 0, PREVIEW_W, 0, 0, PREVIEW_W, PREVIEW_H)
-                frameTick++
-                frames++
-                val now = System.currentTimeMillis()
-                if (now - last >= 1000) { fps = frames; frames = 0; last = now }
-            } else delay(30)
+    fun show(cam: Cam) {
+        scope.launch {
+            report = withContext(Dispatchers.IO) {
+                current?.let { if (it != cam && !rec.recording) QCarCam.stopOne(it.id) }
+                QCarCam.open(cam.id)
+            }
+            current = cam
         }
     }
-    // Never leave a stream open when the page goes away; BYD's 360 view needs the cameras.
-    DisposableEffect(Unit) { onDispose { if (streaming) { streaming = false; Thread { QCarCam.stop() }.start() } } }
+
+    LaunchedEffect(current, rec.recording) {
+        val cam = current ?: return@LaunchedEffect
+        if (rec.recording) return@LaunchedEffect
+        var n = 0; var last = System.currentTimeMillis()
+        while (isActive) {
+            val px = withContext(Dispatchers.IO) { QCarCam.frame(cam.id, PW, PH) }
+            if (px != null) {
+                bitmap.setPixels(px, 0, PW, 0, 0, PW, PH); tick++; n++
+                val now = System.currentTimeMillis(); if (now - last >= 1000) { fps = n; n = 0; last = now }
+            } else delay(40)
+        }
+    }
+    DisposableEffect(Unit) {
+        onDispose { if (!Vehicle.recorder.status.value.recording) Thread { QCarCam.stopAll() }.start() }
+    }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Panel("Camera feed", Modifier.weight(2f)) {
-                Box(Modifier.fillMaxWidth().aspectRatio(PREVIEW_W.toFloat() / PREVIEW_H).clip(RoundedCornerShape(12.dp)).background(androidx.compose.ui.graphics.Color.Black)) {
-                    if (streaming) {
-                        @Suppress("UNUSED_EXPRESSION") frameTick
-                        Image(bitmap.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
-                    } else Text("No stream", color = Shark.muted, modifier = Modifier.padding(16.dp))
+            Panel(current?.label ?: "Camera", Modifier.weight(2f)) {
+                Box(Modifier.fillMaxWidth().aspectRatio(PW.toFloat() / PH).clip(RoundedCornerShape(12.dp)).background(Color.Black)) {
+                    when {
+                        rec.recording -> Text("Recording ${rec.cameras.joinToString { it.label }}\n${rec.clip ?: ""}\n" + rec.fps.entries.joinToString("  ") { "${Cam.byId(it.key)?.label} ${it.value} fps" }, color = Shark.accent, modifier = Modifier.padding(16.dp))
+                        current != null -> { @Suppress("UNUSED_EXPRESSION") tick; Image(bitmap.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
+                        else -> Text("Tap a camera", color = Shark.muted, modifier = Modifier.padding(16.dp))
+                    }
                 }
-                Text(if (streaming) "Camera $cameraId live, $fps fps" else "Stopped", color = Shark.muted, fontSize = 13.sp, modifier = Modifier.padding(top = 6.dp))
+                Text(if (current != null && !rec.recording) "$fps fps" else "", color = Shark.muted, fontSize = 13.sp, modifier = Modifier.padding(top = 6.dp))
             }
-            Panel("Controls", Modifier.weight(1f)) {
+            Panel("Cameras", Modifier.weight(1f)) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Tile("Probe library", false, Modifier.width(150.dp)) { io { QCarCam.probe() } }
-                    // Only the inputs the probe reported. Probing ids that do not exist restarted the head unit.
-                    listOf(0, 1, 2, 3, 4, 5, 8, 9).forEach { id ->
-                        Tile("Open $id", streaming && cameraId == id, Modifier.width(100.dp)) {
-                            if (streaming) return@Tile
-                            cameraId = id
-                            scope.launch {
-                                report = withContext(Dispatchers.IO) { QCarCam.open(id) }
-                                streaming = report.startsWith("STREAM_STARTED")
-                            }
-                        }
-                    }
-                    Tile("Stop", false, Modifier.width(100.dp)) {
-                        streaming = false
-                        io { QCarCam.stop() }
-                    }
+                    Cam.entries.forEach { cam -> Tile(cam.label, current == cam, Modifier.width(130.dp)) { show(cam) } }
+                    Tile("Stop view", false, Modifier.width(130.dp)) { current = null; scope.launch { withContext(Dispatchers.IO) { if (!rec.recording) QCarCam.stopAll() } } }
                 }
-                Text("Park first. Stop the stream before opening BYD's own 360 view. 0 cabin, 4 5 8 9 exterior.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
-                Text(report, color = Shark.text, fontSize = 11.sp, modifier = Modifier.padding(top = 8.dp))
+                Text("Park first. Stop the view before opening BYD's own 360 view.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
             }
         }
+        Panel("Drive recorder") {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (!rec.recording) {
+                    Tile("Record 4 exterior", false, Modifier.width(180.dp)) {
+                        current = null
+                        scope.launch { withContext(Dispatchers.IO) { QCarCam.stopAll(); Vehicle.recorder.start(Cam.entries.filter { it.exterior }) } }
+                    }
+                    Tile("Record front only", false, Modifier.width(180.dp)) {
+                        current = null
+                        scope.launch { withContext(Dispatchers.IO) { QCarCam.stopAll(); Vehicle.recorder.start(listOf(Cam.FRONT)) } }
+                    }
+                } else {
+                    Tile("Stop recording", true, Modifier.width(180.dp)) { scope.launch { withContext(Dispatchers.IO) { Vehicle.recorder.stop() } } }
+                }
+            }
+            Text("Saves to ${rec.folder ?: Vehicle.recorder.storageRoot().path}. USB stick is used when one is plugged in. 3 minute clips, newest kept within 8 GB.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+            rec.error?.let { Text(it, color = Shark.bad, fontSize = 12.sp) }
+            val clips = remember(rec.clip, rec.recording) { Vehicle.recorder.clips().take(6) }
+            clips.forEach { f -> Text("${f.name}  ${f.length() / 1_000_000} MB", color = Shark.text, fontSize = 12.sp) }
+        }
+        if (report.isNotBlank()) Text(report, color = Shark.muted, fontSize = 11.sp)
     }
 }

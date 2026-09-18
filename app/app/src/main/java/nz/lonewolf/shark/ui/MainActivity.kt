@@ -51,7 +51,12 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onResume() { super.onResume(); inclinometer.start() }
-    override fun onPause() { inclinometer.stop(); super.onPause() }
+    override fun onPause() {
+        inclinometer.stop()
+        // Give the cameras back to BYD's own apps unless the recorder owns them.
+        if (!Vehicle.recorder.status.value.recording) Thread { nz.lonewolf.shark.camera.QCarCam.stopAll() }.start()
+        super.onPause()
+    }
 }
 
 private val tabs = listOf("Climate", "Gauges", "Off Road", "Towing", "Cameras", "Settings")

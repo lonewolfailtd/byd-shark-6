@@ -1,3 +1,8 @@
+// Qualcomm AIS / QCarCam client for the BYD Shark 6 (DiLink 5, SA8155P).
+// Loads /vendor/lib64/libais_client.so at runtime and streams raw UYVY frames.
+// Multi stream: one slot per camera input so the recorder can run four cameras at once.
+// ABI (struct layouts, ION heap, stride) verified on this head unit, see research/camera-poc.
+
 #include <jni.h>
 #include <android/log.h>
 #include <android/dlext.h>
@@ -8,23 +13,18 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <unistd.h>
-
 #include <array>
 #include <cstdint>
-#include <iomanip>
+#include <map>
 #include <mutex>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #define LOG_TAG "SharkCam"
-#define LOGI(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 
-// bionic's libdl uses this weak trampoline on Android 11. Declaring it weak lets the
-// platform linker resolve it during relocation even though dlsym hides linker64 symbols.
-extern "C" android_namespace_t* __loader_android_get_exported_namespace(const char*)
-        __attribute__((weak));
+extern "C" android_namespace_t* __loader_android_get_exported_namespace(const char*) __attribute__((weak));
 
 namespace {
 
@@ -39,531 +39,270 @@ using StopFn = int (*)(void*);
 using CloseFn = int (*)(void*);
 using UninitializeFn = int (*)();
 
-struct QCarCamPlane {
-    uint32_t width;
-    uint32_t height;
-    uint32_t stride;
-    uint32_t size;
-    void* buffer;
-};
-
-struct QCarCamBuffer {
-    QCarCamPlane planes[3];
-    uint32_t nPlanes;
-    uint32_t flags;
-};
-
-struct QCarCamBuffers {
-    uint32_t colorFormat;
-    uint32_t flags;
-    QCarCamBuffer* buffers;
-    uint32_t count;
-    uint32_t reserved;
-};
-
-struct QCarCamFrameInfo {
-    uint32_t bufferIndex;
-    uint8_t vendorData[44];
-};
-
-struct IonAllocationData {
-    uint64_t length;
-    uint32_t heapMask;
-    uint32_t flags;
-    int32_t fd;
-    uint32_t unused;
-};
-
-static_assert(sizeof(QCarCamPlane) == 0x18, "unexpected QCarCam plane ABI");
-static_assert(sizeof(QCarCamBuffer) == 0x50, "unexpected QCarCam buffer ABI");
-static_assert(sizeof(QCarCamBuffers) == 0x18, "unexpected QCarCam buffers ABI");
-static_assert(sizeof(QCarCamFrameInfo) == 0x30, "unexpected QCarCam frame ABI");
-static_assert(sizeof(IonAllocationData) == 0x18, "unexpected ION ABI");
+struct QCarCamPlane { uint32_t width, height, stride, size; void* buffer; };
+struct QCarCamBuffer { QCarCamPlane planes[3]; uint32_t nPlanes; uint32_t flags; };
+struct QCarCamBuffers { uint32_t colorFormat; uint32_t flags; QCarCamBuffer* buffers; uint32_t count; uint32_t reserved; };
+struct QCarCamFrameInfo { uint32_t bufferIndex; uint8_t vendorData[44]; };
+struct IonAllocationData { uint64_t length; uint32_t heapMask; uint32_t flags; int32_t fd; uint32_t unused; };
+static_assert(sizeof(QCarCamPlane) == 0x18, "plane ABI");
+static_assert(sizeof(QCarCamBuffer) == 0x50, "buffer ABI");
+static_assert(sizeof(QCarCamBuffers) == 0x18, "buffers ABI");
+static_assert(sizeof(QCarCamFrameInfo) == 0x30, "frame ABI");
+static_assert(sizeof(IonAllocationData) == 0x18, "ION ABI");
 
 constexpr unsigned long ION_IOC_ALLOC = _IOWR('I', 0, IonAllocationData);
 constexpr uint32_t kBufferCount = 5;
+constexpr size_t kInputInfoSize = 0x140;
 
-struct Client {
-    void* library = nullptr;
-    void* camera = nullptr;
-    InitializeFn initialize = nullptr;
-    QueryInputsFn queryInputs = nullptr;
-    OpenFn open = nullptr;
-    SetBuffersFn setBuffers = nullptr;
-    StartFn start = nullptr;
-    GetFrameFn getFrame = nullptr;
-    ReleaseFrameFn releaseFrame = nullptr;
-    StopFn stop = nullptr;
-    CloseFn close = nullptr;
-    UninitializeFn uninitialize = nullptr;
+struct Lib {
+    void* handle = nullptr;
+    InitializeFn initialize = nullptr; QueryInputsFn queryInputs = nullptr; OpenFn open = nullptr;
+    SetBuffersFn setBuffers = nullptr; StartFn start = nullptr; GetFrameFn getFrame = nullptr;
+    ReleaseFrameFn releaseFrame = nullptr; StopFn stop = nullptr; CloseFn close = nullptr; UninitializeFn uninitialize = nullptr;
     bool initialized = false;
-    bool streaming = false;
-    std::string libraryPath;
-    QCarCamBuffers qBuffers{};
-    std::array<QCarCamBuffer, kBufferCount> buffers{};
-    std::array<int, kBufferCount> bufferFds{{-1, -1, -1, -1, -1}};
-    std::array<void*, kBufferCount> mappings{{MAP_FAILED, MAP_FAILED, MAP_FAILED,
-                                              MAP_FAILED, MAP_FAILED}};
-    size_t allocationSize = 0;
+    std::string path;
 };
 
-Client client;
-std::mutex clientMutex;
+struct Stream {
+    int id = -1;
+    void* camera = nullptr;
+    bool streaming = false;
+    uint32_t width = 0, height = 0, stride = 0, frameSize = 0;
+    size_t allocationSize = 0;
+    QCarCamBuffers qBuffers{};
+    std::array<QCarCamBuffer, kBufferCount> buffers{};
+    std::array<int, kBufferCount> fds{{-1, -1, -1, -1, -1}};
+    std::array<void*, kBufferCount> maps{{MAP_FAILED, MAP_FAILED, MAP_FAILED, MAP_FAILED, MAP_FAILED}};
+    std::mutex mutex;
+};
 
-template<typename T>
-T symbol(const char* name) {
-    return reinterpret_cast<T>(dlsym(client.library, name));
-}
+Lib lib;
+std::mutex libMutex;
+std::map<int, Stream*> streams;
+std::mutex streamsMutex;
 
-void releaseBuffersLocked() {
-    for (size_t i = 0; i < client.bufferFds.size(); ++i) {
-        if (client.mappings[i] != MAP_FAILED) {
-            munmap(client.mappings[i], client.allocationSize);
-            client.mappings[i] = MAP_FAILED;
-        }
-        if (client.bufferFds[i] >= 0) {
-            close(client.bufferFds[i]);
-            client.bufferFds[i] = -1;
-        }
-    }
-    client.qBuffers = {};
-    client.buffers = {};
-    client.allocationSize = 0;
-}
+template<typename T> T sym(const char* n) { return reinterpret_cast<T>(dlsym(lib.handle, n)); }
 
-void unloadLocked() {
-    if (client.streaming && client.camera && client.stop) {
-        client.stop(client.camera);
-    }
-    if (client.camera && client.close) {
-        client.close(client.camera);
-    }
-    releaseBuffersLocked();
-    if (client.initialized && client.uninitialize) {
-        client.uninitialize();
-    }
-    if (client.library) {
-        dlclose(client.library);
-    }
-    client = Client{};
-}
-
-bool loadLocked(std::ostringstream& report) {
-    if (client.library) return true;
-
-    constexpr std::array<const char*, 6> candidates = {
-            "/vendor/lib64/libais_client.so",
-            "/vendor/lib64/libais_hidl_client.so",
-            "/system/lib64/libais_hidl_client.so",
-            "/system/system_ext/lib64/libais_hidl_client.so",
-            "libais_client.so",
-            "libais_hidl_client.so"
-    };
-    for (const char* path : candidates) {
-        dlerror();
-        client.library = dlopen(path, RTLD_NOW | RTLD_LOCAL);
-        if (client.library) {
-            client.libraryPath = path;
-            break;
-        }
-        const char* error = dlerror();
-        report << "dlopen " << path << ": " << (error ? error : "failed") << '\n';
-    }
-
-    // DiLink keeps AIS outside public.libraries.txt. Android's app namespace therefore
-    // rejects a normal dlopen even though the file is readable. Qualcomm vendor libraries
-    // and their dependencies live in the exported SP-HAL namespace, so ask the linker to
-    // resolve the client there. This does not bypass filesystem permissions or require root.
-    if (!client.library) {
-        using GetExportedNamespaceFn = android_namespace_t* (*)(const char*);
-        auto getNamespace = reinterpret_cast<GetExportedNamespaceFn>(
-                dlsym(RTLD_DEFAULT, "android_get_exported_namespace"));
-        const char* namespaceApi = "android_get_exported_namespace";
-        if (!getNamespace) {
-            // Android 11's libdl on this BYD image does not re-export the public alias,
-            // while linker64 exposes the loader trampoline itself.
-            getNamespace = reinterpret_cast<GetExportedNamespaceFn>(
-                    dlsym(RTLD_DEFAULT, "__loader_android_get_exported_namespace"));
-            namespaceApi = "__loader_android_get_exported_namespace";
-        }
-        if (!getNamespace && __loader_android_get_exported_namespace) {
-            getNamespace = __loader_android_get_exported_namespace;
-            namespaceApi = "weak __loader_android_get_exported_namespace";
-        }
-        report << namespaceApi << '=' << (getNamespace ? "yes" : "no") << '\n';
-        constexpr std::array<const char*, 2> namespaceNames = {"sphal", "vendor"};
-        if (getNamespace) {
-            for (const char* namespaceName : namespaceNames) {
-                android_namespace_t* targetNamespace = getNamespace(namespaceName);
-                report << "namespace " << namespaceName << '=' << targetNamespace << '\n';
-                if (!targetNamespace) continue;
-
-                android_dlextinfo extinfo{};
-                extinfo.flags = ANDROID_DLEXT_USE_NAMESPACE;
-                extinfo.library_namespace = targetNamespace;
-                for (const char* path : candidates) {
-                    dlerror();
-                    client.library = android_dlopen_ext(path, RTLD_NOW | RTLD_LOCAL, &extinfo);
-                    if (client.library) {
-                        client.libraryPath = std::string(path) + " namespace=" + namespaceName;
-                        break;
-                    }
-                    const char* error = dlerror();
-                    report << "android_dlopen_ext " << path << ": "
-                           << (error ? error : "failed") << '\n';
-                }
-                if (client.library) break;
-            }
+bool loadLib(std::ostringstream& r) {
+    if (lib.handle) return true;
+    const char* candidates[] = {"/vendor/lib64/libais_client.so", "/vendor/lib64/libais_hidl_client.so", "libais_client.so"};
+    for (auto p : candidates) { dlerror(); lib.handle = dlopen(p, RTLD_NOW | RTLD_LOCAL); if (lib.handle) { lib.path = p; break; } }
+    if (!lib.handle) {
+        using GetNs = android_namespace_t* (*)(const char*);
+        auto getNs = reinterpret_cast<GetNs>(dlsym(RTLD_DEFAULT, "android_get_exported_namespace"));
+        if (!getNs) getNs = reinterpret_cast<GetNs>(dlsym(RTLD_DEFAULT, "__loader_android_get_exported_namespace"));
+        if (!getNs && __loader_android_get_exported_namespace) getNs = __loader_android_get_exported_namespace;
+        if (getNs) for (auto nsName : {"sphal", "vendor"}) {
+            auto ns = getNs(nsName); if (!ns) continue;
+            android_dlextinfo ext{}; ext.flags = ANDROID_DLEXT_USE_NAMESPACE; ext.library_namespace = ns;
+            for (auto p : candidates) { dlerror(); lib.handle = android_dlopen_ext(p, RTLD_NOW | RTLD_LOCAL, &ext); if (lib.handle) { lib.path = std::string(p) + " ns=" + nsName; break; } }
+            if (lib.handle) break;
         }
     }
-    if (!client.library) {
-        const char* error = dlerror();
-        report << "AIS_NOT_FOUND: " << (error ? error : "dlopen failed");
-        return false;
-    }
-
-    client.initialize = symbol<InitializeFn>("qcarcam_initialize");
-    client.queryInputs = symbol<QueryInputsFn>("qcarcam_query_inputs");
-    client.open = symbol<OpenFn>("qcarcam_open");
-    client.setBuffers = symbol<SetBuffersFn>("qcarcam_s_buffers");
-    client.start = symbol<StartFn>("qcarcam_start");
-    client.getFrame = symbol<GetFrameFn>("qcarcam_get_frame");
-    client.releaseFrame = symbol<ReleaseFrameFn>("qcarcam_release_frame");
-    client.stop = symbol<StopFn>("qcarcam_stop");
-    client.close = symbol<CloseFn>("qcarcam_close");
-    client.uninitialize = symbol<UninitializeFn>("qcarcam_uninitialize");
-
-    report << "library=" << client.libraryPath << '\n';
-    report << "symbols initialize=" << (client.initialize ? "yes" : "no")
-           << " query_inputs=" << (client.queryInputs ? "yes" : "no")
-           << " open=" << (client.open ? "yes" : "no")
-           << " s_buffers=" << (client.setBuffers ? "yes" : "no")
-           << " start=" << (client.start ? "yes" : "no")
-           << " get_frame=" << (client.getFrame ? "yes" : "no")
-           << " release_frame=" << (client.releaseFrame ? "yes" : "no")
-           << " stop=" << (client.stop ? "yes" : "no")
-           << " close=" << (client.close ? "yes" : "no")
-           << " uninitialize=" << (client.uninitialize ? "yes" : "no") << '\n';
-
-    if (!client.initialize || !client.open || !client.setBuffers || !client.start ||
-        !client.getFrame || !client.releaseFrame || !client.stop || !client.close) {
-        report << "AIS_INCOMPATIBLE: required legacy symbols are missing";
-        unloadLocked();
-        return false;
-    }
-    report << "AIS_READY";
+    if (!lib.handle) { r << "AIS_NOT_FOUND"; return false; }
+    lib.initialize = sym<InitializeFn>("qcarcam_initialize"); lib.queryInputs = sym<QueryInputsFn>("qcarcam_query_inputs");
+    lib.open = sym<OpenFn>("qcarcam_open"); lib.setBuffers = sym<SetBuffersFn>("qcarcam_s_buffers"); lib.start = sym<StartFn>("qcarcam_start");
+    lib.getFrame = sym<GetFrameFn>("qcarcam_get_frame"); lib.releaseFrame = sym<ReleaseFrameFn>("qcarcam_release_frame");
+    lib.stop = sym<StopFn>("qcarcam_stop"); lib.close = sym<CloseFn>("qcarcam_close"); lib.uninitialize = sym<UninitializeFn>("qcarcam_uninitialize");
+    if (!lib.initialize || !lib.open || !lib.setBuffers || !lib.start || !lib.getFrame || !lib.releaseFrame || !lib.stop || !lib.close) { r << "AIS_INCOMPATIBLE"; dlclose(lib.handle); lib = Lib{}; return false; }
+    r << "library=" << lib.path << "\nAIS_READY\n";
     return true;
 }
 
-bool findInputFormatLocked(int cameraId, uint32_t& width, uint32_t& height,
-                           uint32_t& colorFormat, std::ostringstream& report) {
-    if (!client.queryInputs) return false;
+bool initLib(std::ostringstream& r) {
+    if (lib.initialized) return true;
+    int res = lib.initialize(nullptr); r << "initialize=" << res << '\n';
+    lib.initialized = res == 0; return lib.initialized;
+}
+
+bool inputFormat(int id, uint32_t& w, uint32_t& h, uint32_t& fmt, std::ostringstream& r) {
+    if (!lib.queryInputs) return false;
     unsigned int count = 0;
-    if (client.queryInputs(nullptr, 0, &count) != 0 || count == 0 || count > 64) return false;
-    constexpr size_t inputInfoSize = 0x140;
-    std::string entries(count * inputInfoSize, '\0');
-    unsigned int returned = count;
-    if (client.queryInputs(entries.data(), count, &returned) != 0) return false;
-    for (unsigned int index = 0; index < returned && index < count; ++index) {
-        const uint8_t* entry = reinterpret_cast<const uint8_t*>(entries.data())
-                + index * inputInfoSize;
-        uint32_t id;
-        memcpy(&id, entry, sizeof(id));
-        if (id != static_cast<uint32_t>(cameraId)) continue;
-        memcpy(&width, entry + 0xa4, sizeof(width));
-        memcpy(&height, entry + 0xa8, sizeof(height));
-        memcpy(&colorFormat, entry + 0x120, sizeof(colorFormat));
-        report << "mode=" << width << 'x' << height << " format=0x" << std::hex
-               << colorFormat << std::dec << '\n';
-        return width > 0 && height > 0 && colorFormat != 0;
+    if (lib.queryInputs(nullptr, 0, &count) != 0 || count == 0 || count > 64) return false;
+    std::string e(count * kInputInfoSize, '\0'); unsigned int ret = count;
+    if (lib.queryInputs(e.data(), count, &ret) != 0) return false;
+    for (unsigned i = 0; i < ret && i < count; ++i) {
+        auto p = reinterpret_cast<const uint8_t*>(e.data()) + i * kInputInfoSize;
+        uint32_t iid; memcpy(&iid, p, 4); if (iid != (uint32_t) id) continue;
+        memcpy(&w, p + 0xa4, 4); memcpy(&h, p + 0xa8, 4); memcpy(&fmt, p + 0x120, 4);
+        r << "mode=" << w << 'x' << h << " fmt=0x" << std::hex << fmt << std::dec << '\n';
+        return w > 0 && h > 0 && fmt != 0;
     }
     return false;
 }
 
-bool allocateBuffersLocked(uint32_t width, uint32_t height, uint32_t colorFormat,
-                           std::ostringstream& report) {
-    // qcarcam_test aligns packed UYVY stride to 64 bytes and allocates from ION heap bit 25.
-    uint32_t stride = (width * 2u + 63u) & ~63u;
-    uint32_t frameSize = stride * height;
-    size_t allocationSize = (static_cast<size_t>(frameSize) + 4095u) & ~4095u;
-    int ion = open("/dev/ion", O_RDONLY | O_CLOEXEC);
-    report << "open(/dev/ion)=" << ion;
-    if (ion < 0) {
-        report << " errno=" << errno << ' ' << strerror(errno) << '\n';
-        return false;
+void freeBuffers(Stream& s) {
+    for (size_t i = 0; i < kBufferCount; ++i) {
+        if (s.maps[i] != MAP_FAILED) { munmap(s.maps[i], s.allocationSize); s.maps[i] = MAP_FAILED; }
+        if (s.fds[i] >= 0) { close(s.fds[i]); s.fds[i] = -1; }
     }
-    report << '\n';
+    s.qBuffers = {}; s.buffers = {}; s.allocationSize = 0;
+}
 
-    client.allocationSize = allocationSize;
-    for (uint32_t index = 0; index < kBufferCount; ++index) {
-        IonAllocationData allocation{allocationSize, 0x02000000u, 0, -1, 0};
-        int result = ioctl(ion, ION_IOC_ALLOC, &allocation);
-        if (result != 0) {
-            report << "ION_IOC_ALLOC[" << index << "]=" << result << " errno=" << errno
-                   << ' ' << strerror(errno) << '\n';
-            close(ion);
-            releaseBuffersLocked();
-            return false;
-        }
-        client.bufferFds[index] = allocation.fd;
-        client.mappings[index] = mmap(nullptr, allocationSize, PROT_READ | PROT_WRITE,
-                                      MAP_SHARED, allocation.fd, 0);
-        if (client.mappings[index] == MAP_FAILED) {
-            report << "mmap[" << index << "] errno=" << errno << ' ' << strerror(errno) << '\n';
-            close(ion);
-            releaseBuffersLocked();
-            return false;
-        }
-        auto& buffer = client.buffers[index];
-        buffer.planes[0] = {width, height, stride, frameSize,
-                            reinterpret_cast<void*>(static_cast<intptr_t>(allocation.fd))};
-        buffer.nPlanes = 1;
+bool allocBuffers(Stream& s, uint32_t fmt, std::ostringstream& r) {
+    s.stride = (s.width * 2u + 63u) & ~63u; s.frameSize = s.stride * s.height;
+    s.allocationSize = ((size_t) s.frameSize + 4095u) & ~4095u;
+    int ion = open("/dev/ion", O_RDONLY | O_CLOEXEC);
+    if (ion < 0) { r << "ion open failed errno=" << errno << '\n'; return false; }
+    for (uint32_t i = 0; i < kBufferCount; ++i) {
+        IonAllocationData a{s.allocationSize, 0x02000000u, 0, -1, 0};
+        if (ioctl(ion, ION_IOC_ALLOC, &a) != 0) { r << "ION_IOC_ALLOC[" << i << "] errno=" << errno << '\n'; close(ion); freeBuffers(s); return false; }
+        s.fds[i] = a.fd;
+        s.maps[i] = mmap(nullptr, s.allocationSize, PROT_READ | PROT_WRITE, MAP_SHARED, a.fd, 0);
+        if (s.maps[i] == MAP_FAILED) { r << "mmap[" << i << "] errno=" << errno << '\n'; close(ion); freeBuffers(s); return false; }
+        s.buffers[i].planes[0] = {s.width, s.height, s.stride, s.frameSize, reinterpret_cast<void*>((intptr_t) a.fd)};
+        s.buffers[i].nPlanes = 1;
     }
     close(ion);
-    client.qBuffers.colorFormat = colorFormat;
-    client.qBuffers.buffers = client.buffers.data();
-    client.qBuffers.count = kBufferCount;
-    report << "ION buffers=" << kBufferCount << " stride=" << stride
-           << " frameSize=" << frameSize << " allocationSize=" << allocationSize << '\n';
+    s.qBuffers.colorFormat = fmt; s.qBuffers.buffers = s.buffers.data(); s.qBuffers.count = kBufferCount;
     return true;
 }
 
-bool initializeLocked(std::ostringstream& report) {
-    if (client.initialized) return true;
-    int result = client.initialize(nullptr);
-    report << "initialize=" << result << '\n';
-    if (result != 0) return false;
-    client.initialized = true;
-    return true;
+Stream* findStream(int id) { std::lock_guard<std::mutex> l(streamsMutex); auto it = streams.find(id); return it == streams.end() ? nullptr : it->second; }
+
+void stopStream(Stream* s, std::ostringstream& r) {
+    std::lock_guard<std::mutex> l(s->mutex);
+    if (s->streaming && s->camera) r << "stop=" << lib.stop(s->camera) << ' ';
+    s->streaming = false;
+    if (s->camera) { r << "close=" << lib.close(s->camera); s->camera = nullptr; }
+    freeBuffers(*s);
 }
 
-jstring asJavaString(JNIEnv* env, const std::string& value) {
-    return env->NewStringUTF(value.c_str());
-}
+jstring js(JNIEnv* env, const std::string& v) { return env->NewStringUTF(v.c_str()); }
+inline uint8_t clamp8(int v) { return (uint8_t) (v < 0 ? 0 : v > 255 ? 255 : v); }
 
 } // namespace
 
-extern "C" JNIEXPORT jstring JNICALL
-Java_nz_lonewolf_shark_camera_QCarCam_nativeProbe(JNIEnv* env, jclass) {
-    std::lock_guard<std::mutex> lock(clientMutex);
-    std::ostringstream report;
-    if (loadLocked(report) && initializeLocked(report) && client.queryInputs) {
-        unsigned int count = 0;
-        int queryResult = client.queryInputs(nullptr, 0, &count);
-        report << "query_inputs(count)=" << queryResult << " count=" << count << '\n';
-        if (queryResult == 0 && count > 0 && count <= 64) {
-            constexpr size_t inputInfoSize = 0x140;
-            std::string entries(count * inputInfoSize, '\0');
-            unsigned int returned = count;
-            queryResult = client.queryInputs(entries.data(), count, &returned);
-            report << "query_inputs(data)=" << queryResult << " returned=" << returned << '\n';
-            if (queryResult == 0) {
-                for (unsigned int index = 0; index < returned && index < count; ++index) {
-                    const auto* words = reinterpret_cast<const uint32_t*>(
-                            entries.data() + index * inputInfoSize);
-                    float fps = 0.0f;
-                    memcpy(&fps, entries.data() + index * inputInfoSize + 0xac, sizeof(fps));
-                    report << "input id=" << words[0] << ' ' << words[0x0a4 / 4] << 'x'
-                           << words[0x0a8 / 4] << " @ " << fps << " format=0x" << std::hex
-                           << words[0x120 / 4] << std::dec << '\n';
+extern "C" JNIEXPORT jstring JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nativeProbe(JNIEnv* env, jclass) {
+    std::lock_guard<std::mutex> l(libMutex);
+    std::ostringstream r;
+    if (loadLib(r) && initLib(r) && lib.queryInputs) {
+        unsigned int count = 0; int q = lib.queryInputs(nullptr, 0, &count);
+        r << "inputs=" << count << '\n';
+        if (q == 0 && count > 0 && count <= 64) {
+            std::string e(count * kInputInfoSize, '\0'); unsigned int ret = count;
+            if (lib.queryInputs(e.data(), count, &ret) == 0)
+                for (unsigned i = 0; i < ret && i < count; ++i) {
+                    auto w = reinterpret_cast<const uint32_t*>(e.data() + i * kInputInfoSize);
+                    float fps = 0; memcpy(&fps, e.data() + i * kInputInfoSize + 0xac, 4);
+                    r << "id " << w[0] << ": " << w[0xa4 / 4] << 'x' << w[0xa8 / 4] << " @ " << fps << '\n';
                 }
+        }
+    }
+    LOGW("%s", r.str().c_str());
+    return js(env, r.str());
+}
+
+/** Open and start one input. Safe to call for an id that is already streaming. */
+extern "C" JNIEXPORT jstring JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nativeOpen(JNIEnv* env, jclass, jint id) {
+    std::ostringstream r;
+    { std::lock_guard<std::mutex> l(libMutex); if (!loadLib(r) || !initLib(r)) { r << "ERROR init"; return js(env, r.str()); } }
+    Stream* s = findStream(id);
+    if (!s) { std::lock_guard<std::mutex> l(streamsMutex); s = new Stream(); s->id = id; streams[id] = s; }
+    std::lock_guard<std::mutex> l(s->mutex);
+    if (s->streaming) { r << "STREAM_STARTED id=" << id << " (already)"; return js(env, r.str()); }
+    uint32_t fmt = 0;
+    if (!inputFormat(id, s->width, s->height, fmt, r)) { r << "ERROR unknown input " << id; return js(env, r.str()); }
+    s->camera = lib.open(id);
+    if (!s->camera) { r << "ERROR open returned null"; return js(env, r.str()); }
+    if (!allocBuffers(*s, fmt, r)) { lib.close(s->camera); s->camera = nullptr; r << "ERROR buffers"; return js(env, r.str()); }
+    int res = lib.setBuffers(s->camera, &s->qBuffers); r << "s_buffers=" << res << ' ';
+    if (res == 0) { res = lib.start(s->camera); r << "start=" << res << '\n'; }
+    if (res != 0) { lib.close(s->camera); s->camera = nullptr; freeBuffers(*s); r << "ERROR start"; return js(env, r.str()); }
+    s->streaming = true;
+    LOGW("stream %d started %ux%u stride %u", id, s->width, s->height, s->stride);
+    return js(env, "STREAM_STARTED id=" + std::to_string(id) + "\n" + r.str());
+}
+
+extern "C" JNIEXPORT jstring JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nativeStopOne(JNIEnv* env, jclass, jint id) {
+    Stream* s = findStream(id);
+    std::ostringstream r;
+    if (s) { stopStream(s, r); LOGW("stream %d stopped", id); } else r << "not open";
+    return js(env, r.str());
+}
+
+extern "C" JNIEXPORT jstring JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nativeStop(JNIEnv* env, jclass) {
+    std::ostringstream r;
+    std::vector<Stream*> all;
+    { std::lock_guard<std::mutex> l(streamsMutex); for (auto& kv : streams) all.push_back(kv.second); }
+    for (auto s : all) { stopStream(s, r); r << " [" << s->id << "]\n"; }
+    std::lock_guard<std::mutex> l(libMutex);
+    if (lib.initialized && lib.uninitialize) { r << "uninitialize=" << lib.uninitialize() << '\n'; lib.initialized = false; }
+    r << "STREAM_STOPPED";
+    LOGW("all streams stopped");
+    return js(env, r.str());
+}
+
+extern "C" JNIEXPORT jintArray JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nativeStreamSize(JNIEnv* env, jclass, jint id) {
+    Stream* s = findStream(id);
+    jintArray out = env->NewIntArray(2);
+    jint v[2] = {s ? (jint) s->width : 0, s ? (jint) s->height : 0};
+    env->SetIntArrayRegion(out, 0, 2, v);
+    return out;
+}
+
+/** Preview: nearest neighbour UYVY to ARGB into a Java int array. */
+extern "C" JNIEXPORT jintArray JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nativeReadFrame(JNIEnv* env, jclass, jint id, jint ow, jint oh) {
+    Stream* s = findStream(id);
+    if (!s || ow <= 0 || oh <= 0) return nullptr;
+    std::lock_guard<std::mutex> l(s->mutex);
+    if (!s->streaming) return nullptr;
+    QCarCamFrameInfo f{};
+    if (lib.getFrame(s->camera, &f, 500000000ULL, 0) != 0 || f.bufferIndex >= kBufferCount) return nullptr;
+    auto src = static_cast<const uint8_t*>(s->maps[f.bufferIndex]);
+    jintArray px = env->NewIntArray(ow * oh);
+    auto dst = static_cast<jint*>(env->GetPrimitiveArrayCritical(px, nullptr));
+    if (dst) {
+        std::vector<uint32_t> xmap(ow); for (int x = 0; x < ow; ++x) xmap[x] = ((uint32_t) x * s->width / ow) & ~1u;
+        for (int y = 0; y < oh; ++y) {
+            const uint8_t* row = src + (size_t) ((uint32_t) y * s->height / oh) * s->stride;
+            jint* drow = dst + (size_t) y * ow;
+            for (int x = 0; x < ow; ++x) {
+                const uint8_t* p = row + xmap[x] * 2;
+                int u = p[0] - 128, yy = p[1] - 16, v = p[2] - 128; if (yy < 0) yy = 0;
+                int r = (298 * yy + 409 * v + 128) >> 8, g = (298 * yy - 100 * u - 208 * v + 128) >> 8, b = (298 * yy + 516 * u + 128) >> 8;
+                drow[x] = (jint) (0xff000000u | (clamp8(r) << 16) | (clamp8(g) << 8) | clamp8(b));
             }
         }
+        env->ReleasePrimitiveArrayCritical(px, dst, 0);
     }
-    LOGI("%s", report.str().c_str());
-    return asJavaString(env, report.str());
+    lib.releaseFrame(s->camera, f.bufferIndex);
+    return px;
 }
 
-extern "C" JNIEXPORT jstring JNICALL
-Java_nz_lonewolf_shark_camera_QCarCam_nativeOpen(JNIEnv* env, jclass, jint cameraId) {
-    std::lock_guard<std::mutex> lock(clientMutex);
-    std::ostringstream report;
-    if (client.streaming) {
-        report << "ERROR stream already active";
-        return asJavaString(env, report.str());
-    }
-    if (!loadLocked(report) || !initializeLocked(report)) {
-        report << "ERROR initialize failed";
-        return asJavaString(env, report.str());
-    }
-
-    client.camera = client.open(cameraId);
-    report << "open(" << cameraId << ")=" << client.camera << '\n';
-    if (!client.camera) {
-        report << "ERROR qcarcam_open returned null";
-        return asJavaString(env, report.str());
-    }
-
-    uint32_t width = 0;
-    uint32_t height = 0;
-    uint32_t colorFormat = 0;
-    if (!findInputFormatLocked(cameraId, width, height, colorFormat, report) ||
-        !allocateBuffersLocked(width, height, colorFormat, report)) {
-        client.close(client.camera);
-        client.camera = nullptr;
-        report << "ERROR buffer allocation failed";
-        return asJavaString(env, report.str());
-    }
-
-    int result = client.setBuffers(client.camera, &client.qBuffers);
-    report << "s_buffers=" << result << '\n';
-    if (result != 0) {
-        client.close(client.camera);
-        client.camera = nullptr;
-        releaseBuffersLocked();
-        report << "ERROR qcarcam_s_buffers failed";
-        return asJavaString(env, report.str());
-    }
-
-    result = client.start(client.camera);
-    report << "start=" << result << '\n';
-    if (result != 0) {
-        client.close(client.camera);
-        client.camera = nullptr;
-        releaseBuffersLocked();
-        report << "ERROR qcarcam_start failed";
-        return asJavaString(env, report.str());
-    }
-    client.streaming = true;
-
-    QCarCamFrameInfo frame{};
-    result = client.getFrame(client.camera, &frame, 1000000000ULL, 0);
-    report << "first get_frame=" << result;
-    if (result == 0 && frame.bufferIndex < kBufferCount) {
-        const auto* bytes = static_cast<const uint8_t*>(client.mappings[frame.bufferIndex]);
-        uint32_t checksum = 2166136261u;
-        for (size_t offset = 0; offset < client.buffers[frame.bufferIndex].planes[0].size;
-             offset += 4096) {
-            checksum = (checksum ^ bytes[offset]) * 16777619u;
+/**
+ * Encoder path: one frame as NV12 (Y plane then interleaved UV) scaled to ow x oh into a direct
+ * ByteBuffer, which is the MediaCodec input buffer. Returns bytes written or 0 on timeout.
+ * Nearest neighbour scale; ow and oh must be even.
+ */
+extern "C" JNIEXPORT jint JNICALL Java_nz_lonewolf_shark_camera_QCarCam_nativeReadNv12(JNIEnv* env, jclass, jint id, jobject buf, jint ow, jint oh) {
+    Stream* s = findStream(id);
+    if (!s || ow <= 0 || oh <= 0) return 0;
+    auto dst = static_cast<uint8_t*>(env->GetDirectBufferAddress(buf));
+    jlong cap = env->GetDirectBufferCapacity(buf);
+    const jint need = ow * oh * 3 / 2;
+    if (!dst || cap < need) return 0;
+    std::lock_guard<std::mutex> l(s->mutex);
+    if (!s->streaming) return 0;
+    QCarCamFrameInfo f{};
+    if (lib.getFrame(s->camera, &f, 500000000ULL, 0) != 0 || f.bufferIndex >= kBufferCount) return 0;
+    auto src = static_cast<const uint8_t*>(s->maps[f.bufferIndex]);
+    std::vector<uint32_t> xmap(ow); for (int x = 0; x < ow; ++x) xmap[x] = ((uint32_t) x * s->width / ow) & ~1u;
+    uint8_t* yPlane = dst; uint8_t* uvPlane = dst + (size_t) ow * oh;
+    for (int y = 0; y < oh; ++y) {
+        const uint8_t* row = src + (size_t) ((uint32_t) y * s->height / oh) * s->stride;
+        uint8_t* yrow = yPlane + (size_t) y * ow;
+        for (int x = 0; x < ow; x += 2) {
+            const uint8_t* p = row + xmap[x] * 2;
+            yrow[x] = p[1]; yrow[x + 1] = p[3];
         }
-        report << " buffer=" << frame.bufferIndex << " sampleChecksum=0x" << std::hex
-               << checksum << std::dec;
-        report << " release=" << client.releaseFrame(client.camera, frame.bufferIndex);
-    }
-    report << '\n';
-    std::ostringstream final;
-    final << "STREAM_STARTED inputId=" << cameraId << '\n' << report.str();
-    LOGI("stream started inputId=%d", cameraId);
-    return asJavaString(env, final.str());
-}
-
-extern "C" JNIEXPORT jstring JNICALL
-Java_nz_lonewolf_shark_camera_QCarCam_nativeStop(JNIEnv* env, jclass) {
-    std::lock_guard<std::mutex> lock(clientMutex);
-    std::ostringstream report;
-    if (client.streaming && client.camera && client.stop) {
-        report << "stop=" << client.stop(client.camera) << '\n';
-    }
-    client.streaming = false;
-    if (client.camera && client.close) {
-        report << "close=" << client.close(client.camera) << '\n';
-    }
-    client.camera = nullptr;
-    releaseBuffersLocked();
-    if (client.initialized && client.uninitialize) {
-        report << "uninitialize=" << client.uninitialize() << '\n';
-    }
-    client.initialized = false;
-    report << "STREAM_STOPPED";
-    LOGI("stream stopped");
-    return asJavaString(env, report.str());
-}
-
-static inline uint8_t clampColor(int value) {
-    return static_cast<uint8_t>(value < 0 ? 0 : (value > 255 ? 255 : value));
-}
-
-extern "C" JNIEXPORT jintArray JNICALL
-Java_nz_lonewolf_shark_camera_QCarCam_nativeReadFrame(
-        JNIEnv* env, jclass, jint outputWidth, jint outputHeight) {
-    std::lock_guard<std::mutex> lock(clientMutex);
-    if (!client.streaming || !client.camera || outputWidth <= 0 || outputHeight <= 0 ||
-        outputWidth > 1920 || outputHeight > 1300) {
-        return nullptr;
-    }
-
-    QCarCamFrameInfo frame{};
-    int result = client.getFrame(client.camera, &frame, 500000000ULL, 0);
-    if (result != 0 || frame.bufferIndex >= kBufferCount ||
-        client.mappings[frame.bufferIndex] == MAP_FAILED) {
-        return nullptr;
-    }
-
-    const QCarCamPlane& plane = client.buffers[frame.bufferIndex].planes[0];
-    const auto* source = static_cast<const uint8_t*>(client.mappings[frame.bufferIndex]);
-    const jsize pixelCount = outputWidth * outputHeight;
-    jintArray pixels = env->NewIntArray(pixelCount);
-    if (!pixels) {
-        client.releaseFrame(client.camera, frame.bufferIndex);
-        return nullptr;
-    }
-    auto* destination = static_cast<jint*>(env->GetPrimitiveArrayCritical(pixels, nullptr));
-    if (!destination) {
-        client.releaseFrame(client.camera, frame.bufferIndex);
-        return nullptr;
-    }
-
-    for (int y = 0; y < outputHeight; ++y) {
-        uint32_t sourceY = static_cast<uint32_t>(y) * plane.height / outputHeight;
-        const uint8_t* row = source + static_cast<size_t>(sourceY) * plane.stride;
-        for (int x = 0; x < outputWidth; ++x) {
-            uint32_t sourceX = static_cast<uint32_t>(x) * plane.width / outputWidth;
-            sourceX &= ~1u;
-            const uint8_t* uyvy = row + sourceX * 2u;
-            int u = static_cast<int>(uyvy[0]) - 128;
-            int luminance = static_cast<int>(uyvy[(x * plane.width / outputWidth) & 1 ? 3 : 1]) - 16;
-            int v = static_cast<int>(uyvy[2]) - 128;
-            if (luminance < 0) luminance = 0;
-            int r = (298 * luminance + 409 * v + 128) >> 8;
-            int g = (298 * luminance - 100 * u - 208 * v + 128) >> 8;
-            int b = (298 * luminance + 516 * u + 128) >> 8;
-            destination[y * outputWidth + x] = static_cast<jint>(0xff000000u |
-                    (static_cast<uint32_t>(clampColor(r)) << 16) |
-                    (static_cast<uint32_t>(clampColor(g)) << 8) | clampColor(b));
+        if ((y & 1) == 0) {
+            uint8_t* uvrow = uvPlane + (size_t) (y / 2) * ow;
+            for (int x = 0; x < ow; x += 2) { const uint8_t* p = row + xmap[x] * 2; uvrow[x] = p[0]; uvrow[x + 1] = p[2]; }
         }
     }
-
-    env->ReleasePrimitiveArrayCritical(pixels, destination, 0);
-    client.releaseFrame(client.camera, frame.bufferIndex);
-    return pixels;
+    lib.releaseFrame(s->camera, f.bufferIndex);
+    return need;
 }
 
-extern "C" JNIEXPORT jstring JNICALL
-Java_nz_lonewolf_shark_camera_QCarCam_nativeProbeIds(
-        JNIEnv* env, jclass, jint firstId, jint lastId) {
-    std::lock_guard<std::mutex> lock(clientMutex);
-    std::ostringstream report;
-    if (client.streaming) {
-        return asJavaString(env, "ERROR stop the active stream before probing");
-    }
-    if (firstId < 0 || lastId < firstId || lastId - firstId > 63) {
-        return asJavaString(env, "ERROR invalid probe range");
-    }
-    if (!loadLocked(report) || !initializeLocked(report)) {
-        report << "ERROR initialize failed";
-        return asJavaString(env, report.str());
-    }
-
-    report << "openable input IDs:";
-    bool found = false;
-    for (int id = firstId; id <= lastId; ++id) {
-        void* handle = client.open(id);
-        if (handle) {
-            report << ' ' << id;
-            found = true;
-            client.close(handle);
-        }
-    }
-    if (!found) report << " none";
-    report << "\nNote: openable does not prove that frames can be allocated.";
-    return asJavaString(env, report.str());
-}
-
-JNIEXPORT jint JNI_OnLoad(JavaVM*, void*) {
-    return JNI_VERSION_1_6;
-}
-
-JNIEXPORT void JNI_OnUnload(JavaVM*, void*) {
-    std::lock_guard<std::mutex> lock(clientMutex);
-    unloadLocked();
-}
+JNIEXPORT jint JNI_OnLoad(JavaVM*, void*) { return JNI_VERSION_1_6; }

@@ -53,6 +53,7 @@ class VehicleService : Service() {
     private suspend fun poll() {
         var tick = 0
         var startApplied = false
+        var reverseClearTicks = 0
         while (true) {
             runCatching {
                 telemetry.value = Vehicle.telemetry.read()
@@ -62,6 +63,12 @@ class VehicleService : Service() {
                 slope.value = Vehicle.lights.slope()
                 seatPosition.value = Vehicle.seatPosition.read()
             }.onFailure { android.util.Log.e("SharkProbe", "poll failed", it) }
+            // Hand the cameras back to BYD while reversing, take them back a few seconds after.
+            val gear = telemetry.value?.gear
+            val rec = Vehicle.recorder
+            if (gear == 2 && rec.status.value.recording) rec.pause("reverse selected")
+            else if (gear != null && gear != 2 && rec.isPaused) { reverseClearTicks++; if (reverseClearTicks >= 3) { reverseClearTicks = 0; rec.resume() } }
+            else reverseClearTicks = 0
             if (!startApplied && tick >= 4 && climate.value?.bound == true) {
                 startApplied = true
                 Vehicle.profiles.startProfile()?.let { p -> runCatching { android.util.Log.w("SharkProbe", "start profile ${p.name}: ${Vehicle.profiles.apply(p)}") } }
