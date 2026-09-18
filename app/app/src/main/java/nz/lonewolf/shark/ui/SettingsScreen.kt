@@ -101,6 +101,8 @@ fun SettingsScreen(inclinometer: Inclinometer) {
             StatRow("VIN", t?.vin ?: "--", t?.vin != null)
             StatRow("Tilt sensor", inclinometer.availableSensors().joinToString())
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+                var floating by remember { mutableStateOf(Vehicle.prefs.floatingPanel) }
+                Tile("Floating quick panel", floating, Modifier.width(200.dp), sub = "shark bubble over other apps") { floating = !floating; VehicleService.setFloating(ctx, floating) }
                 Tile("Restart vehicle link", false, Modifier.width(200.dp)) { VehicleService.stop(ctx); VehicleService.start(ctx) }
                 Tile("Grant permissions", false, Modifier.width(200.dp)) { scope.launch { LocalAdb.setup(ctx) } }
                 Tile("Clear tilt zero", false, Modifier.width(160.dp)) { inclinometer.clearCalibration() }

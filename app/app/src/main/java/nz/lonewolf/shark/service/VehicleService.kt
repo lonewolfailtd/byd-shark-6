@@ -31,20 +31,24 @@ import nz.lonewolf.shark.ui.MainActivity
  */
 class VehicleService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val quickPanel by lazy { nz.lonewolf.shark.ui.QuickPanel(this) }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         Vehicle.init(this)
+        instance = this
         startForeground(NOTIFICATION_ID, notification())
         running.value = true
         scope.launch { poll() }
+        if (Vehicle.prefs.floatingPanel) android.os.Handler(mainLooper).post { quickPanel.show() }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
 
     override fun onDestroy() {
+        runCatching { quickPanel.hide() }
         running.value = false
         scope.cancel()
         super.onDestroy()
@@ -136,6 +140,13 @@ class VehicleService : Service() {
 
         fun start(context: Context) {
             context.startForegroundService(Intent(context, VehicleService::class.java))
+        }
+
+        /** Toggle the overlay from Settings without restarting the service. */
+        @Volatile var instance: VehicleService? = null
+        fun setFloating(context: Context, on: Boolean) {
+            Vehicle.prefs.floatingPanel = on
+            instance?.let { svc -> android.os.Handler(svc.mainLooper).post { if (on) svc.quickPanel.show() else svc.quickPanel.hide() } }
         }
 
         fun stop(context: Context) {
