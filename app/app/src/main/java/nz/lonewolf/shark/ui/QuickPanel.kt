@@ -67,20 +67,28 @@ class QuickPanel(private val context: Context) {
     private fun dp(v: Int) = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v.toFloat(), context.resources.displayMetrics).toInt()
 
     private fun makeBubble(): View {
-        val t = TextView(context).apply {
+        val shark = TextView(context).apply {
             text = "🦈"; textSize = 26f; gravity = Gravity.CENTER
-            width = dp(64); height = dp(64)
             background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(0xEE131C2E.toInt()); setStroke(dp(2), 0xFF3DDC84.toInt()) }
+            layoutParams = android.widget.FrameLayout.LayoutParams(dp(64), dp(64)).apply { topMargin = dp(10) }
         }
+        // Small close badge in the corner: hides the bubble until the app is opened again.
+        val close = TextView(context).apply {
+            text = "✕"; textSize = 12f; gravity = Gravity.CENTER; setTextColor(Color.WHITE)
+            background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(0xFF37474F.toInt()); setStroke(dp(1), 0xFF8FA3BF.toInt()) }
+            layoutParams = android.widget.FrameLayout.LayoutParams(dp(24), dp(24)).apply { gravity = Gravity.TOP or Gravity.END }
+            setOnClickListener { hide() }
+        }
+        val root = android.widget.FrameLayout(context).apply { addView(shark); addView(close) }
         var downX = 0f; var downY = 0f; var startX = 0; var startY = 0; var moved = false
-        t.setOnTouchListener { v, e ->
+        shark.setOnTouchListener { _, e ->
             val lp = params ?: return@setOnTouchListener false
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> { downX = e.rawX; downY = e.rawY; startX = lp.x; startY = lp.y; moved = false; true }
                 MotionEvent.ACTION_MOVE -> {
                     val dx = e.rawX - downX; val dy = e.rawY - downY
                     if (abs(dx) > dp(6) || abs(dy) > dp(6)) moved = true
-                    if (moved) { lp.x = startX + dx.toInt(); lp.y = startY + dy.toInt(); wm.updateViewLayout(v, lp); panel?.let { positionPanel() } }
+                    if (moved) { lp.x = startX + dx.toInt(); lp.y = startY + dy.toInt(); wm.updateViewLayout(root, lp); panel?.let { positionPanel() } }
                     true
                 }
                 MotionEvent.ACTION_UP -> {
@@ -90,7 +98,7 @@ class QuickPanel(private val context: Context) {
                 else -> false
             }
         }
-        return t
+        return root
     }
 
     private fun toggle() { if (expanded) collapse() else expand() }
