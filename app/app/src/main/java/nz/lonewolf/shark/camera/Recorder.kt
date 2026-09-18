@@ -104,6 +104,7 @@ class Recorder(private val context: Context) {
             var clipStart = 0L
             var frames = 0
             var fpsWindowStart = System.currentTimeMillis(); var fpsCount = 0
+            var grabNs = 0L; var waitNs = 0L
             val info = MediaCodec.BufferInfo()
             try {
                 codec = newCodec()
@@ -116,17 +117,21 @@ class Recorder(private val context: Context) {
                         muxer = null; track = -1
                         // Ask for a key frame at the clip boundary, then reopen the muxer on the next format
                         codec.setParameters(android.os.Bundle().apply { putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0) })
-                        clipStart = System.currentTimeMillis()
+                        clipStart = System.currentTimeMillis(); frames = 0
                         val name = "${cam.label.replace(' ', '_')}_${stamp.format(Date(clipStart))}.mp4"
                         muxer = MediaMuxer(File(root, name).path, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
                         _status.value = _status.value.copy(clip = name)
                         prune()
                     }
+                    val tWait = System.nanoTime()
                     val inIndex = codec.dequeueInputBuffer(100_000)
+                    waitNs += System.nanoTime() - tWait
                     if (inIndex >= 0) {
                         val buf = codec.getInputBuffer(inIndex)!!
                         buf.clear()
+                        val tGrab = System.nanoTime()
                         val n = QCarCam.nv12(cam.id, buf, width, height)
+                        grabNs += System.nanoTime() - tGrab
                         // Real wall clock timestamps so playback speed matches even when frames arrive slower than target.
                         val pts = (System.nanoTime() - t0) / 1000
                         if (n > 0) { buf.limit(n); codec.queueInputBuffer(inIndex, 0, n, pts, 0); frames++; fpsCount++ }
@@ -152,7 +157,9 @@ class Recorder(private val context: Context) {
                     }
                     val now = System.currentTimeMillis()
                     if (now - fpsWindowStart >= 1000) {
-                        _status.value = _status.value.copy(fps = _status.value.fps + (cam.id to fpsCount)); fpsCount = 0; fpsWindowStart = now
+                        _status.value = _status.value.copy(fps = _status.value.fps + (cam.id to fpsCount))
+                        Log.w(TAG, "${cam.label}: $fpsCount fps, grab ${grabNs / 1_000_000} ms, codec wait ${waitNs / 1_000_000} ms per second")
+                        fpsCount = 0; fpsWindowStart = now; grabNs = 0; waitNs = 0
                     }
                     // pace to the target frame rate so four encoders share the CPU fairly
                     val elapsed = System.currentTimeMillis() - clipStart
