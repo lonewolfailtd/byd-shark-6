@@ -42,6 +42,20 @@ class EnergyBridge(context: Context) {
         brightness = instrument.getInt("getBacklightBrightness"),
     )
 
+    /** Trailer size as BYD's own screen sets it: 1 small, 2 medium, 3 large. Read back to confirm. */
+    fun setTrailerSize(size: Int): CommandResult {
+        val r = setting.call("setTrailerDragType", size); Thread.sleep(300)
+        val after = setting.getInt("getTrailerDragType")
+        return if (r.ok && after == size) r else r.copy(ok = false, detail = if (r.ok) "vehicle reports $after" else r.detail)
+    }
+    /** Tow mode switch, BYD convention 1 on 2 off. */
+    fun setTowMode(on: Boolean): CommandResult {
+        val target = if (on) 1 else 2
+        val r = setting.call("setTrailerModeState", target); Thread.sleep(300)
+        val after = setting.getInt("getTrailerModeState")
+        return if (r.ok && after == target) r else r.copy(ok = false, detail = if (r.ok) "vehicle reports $after" else r.detail)
+    }
+
     /** BYD's own display brightness setting. Range is learned from the read value; 0 to 10 is typical on DiLink. */
     fun setBrightness(level: Int): CommandResult = instrument.call("setBacklightBrightness", level)
 }

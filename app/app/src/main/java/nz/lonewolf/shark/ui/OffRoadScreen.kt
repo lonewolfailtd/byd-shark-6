@@ -80,6 +80,7 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Column(Modifier.weight(1.4f)) {
                     Text("Drive: ${m?.driveName ?: "--"}   Power: ${m?.energyName ?: "--"}   Terrain: ${m?.terrainName ?: "--"}   Crawl: ${m?.crawlName ?: "--"}", color = Shark.text, fontSize = 15.sp)
+                    Text("raw: operation ${m?.operationMode} energy ${m?.energyMode} terrain ${m?.roadSurface} sport ${m?.sportState} drive ${m?.driveMode} crawl ${m?.creepState}", color = Shark.muted, fontSize = 12.sp)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
                         Tile("Eco", m?.operationMode == 1, Modifier.width(100.dp), height = 56.dp) { write("Eco") { Vehicle.modes.setDrive(1) } }
                         Tile("Normal", m?.operationMode == 2, Modifier.width(100.dp), height = 56.dp) { write("Normal") { Vehicle.modes.setDrive(2) } }

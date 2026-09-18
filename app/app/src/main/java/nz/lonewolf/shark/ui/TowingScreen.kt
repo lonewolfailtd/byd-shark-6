@@ -15,6 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import nz.lonewolf.shark.core.byd.Vehicle
 import nz.lonewolf.shark.service.VehicleService
 
 @Composable
@@ -22,6 +26,11 @@ fun TowingScreen() {
     val t by VehicleService.telemetry.collectAsStateWithLifecycle()
     val e by VehicleService.energy.collectAsStateWithLifecycle()
     val tr = e?.trailer
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var status by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf("") }
+    fun write(label: String, block: () -> nz.lonewolf.shark.core.byd.CommandResult) {
+        scope.launch { status = withContext(Dispatchers.IO) { val r = block(); runCatching { VehicleService.energy.value = Vehicle.energy.read() }; if (r.ok) "$label done" else "$label: ${r.detail}" } }
+    }
     val unit = t?.tyres?.unit ?: "kPa"
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Panel("Range with the load on") {
@@ -42,6 +51,15 @@ fun TowingScreen() {
                 Text("Loaded target: 36 psi front, 42 psi rear", color = Shark.muted, fontSize = 12.sp)
             }
             Panel("Tow mode (live)", Modifier.weight(1f)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Tile(if (tr?.active == true) "Tow mode ON" else "Tow mode off", tr?.active == true, Modifier.weight(1f), height = 52.dp) { write("Tow mode") { Vehicle.energy.setTowMode(tr?.active != true) } }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 6.dp)) {
+                    Tile("Small", tr?.dragType == 1, Modifier.weight(1f), height = 52.dp) { write("Small trailer") { Vehicle.energy.setTrailerSize(1) } }
+                    Tile("Medium", tr?.dragType == 2, Modifier.weight(1f), height = 52.dp) { write("Medium trailer") { Vehicle.energy.setTrailerSize(2) } }
+                    Tile("Large", tr?.dragType == 3, Modifier.weight(1f), height = 52.dp) { write("Large trailer") { Vehicle.energy.setTrailerSize(3) } }
+                }
+                if (status.isNotBlank()) Text(status, color = androidx.compose.ui.graphics.Color(0xFFFFD54F), fontSize = 13.sp)
                 StatRow("Tow mode", when (tr?.active) { true -> "ON"; false -> "off"; null -> "--" }, tr?.active)
                 StatRow("Trailer size set", tr?.sizeName ?: "--")
                 StatRow("Trailer lights check", when (tr?.lightCheck) { null -> "--"; 0 -> "not run"; 1 -> "passed"; else -> "state ${tr?.lightCheck}" })
