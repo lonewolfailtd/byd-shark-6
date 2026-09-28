@@ -87,7 +87,7 @@ private fun Tyre(label: String, v: Double?) {
 private fun modeName(energy: Int?, op: Int?, sport: Int?): String {
     if (energy == null) return "--"
     val e = when (energy) { 0 -> "EV"; 1 -> "HEV"; else -> "energy $energy" }
-    val s = when (sport) { 1 -> "Eco"; 2 -> "Normal"; 3 -> "Sport"; null -> ""; else -> "mode $sport" }
+    val s = when (sport) { 1 -> "Eco"; 2 -> "Sport"; 3 -> "Normal"; null -> ""; else -> "mode $sport" }
     return listOf(e, s, "op $op").filter { it.isNotBlank() }.joinToString(" · ")
 }
 

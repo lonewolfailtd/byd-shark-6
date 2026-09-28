@@ -1,0 +1,517 @@
+## alpha-v49.7 | Alpha v49.7 | 2026-09-23T02:53:07Z
+## 🇴🇩 Overdrive Update v49.0: Parking Intelligence
+### [Update v49.7]
+- **Tailscale proxy no longer breaks internet features** — With the Tailscale proxy enabled, BYD Cloud (remote commands, live vehicle data, DI5 cloud keep-alive), Telegram, update checks, map routing/search/tiles, place lookup, push notifications, weather and RoadSense sync no longer fail when the proxy only reaches your tailnet: connections try the proxy first, fall back to a direct connection automatically, and stick with the route that works. Cars that genuinely go online through a proxy (sing-box, or a Tailscale exit node) keep proxy-first behaviour, MQTT to private tailnet brokers is unchanged, and privacy-sensitive AI traffic still refuses to bypass an expected proxy.
+- **Parking energy** — Each park shows its SoC change and estimated kWh (or "charged while parked") on the notification and Parking page, updating live while the session is open.
+- **Choose when a park ends** — New setting: when you return (default), when the car powers on, or when you drive away (gear leaves P).
+
+### ✨ New Features
+
+- **Parking Intelligence (opt-in)** — Switch the car off and Overdrive remembers the park: where you left it, how long you were away, what sentry saw meanwhile, and which vehicles arrived or left next to you. Turn it on from the new Parking page or Surveillance settings; when off, nothing runs.
+- **Arrived and returned stills** — Four-camera snapshots about 90 seconds after switch-off and again when you come back, so you can compare your surroundings before and after.
+- **Garage signage reading** — Right after you park, on-device OCR reads the level, zone and bay signs around the car (for example "B2 · Zone C · Bay 142") from the stills and the drive in, so the "Parked" message tells you where you left it before you walk away. Models are bundled; level codes such as B2, P3, -1 or 2F are read on any sign, and language-specific recognisers can be side-loaded for non-Latin signage.
+- **"Parked" and "Back at car" notifications** — Web push and Telegram messages with the place, garage level and bay, event count and a photo, controlled by your existing Notifications settings plus a new Telegram toggle. Ask the bot `/where` any time for your last known parking spot with a map link.
+- **Parking page in the app and web UI** — A new Parking entry in the car-app rail and web navigation lists every park by day with events, GPS quality and sentry status; open one for stills, neighbours, sentry clips and the signage result. Trips now show the parking gap between two drives.
+- **Sentry clips grouped per park** — Recordings made while parked are tagged with their parking session. "Open events" on a park narrows the web Events page, or the car app's Recordings screen, to that park's clips; a dismissible chip shows the active park.
+- **Works with sentry off too** — Without surveillance you still get the place, time and duration of each park, and the signage is read from the last minute of your panoramic drive recording when Continuous or Drive mode is on (with recording off as well there are no frames, so location and time only). The messages then say sentry was not armed instead of reporting "0 events". Parking data follows a configurable retention period and storage cap, and a disabled feature costs no CPU, storage or battery.
+
+---
+-----
+## alpha-v48.18 | Alpha v48.18 | 2026-09-15T23:04:27Z
+## 🇴🇩 Overdrive Update v48.0: Camera Reliability, Telemetry & Projection
+## [Update v48.18]: DiLink 3.0 & 5.0 Fixes, Tailscale HTTPS
+
+### ✨ New Features
+- **Optional DiLink 5 parked cloud keep-alive** — While the car is off, Overdrive can poll BYD Cloud about once per minute to help prevent deep sleep and preserve ADB/camera access. It requires a verified BYD Cloud account and internet, may use vehicle SIM data and extra parked battery, follows the active proxy route, and stops on ACC-on or daemon shutdown.
+---
+
+### ✨ New Features
+
+- **Optional decoupled camera pipeline** — On non-DiLink 4/5 vehicles, enable **Decoupled encoder pipeline** under **Diagnostics → Camera Mapping**, then restart the camera daemon or cycle ACC. It keeps the BYD AVM/reverse-camera feed responsive while Overdrive records.
+
+### ⚡ Optimizations & Fixes
+
+- **More reliable DiLink 5 telemetry** — Improved speed, pedal, gear and indicator readings while keeping broader vehicle data available.
+- **DiLink 5 cluster projection** — Added app and RoadSense map projection support, including ACC automations.
+- **Safer compatibility** — Improved projection startup and cleanup, with every change limited to the selected DiLink 5 mode.
+- **Fix swapped DiLink 5 cameras** — Camera Probe can switch camera order on affected models while Auto keeps existing defaults.
+- **Faster camera acquisition (Di3)** — Parked-surveillance testing reduced worst-frame acquisition time from 31 ms to 19 ms (~39%) at the same recording FPS, without meaningful CPU or GPU regression.
+
+---
+-----
+## alpha-v44.2 | Alpha v44.2 | 2026-08-29T10:44:39Z
+## 🇴🇩 Overdrive Update v44: Bring Your Own AI Assistant
+## [Update v44.1]
+
+  - Added Video Screen Deterrent: parked-surveillance motion can wake the head unit and show a full-screen warning.
+      - Customize it with a message, image, GIF, or silent looping MP4 video.
+
+  - Redesigned the AI Assistant for mobile, in-car WebViews, and desktop.
+  - Dashboard AI insights now expand inline, support the selected language, and no longer redirect to the Assistant.
+  - Improved community automation results with clean, actionable cards.
+  - Fixed AI provider/model dropdowns, layout spacing, navigation overlap, and theme controls.
+  - Fixed live charging type detection, estimated-value labels, and automatic saved location/tariff matching.
+  - Fixed Blind Spot automations incorrectly triggering from rear cross-traffic and door-open warnings.
+  - Added separate left/right automation triggers for Rear Cross Traffic Alert and Door Open Warning.
+  - Added automatic ADAS event diagnostics to capture raw warning IDs and values.
+  
+ ---
+
+### ✨ New Features
+
+- **Ask Overdrive in plain language** — The new text-first Assistant can explain trips and unusual battery use, summarize charging, RoadSense hazards and recording events, and help diagnose vehicle, daemon and automation issues using only the context you choose to share.
+- **Bring your own model and key** — Start with Gemini Flash through Google AI Studio's free tier, or connect OpenAI, Anthropic, Google Gemini or an OpenAI-compatible provider directly from the car, with no hosted relay or paid VPS required.
+- **Optional realtime voice conversations** — Text remains the default, while compatible OpenAI and Gemini models support tap-to-start audio conversations and spoken replies. Vehicle-data sharing and actions still require on-screen approval; providers without native realtime audio remain text-only.
+- **Create and troubleshoot automations with AI** — Describe a rule to generate and save a reviewable manual-only automation, search community automations conversationally, or ask why an existing rule did not run and receive suggestions based on its conditions, timing and redacted logs. Shell-command help remains advisory and cannot execute a command.
+- **Control the car with confirmation** — Ask to set the cabin temperature, open or close the sunshade, or run a named automation. Overdrive validates the exact request locally and shows a separate confirmation before using the existing vehicle-control and automation safety paths.
+- **Configurable AI summaries** — Generate insights on demand, on a daily or weekly schedule, or from an automation. The latest result can optionally appear below the vehicle status on the car and web dashboards and can be included in notifications.
+
+### ⚡ Optimizations & Fixes
+
+- **One complete AI kill switch** — Disabling GenAI cancels active requests and voice sessions, stops scheduled generation and removes its idle network/compute use. When enabled, the daemon can continue approved summaries while parked if Overdrive is configured to run with the vehicle off.
+- **Device-bound credential protection** — Provider keys reuse the encrypted BYD Cloud credential-storage path, never return to the WebView and are cleared when their provider origin changes.
+- **Private, bounded context sharing** — Vehicle data and redacted log excerpts are attached only to the selected request; realtime voice asks for one-time approval before re
+-----
+## alpha-v40.2 | Alpha v40.2 | 2026-08-15T06:34:51Z
+## 🇴🇩 Overdrive Update v40
+## Update v40.2
+
+### New Features
+
+- Remote vehicle wake-up is now supported through **Vehicle Control** and **Automations**. With **BYD Cloud** connected, enabling seat ventilation while the vehicle is off wakes the vehicle and starts climate control.
+
+### Optimizations & Fixes
+
+- **Lower CPU usage** — Fixed a tariff recalculation loop that could repeatedly scan charging history, consume high CPU and prevent a clean restart.
+- **More reliable restarts** — RoadSense and recording services now shut down cleanly, active trips remain intact, and stalled cleanup can no longer leave Overdrive half-running.
+
+---
+### ✨ New Features
+
+- **Voice of God — speak through your car from anywhere** — The new Communicate page streams live hold-to-talk audio through the car's speakers, with an optional custom voice level (off by default so it follows the car's media volume), a compact non-blocking receiver overlay, mute control, a 30-second limit and priority for RoadSense safety chimes.
+- **Send messages to the infotainment screen** — Send custom info, warning or alert toasts, or parked-only dialogs, with position, duration and Displayed/Failed acknowledgement. In-car Remote Communication settings control voice, messages, output level, overlay permission, tests and emergency disable.
+
+### ⚡ Optimizations & Fixes
+
+- **More reliable automations** — Corrected AC, hazard, automatic-light/wiper and sunroof/sunshade signal and action mappings; unsupported readings now remain unavailable instead of triggering false states.
+- **Faster with no idle polling** — Signal polling now runs only while referenced and stops when disabled, while an unavailable vehicle signal source can no longer take down the complete Automations API.
+- **Charging power on more vehicles** — Added another OEM charging-power channel used by DiLink 3 vehicles when the existing reading reports unavailable, including while parked. If no direct kW reading is available, the dashboard now shows a data-derived approximate value with a `~` marker instead of presenting a fixed 7 kW guess as measured power.
+- **Charging history no longer stays empty** — Fixed a database recovery conflict that could prevent the charging-session recorder from starting, so active sessions now appear in history when charging begins and complete normally after unplugging.
+
+---
+-----
+## alpha-v36.6 | Alpha v36.6 | 2026-08-01T18:37:11Z
+## 🇴🇩 Overdrive Update v36: Charging Tariffs, AC Switch-Off Timer & Cabin-Temperature Fixes
+## [Update v36.6]
+- Added a new function to increase/decrease temperature by 1 from keymapping
+- Added a new capability to use variables for showing toast, dialog, etc
+- Enhanced the community automation download to also have the name alongside
+- Fixed live stream race condition bug on mobile
+- Fixed automation variable issue
+- Fixed HEV range and petrol consumption in trips
+- Fixed Blindspot camera view options
+- Fixed various automations (taking screenshot, normal mode switch, etc)
+---
+## [Update v36.4]
+- Fixed ADAS BlindSpot automation trigger
+- Improved surveillance detection
+- Fixed Seat occupancy automation trigger
+- Fixed UI/UX issues
+- Fixed Translations across dropdown items
+- Added resize configuration persistence for the cluster projected apps, so that it projects with the previous size configuration.
+- Fixed Telegram bot arming/re-arming issue
+- Fixed motion detection blocks for debug camera view
+---
+## [Update v36.3]
+### ✨ New Features
+
+  - **Live is now a camera-first dashboard** — The camera stage takes the screen, with the selector and a location preview sharing a
+  utility rail on the right. The separate Map tab is gone; tap **Expand map** to grow the location card and **Back to cameras** to
+  return.
+  - **Collapsible navigation rail** — The rail now shows labels next to each icon and can be collapsed to icons only. Tap the chevron
+  or swipe the rail sideways; your choice is remembered. Language and Help moved to the bottom of the rail.
+  - **Vehicle screen redesign** — Bigger, clearer tyre-pressure cards with easier-to-read PSI, a better-framed 3D car, and a proper
+  "unknown" state instead of guessing.
+  - **Cloud-only controls are marked** — Lock, Unlock, Flash, Find car, Open trunk, Battery heat and the charging-schedule buttons
+  now show when they need a BYD account, and tapping the cloud pill explains why.
+  - **RoadSense overlay switch** — The floating RoadSense pill and hazard card now have their own toggle under Settings → Status
+  overlay, alongside the camera, trip and replay indicators.
+  - **Ambient light joins automations and Home Assistant** — A new **Ambient light** trigger fires when the interior lighting turns
+  on or off, however it was switched — from Overdrive, from Home Assistant, or from the car's own screen. Home Assistant also gains
+  an ambient on/off switch, a 0–100% brightness slider and a state sensor. Cars that don't report their ambient state simply leave
+  the trigger and sensor unavailable rather than guessing.
+
+  ### ⚡ Optimizations & Fixes
+
+  - **Live camera comes back after switching apps** — Leaving Overdrive and returning now restores the camera you were watching
+  instead of leaving you on a blank player. The camera will no longer start up while the app is off-screen.
+  - **Live video no longer goes black after resuming** — On the head unit's own decoder, the picture could stay black with a "Live"
+  badge after any stop. Fixed.
+  - **Camera selector loads instantly** — The car artwork appears straight away with a silhouette fallback, instead of waiting on the
+  3D renderer, and the hidden sidebar renderer no longer runs inside the app.
+  - **Camera labels are readable in-car** — FRONT / REAR / LEFT / RIGHT no longer squash to an ellipsis, and the left/right labels
+  sit clear of the video edge.
+  - **"Co
+-----
+## alpha-v35.1 | Alpha v35.1 | 2026-07-28T05:45:59Z
+## alpha-v34.5 | Alpha v34.5 | 2026-07-20T10:53:41Z
+## 🇴🇩 Overdrive Update v34.0: Projection, Smarter Automations & Reliability Fixes
+### [Update v34.5]
+- Added an option to resume app projection when car turns on
+- Fixed App projection issues like resizing, aspect ratio and app not opening correctly once projection ends
+- Added a Mine badge in the community section for the owners of the community automations
+- Fixed automation editing for big automations
+- Fixed BlindSpot rotation view for left/right camera feeds
+- Fixed Charging limits in vehicle control
+- Fixed ADAS automations which were not working correctly
+- Update PT-BR translations from crowdin contributors
+
+### ✨ New Features
+
+- **Choose when Overdrive runs** — Pick "On & Off" (keeps watching while parked, the default) or "On Only" (fully shuts down when you park and starts back up when you switch the car on — no overnight battery use). Set it on first run or any time under Surveillance → General.
+- **Low-power mode while parked** — Optional setting that drops the cameras to a low idle frame rate when nothing's happening and instantly ramps back to full quality on motion, saving battery without missing events.
+- **Projection** — Cast an app to the driver cluster and see a live, draggable, resizable mirror of it on the main screen — tap and swipe the mirror to control it.
+- **On-screen messages** — New "Show Toast" and "Show Dialog" actions put a message on the screen from any automation or button. A toast fades on its own (choose text, position, and how long); a dialog shows a title, body and an OK button. Both float over whatever's on screen without taking over the car — safe while driving.
+- **Compare against a variable or another signal** — If / Else, Loop, and Wait-Until can now compare a value against one of your variables or against another live signal, not just a fixed number (e.g. "wait until battery ≥ my target").
+- **Set a variable from the car's live state** — A "Set Variable" action can capture the current value of a signal (speed, drive mode, battery, temperature…) into a variable to use later.
+- **Air recirculation control** — Switch the air intake between recirculate and fresh air from an automation or a mapped button.
+
+### ⚡ Optimizations & Fixes
+
+- **Play Video works now** — Uploaded MP4 videos wouldn't start (from either an automation or a button); they now play correctly on screen.
+- **Seatbelt automations fire** — The driver/passenger belt state was read the wrong way and never updated, so belt triggers and conditions never fired. Fixed, with a de-glitch so a never-fastened passenger seat reads correctly.
+- **Cabin-temperature automations fire** — "Cabin temp" was reading the climate dial (your setpoint) instead of the measured cabin temperature, so a temperature rule could never trigger. It now reads the real sensor (and the temperature shown to Home Assistant is correct too).
+- **Double-tap bindings no longer trigger the single action** — A hardware double-tap often fired the single-press action instead. The detection window is more forgiving, and there's a new **Double-tap speed** slider on the Key Mapping page to tune it to your buttons.
+- **Fold/unfold mirrors reliability** — Aligned the mirror-fold command with the reference behaviour so it reports success correctly.
+- **Ambient-light colour picker redesign** — The interior colour picker is now a tap-to-pick swatch grid matching the Vehicle Control page, instead of a fiddly sli
+-----
+## alpha-v33.1 | Alpha v33.1 | 2026-07-16T16:49:36Z
+## 🇴🇩 Overdrive Update v33.0: Programmable Automations, Full ADAS Control & More Ways to React
+### [Update v33.1]
+### ✨ New Features
+
+- **Cast any app to the driver cluster** — A "Move app to display" automation/button can now send an app to the instrument cluster behind the wheel (not just the main screen). The gauges return when you move it back or switch the car off.
+- **Save reusable action groups from the app** — Build a named set of actions once, then run it from any automation or button. There's now a proper Groups tab to create, edit and delete them.
+- **Lock and regen as triggers & conditions** — React to the car locking/unlocking, and to the energy-recuperation level (Standard / High / Max).
+- **Block a button's single-click** — Optional per-binding setting so a double-press action isn't preceded by the button's normal single-click (a single tap still works, just after a short delay).
+
+### ⚡ Optimizations & Fixes
+
+- **More triggers & conditions fire reliably** — Gear (incl. Park), seatbelt, drive/EV mode, hazards, high/low beam, auto-lights, incline and parking-radar were reading a stale value and often never firing; they now update live while you drive and park.
+- **If / Else automations save correctly** — The "Otherwise" branch was being dropped on save and not reloading on edit; both branches now persist.
+- **Action groups save reliably** — Fixed a wiring bug that made every group save fail, and a clearer message when a clip's length is out of range.
+- **Automation editor polish** — Consistent field widths, tidier action-group cards, a cleaner condition value picker, and the Groups list now refreshes when you open the tab.
+- **Lower parked power use** — Fast pedal/steering polling now stops when the car is off.
+----
+### ✨ New Features
+
+- **Automations that can think** — Loops, an inline If / Else branch, number variables, and reusable action groups.
+- **Smarter conditions** — Nested AND / OR groups, and compare one live value against another (cabin vs outside temp). Actions and triggers are now grouped into categories.
+- **One automation controls another** — enable/disable/toggle a rule from another. Name them, see how often each runs, and fire any from a mapped button.
+- **Full ADAS control** — blind-spot, traffic-sign, cross-traffic alert & brake, traffic-light, door-open & rear-collision warning, speed-limit, lane-keeping, forward-collision, hazards. Emergency Braking is re-arm-only, never off.
+- **More to control** — WiFi / Bluetooth / data (WiFi stays off), AC auto & fan-only, heated wheel, welcome & reading lights, ambient music, headlight level, media, volume, brightness, speak-aloud and app navigation.
+- **More to react to** — drive & EV/HEV mode, sunrise/sunset, date, rain-soon, an incoming call, and what the **parked camera** sees (person, vehicle or animal).
+- **Home Assistant, both ways** — publish an MQTT message from a rule, and trigger a rule from an incoming one.
+- **Edit shared automations** — update a community automation you published in place, keeping its ratings and downloads.
+
+### ⚡ Optimizations & Fixes
+
+- **Sounds and videos play now** — the Play Audio / Video actions were silent on many cars.
+- **Driver seat heating no longer also turns on the passenger seat.**
+- **Double-press-only buttons work again** — a single tap now passes through to the car's own function (e.g. opening the 360 view). **"Close all windows"** fr
+-----
+## alpha-v31.2 | Alpha v31.2 | 2026-07-12T17:38:50Z
+## 🇴🇩 Overdrive Update v31.0: Community Automations, Ambient Automation, App Launcher & Live Deterrents
+### [Update v31.2]
+
+- Added km/kwh and custom date range selection for trips
+- Fixed edge case where event push notifications were not working
+  #### Triggers / Conditions (4 new)
+  - **Outside Temperature** (`outsideTemp`) — int, −40…60 °C; ambient-only (exterior sensor → weather), never the cabin sensor
+  - **WiFi State** (`wifiState`) — enum: connected / disconnected
+  - **WiFi Network Name** (`wifiSsid`) — string; match by SSID ("connect to a named network")
+  - **System Boot** (`boot`) — one-shot; fires once after a genuine device boot (uptime-guarded so daemon restarts don't re-fire)
+
+  #### Actions (3 new)
+  - **Set iTAC State** (`itac`) — vehicle control (SDK), on/off; readback-verifiable
+  - **Set Media Volume** (`mediaVolume`) — 0–100% via AudioManager (STREAM_MUSIC)
+  - **Set Screen Brightness** (`screenBrightness`) — 0–100% infotainment brightness
+
+  #### Key Mapping
+  - **iTAC (torque control)** — on/off, bindable to any hardware button
+
+### ✨ New Features
+
+- **Community Automations — browse, share and rate** — A new Community tab to discover automations other drivers built and add them with one tap (switched off, so you can review them first). Publish your own, rate the ones you like, and sort or filter by rating, adds or recency.
+- **Ambient light automation — and more ways to trigger** — Set the interior ambient light colour as an automation action, or straight from the Vehicle Control page. New triggers also let your rules react to current speed (km/h or mph), the time of day, and the day of the week — and a new copy button duplicates an existing automation so you don't have to rebuild one from scratch.
+- **Open any app — from an automation or a button** — Launch any installed app automatically when an automation fires, or bind it to a steering-wheel/dashboard button with Key Mapping. Just pick it from a live list of everything installed on the car.
+- **Horn and Flash on the live camera view** — Dedicated Horn and Flash buttons right on the live camera feed, so you can sound the horn or flash the lights in an instant to deter anyone near your car when you spot a threat.
+- **Separate MQTT heartbeat for parked, charging and normal** — Independent heartbeat sliders let you slow telemetry publishing right down when the car is parked or charging, so Overdrive uses less data and fewer resources when nothing much is happening — without losing state sync.
+
+---
+-----
+## alpha-v30.8 | Alpha v30.8 | 2026-07-09T14:51:02Z
+## alpha-v30.0 | Alpha v30.0 | 2026-07-05T09:04:05Z
+## alpha-v29.3 | Alpha v29.3 | 2026-07-05T08:51:02Z
+## 🇴🇩 Overdrive Update v29.0: Tune Each Camera, Catch Every Alert
+### [Update v29.3]
+- Optimised Surveillance recording accuracy and length
+- Fixed PHEV Charging power calculation
+- Added global rate limit for IPs
+
+### ✨ New Features
+
+- **Separate quality for driving and surveillance** — Recording frame rate and video quality can now be set independently for the two modes: one set of values for when the car is on and recording, another for when it's parked and keeping watch.
+- **A history of every notification** — Notifications now have their own Log tab, so a push you missed is never lost. Open it any time to read back everything the car has flagged — surveillance events, charging, doors, tyres and more. Filter by date, category or severity, and tap an event alert to jump straight to its recording.
+
+### ⚡ Optimizations & Fixes
+
+- **Correct charging power for plug-in hybrids** — Fixed the charging power reading on PHEVs.
+- **Turn-by-turn banner alignment** — Sorted out the alignment of the turn-by-turn navigation banner so it sits correctly.
+- **Sharper surveillance detection** — Improved detection accuracy so the camera flags what matters and misses less.
+- **Live MQTT power draw** — Fixed MQTT power draw so it now updates live.
+- **Time to full charge no longer sticks** — Fixed the time-to-full-charge figure getting stuck on the dashboard.
+
+---
+-----
+## alpha-v29.0 | Alpha v29.0 | 2026-07-02T15:57:52Z
+## 🇴🇩 Overdrive Update v29.0: Tune Each Camera, Catch Every Alert
+
+### ✨ New Features
+
+- **Separate quality for driving and surveillance** — Recording frame rate and video quality can now be set independently for the two modes: one set of values for when the car is on and recording, another for when it's parked and keeping watch.
+- **A history of every notification** — Notifications now have their own Log tab, so a push you missed is never lost. Open it any time to read back everything the car has flagged — surveillance events, charging, doors, tyres and more. Filter by date, category or severity, and tap an event alert to jump straight to its recording.
+
+### ⚡ Optimizations & Fixes
+
+- **Correct charging power for plug-in hybrids** — Fixed the charging power reading on PHEVs.
+- **Turn-by-turn banner alignment** — Sorted out the alignment of the turn-by-turn navigation banner so it sits correctly.
+- **Sharper surveillance detection** — Improved detection accuracy so the camera flags what matters and misses less.
+- **Live MQTT power draw** — Fixed MQTT power draw so it now updates live.
+- **Time to full charge no longer sticks** — Fixed the time-to-full-charge figure getting stuck on the dashboard.
+
+---
+-----
+## alpha-v28.3 | Alpha v28.3 | 2026-06-28T11:00:44Z
+## alpha-v28.2 | Alpha v28.2 | 2026-06-27T11:30:57Z
+## alpha-v27.2 | Alpha v27.2 | 2026-06-18T16:00:08Z
+## alpha-v26.8 | Alpha v26.8 | 2026-06-15T19:13:11Z
+### [Update v26.8]
+- Added Oem DashCam layout for surveillance recordings as well
+- Fixed some SD card mount race issues
+- Added remove button to delete the search history from the map
+- Fixed BlindSpot projection on cold starts
+- Fixed App version not displaying correctly in about section
+
+
+### ✨ New Features
+
+- **Two update channels — pick how new you like it** — You can now choose how updates reach your car, right from **Settings → About → Update channel**. Switch any time; it's just a preference, no reinstall needed.
+  - **Alpha** — the stable release. This is the recommended choice for everyday driving. Every version we've put out is kept here, so you can browse the list and install any one you like — and if a new build ever doesn't suit you, you can go back to an earlier one.
+  - **Braveheart** — the latest and greatest, the moment it's ready. You get new features first, before anyone else. Because these are fresh builds, you might occasionally run into a rough edge — so we've made it easy to tell us when you do (see below).
+- **Send us a log when something goes wrong** — If you hit a bug, you can now send us the details in a couple of taps. The app bundles up a diagnostic log (with your personal info automatically removed) and gives you back a short code. Just share that code with us on the community channels — Discord, GitHub, or WhatsApp — along with a quick note about what happened, and we can look straight into it. On the in-car app you'll find this on the **Daemons** screen (tap a service's log → **Upload & get a code**); in the web app it's under **About → Diagnostics**.
+- **Light or dark map, your call** — A new button on the map lets you switch the map between light and dark right there. Leave it on **Auto** and the map simply follows your app theme like before; pick light or dark and it stays that way every time you open the map.
+- **Save your Home, Work, and favourite places** — Pin the places you drive to most and reach them in one tap. Home and Work get their own quick buttons, and you can save any other spot with a name you choose. Tap the search box and they're right there, so you don't have to type the same address every time.
+- **Pick up your trip where you left off** — If you step out of the map and come back, your destination and stops are still set — navigation continues instead of dropping you back at an empty search box.
+
+### ⚡ Optimizations & Fixes
+
+- **Lower CPU and GPU usage with Proximity Guard and Blind Spot on** — When the car is on and these are enabled but nothing is happening, the cameras run at a low frame rate instead of full speed, and switch to full quality the moment there's an event or you signal. This cuts the load the app puts on the system in the meantime; events and recordings still capture in full quality.
+- **Live view runs at full quality only while open** — When you open a high-quality live camera view, it shows at full frame rate; once you close it, the cameras drop back to the low-power rate instead of staying high.
+- **Cameras start only when the mode needs them** — Proximity Guard starts when you turn the car on, Drive mode starts once the car is moving, and Continuous starts when the car wakes. Cameras aren't kept running before a mode actually needs them.
+- **Recording storage limit is now properly enforced** — Older recordings are now cleared correctly once your recordings reach the set storage limit, including 
+-----
+## braveheart | Braveheart (latest) | 2026-06-13T11:01:12Z
+## 🇴🇩 Overdrive Update v51.0: Glass Widgets & BYD Shark 6
+
+### ✨ New Features
+
+- **Glass Widgets (opt-in)** — Glass instrument widgets over the home screen or every app: battery & range, charging, live trip, RoadSense, vehicle power & tyres, and vehicle controls. Turn them on from the new Widgets page; when off, nothing runs.
+- **Your layout** — Choose which widgets show and their order, position, size and tint. Charging can show only while charging.
+- **Power & tyres at a glance** — Power flows from the battery to the motors and back on regen, the wheels show tyre pressure, and an optional blind-spot view lights the side where the radar sees a vehicle.
+- **Controls from the overlay** — Lock, climate, boot, lights and all four windows (close, vent, open), in Park only.
+- **BYD Shark 6 support (opt-in)** — The Shark's DiLink 5.0 firmware locks the folder Overdrive's daemons use, so nothing could start. A new **Diagnostics → Daemon storage** toggle moves that folder to one the head unit allows, and the Shark is recognised from its firmware so the camera order (8,9,5,4) is picked automatically. Other vehicles are unaffected unless the toggle is turned on.
+
+---
+-----
+## alpha-v26.2 | Alpha v26.2 | 2026-06-13T15:13:16Z
+### [Update v26.2]
+- Fixed BlindSpot FPS
+- Fixed telegram bot connectivity when sing-box proxy is running
+- Fixed alpha/braveheart build update issues
+
+
+### ✨ New Features
+
+- **Two update channels — pick how new you like it** — You can now choose how updates reach your car, right from **Settings → About → Update channel**. Switch any time; it's just a preference, no reinstall needed.
+  - **Alpha** — the stable release. This is the recommended choice for everyday driving. Every version we've put out is kept here, so you can browse the list and install any one you like — and if a new build ever doesn't suit you, you can go back to an earlier one.
+  - **Braveheart** — the latest and greatest, the moment it's ready. You get new features first, before anyone else. Because these are fresh builds, you might occasionally run into a rough edge — so we've made it easy to tell us when you do (see below).
+- **Send us a log when something goes wrong** — If you hit a bug, you can now send us the details in a couple of taps. The app bundles up a diagnostic log (with your personal info automatically removed) and gives you back a short code. Just share that code with us on the community channels — Discord, GitHub, or WhatsApp — along with a quick note about what happened, and we can look straight into it. On the in-car app you'll find this on the **Daemons** screen (tap a service's log → **Upload & get a code**); in the web app it's under **About → Diagnostics**.
+- **Light or dark map, your call** — A new button on the map lets you switch the map between light and dark right there. Leave it on **Auto** and the map simply follows your app theme like before; pick light or dark and it stays that way every time you open the map.
+- **Save your Home, Work, and favourite places** — Pin the places you drive to most and reach them in one tap. Home and Work get their own quick buttons, and you can save any other spot with a name you choose. Tap the search box and they're right there, so you don't have to type the same address every time.
+- **Pick up your trip where you left off** — If you step out of the map and come back, your destination and stops are still set — navigation continues instead of dropping you back at an empty search box.
+
+### ⚡ Optimizations & Fixes
+
+- **Lower CPU and GPU usage with Proximity Guard and Blind Spot on** — When the car is on and these are enabled but nothing is happening, the cameras run at a low frame rate instead of full speed, and switch to full quality the moment there's an event or you signal. This cuts the load the app puts on the system in the meantime; events and recordings still capture in full quality.
+- **Live view runs at full quality only while open** — When you open a high-quality live camera view, it shows at full frame rate; once you close it, the cameras drop back to the low-power rate instead of staying high.
+- **Cameras start only when the mode needs them** — Proximity Guard starts when you turn the car on, Drive mode starts once the car is moving, and Continuous starts when the car wakes. Cameras aren't kept running before a mode actually needs them.
+- **Recording storage limit is now properly enforced** — Older recordings are now cleared correctly once your recordings reach the set storage limit, including dashcam drive clips. Previously these could keep building up past the limit and fill the card.
+- **Smooth location tracking on the map** — 
+-----
+## alpha-v26.0 | Alpha v26.0 | 2026-06-13T11:08:20Z
+## 🇴🇩 Overdrive Update v26.0: Choose Your Updates — Alpha or Braveheart
+
+### ✨ New Features
+
+- **Two update channels — pick how new you like it** — You can now choose how updates reach your car, right from **Settings → About → Update channel**. Switch any time; it's just a preference, no reinstall needed.
+  - **Alpha** — the stable release. This is the recommended choice for everyday driving. Every version we've put out is kept here, so you can browse the list and install any one you like — and if a new build ever doesn't suit you, you can go back to an earlier one.
+  - **Braveheart** — the latest and greatest, the moment it's ready. You get new features first, before anyone else. Because these are fresh builds, you might occasionally run into a rough edge — so we've made it easy to tell us when you do (see below).
+- **Send us a log when something goes wrong** — If you hit a bug, you can now send us the details in a couple of taps. The app bundles up a diagnostic log (with your personal info automatically removed) and gives you back a short code. Just share that code with us on the community channels — Discord, GitHub, or WhatsApp — along with a quick note about what happened, and we can look straight into it. On the in-car app you'll find this on the **Daemons** screen (tap a service's log → **Upload & get a code**); in the web app it's under **About → Diagnostics**.
+- **Light or dark map, your call** — A new button on the map lets you switch the map between light and dark right there. Leave it on **Auto** and the map simply follows your app theme like before; pick light or dark and it stays that way every time you open the map.
+- **Save your Home, Work, and favourite places** — Pin the places you drive to most and reach them in one tap. Home and Work get their own quick buttons, and you can save any other spot with a name you choose. Tap the search box and they're right there, so you don't have to type the same address every time.
+- **Pick up your trip where you left off** — If you step out of the map and come back, your destination and stops are still set — navigation continues instead of dropping you back at an empty search box.
+
+### ⚡ Optimizations & Fixes
+
+- **Lower CPU and GPU usage with Proximity Guard and Blind Spot on** — When the car is on and these are enabled but nothing is happening, the cameras run at a low frame rate instead of full speed, and switch to full quality the moment there's an event or you signal. This cuts the load the app puts on the system in the meantime; events and recordings still capture in full quality.
+- **Live view runs at full quality only while open** — When you open a high-quality live camera view, it shows at full frame rate; once you close it, the cameras drop back to the low-power rate instead of staying high.
+- **Cameras start only when the mode needs them** — Proximity Guard starts when you turn the car on, Drive mode starts once the car is moving, and Continuous starts when the car wakes. Cameras aren't kept running before a mode actually needs them.
+- **Recording storage limit is now properly enforced** — Older recordings are now cleared correctly once your recordings reach the set storage limit, including dashcam drive clips. Previously these could keep building up past the limit and fill the card.
+- **Smooth location tracking on the map** — Your position marker now glides along the road continuously instead of jumpi
+-----
+## alpha-v25.4 | Alpha v25.4 | 2026-06-13T11:09:31Z
+## models-v1 | Vehicle Models v1 | 2026-05-10T08:24:00Z
+## asset | Demo | 2026-04-07T14:31:30Z
+## debug | overdrive-release-alpha-debug | 2026-03-01T09:44:34Z
+## alpha | overdrive-release-alpha-v44 | 2026-01-28T16:51:40Z
+## 🇴🇩 Overdrive Update v48.0: Camera Reliability, Telemetry & Projection
+## [Update v48.18]: DiLink 3.0 & 5.0 Fixes, Tailscale HTTPS
+
+### ✨ New Features
+- **Optional DiLink 5 parked cloud keep-alive** — While the car is off, Overdrive can poll BYD Cloud about once per minute to help prevent deep sleep and preserve ADB/camera access. It requires a verified BYD Cloud account and internet, may use vehicle SIM data and extra parked battery, follows the active proxy route, and stops on ACC-on or daemon shutdown.
+---
+
+### ✨ New Features
+
+- **Optional decoupled camera pipeline** — On non-DiLink 4/5 vehicles, enable **Decoupled encoder pipeline** under **Diagnostics → Camera Mapping**, then restart the camera daemon or cycle ACC. It keeps the BYD AVM/reverse-camera feed responsive while Overdrive records.
+
+### ⚡ Optimizations & Fixes
+
+- **More reliable DiLink 5 telemetry** — Improved speed, pedal, gear and indicator readings while keeping broader vehicle data available.
+- **DiLink 5 cluster projection** — Added app and RoadSense map projection support, including ACC automations.
+- **Safer compatibility** — Improved projection startup and cleanup, with every change limited to the selected DiLink 5 mode.
+- **Fix swapped DiLink 5 cameras** — Camera Probe can switch camera order on affected models while Auto keeps existing defaults.
+- **Faster camera acquisition (Di3)** — Parked-surveillance testing reduced worst-frame acquisition time from 31 ms to 19 ms (~39%) at the same recording FPS, without meaningful CPU or GPU regression.
+
+---
+-----
+=== issue 258 state ===
+open None 29
+>> sp-hy 2026-09-26T06:00:15Z
+> `adb shell "f=/system/etc/selinux/plat_sepolicy.cil; grep 'allow.*shell_data_file' $f; for a in $(grep 'allow.*shell_data_file' $f | grep -o 'base_typeattr_[0-9]*' | sort -u); do grep 'typeattributeset '$a' ' $f; done"`
+> 
+> `adb shell "d=/data/user_de/0/com.android.shell; printf 'cat <<EOF\nheredoc_ok\nEOF\n' > $d/hd.sh; echo run1:; sh $d/hd.sh; echo run2:; TMPDIR=$d sh $d/hd.sh; rm -f $d/hd.sh"`
+> 
+> `adb shell "ls -ld /data/user_de/0/com.android.shell"`
+> 
+> `adb shell "chmod 700 /data/user_de/0/com.android.shell"`
+
+@yash-srivastava 
+
+1
+```
+C:\Users\User\Desktop\scrcpy>adb shell "f=/system/etc/selinux/plat_sepolicy.cil; grep 'allow.*shell_data_file' $f; for a in $(grep 'allow.*shell_data_file' $f | grep -o 'base_typeattr_[0-9]*' | sort -u); do grep 'typeattributeset' $f | grep $a; done"
+(allow appdomain shell_data_file (file (write getattr)))
+(neverallow base_typeattr_198 shell_data_file (file (create setattr relabelfrom relabelto append unlink link rename)))
+(neverallow base_typeattr_198 shell_data_file (dir (create setattr relabelfrom relabelto append unlink link rename)))
+(neverallow base_typeattr_198 shell_data_file (lnk_file (create setattr relabelfrom relabelto append un
+
+>> yash-srivastava 2026-09-26T06:04:15Z
+`adb shell "chmod 711 /data/user_de/0/com.android.shell; ls -ld /data/user_de/0/com.android.shell"`
+  Reboot, then run 
+`adb shell "ls -ld /data/user_de/0/com.android.shell"`
+
+>> sp-hy 2026-09-26T06:08:04Z
+```
+C:\Users\User\Desktop\scrcpy>adb shell "chmod 711 /data/user_de/0/com.android.shell; ls -ld /data/user_de/0/com.android.shell"
+drwx--x--x 6 shell shell 4096 2026-09-26 15:58 /data/user_de/0/com.android.shell
+```
+
+Fully rebooted
+
+```
+C:\Users\User\Desktop\scrcpy>adb shell "ls -ld /data/user_de/0/com.android.shell"
+drwx--x--x 6 shell shell 4096 2026-09-26 15:58 /data/user_de/0/com.android.shell
+```
+
+>> 4t9tzgrd27-netizen 2026-09-26T11:18:26Z
+> `adb shell "chmod 711 /data/user_de/0/com.android.shell; ls -ld /data/user_de/0/com.android.shell"` Reboot, then run `adb shell "ls -ld /data/user_de/0/com.android.shell"`
+
+Hi Yash — I’ve consolidated the Shark 6 testing into one reply so you don’t have to piece it together across multiple comments.
+Vehicle is an Australian BYD Shark 6 / DiLink 5 head unit. Wireless ADB shell is uid=2000(shell), SELinux context u:r:shell:s0.
+1. /data/user_de/0/com.android.shell test
+Your primary test succeeds:
+drwx------ ... shell shell u:object_r:shell_data_file:s0 /data/user_de/0/com.android.shell
+CREATE_OK
+EXEC_OK
+Di5.0_DXF_W
+-r--r--r-- root root  ... /system/lib64/libais_test_util.so
+-r--r--r-- root shell ... /vendor/lib64/libais_client.so
+
+So on this Shark:
+- shell can create files in /data/user_de/0/com.android.shell
+- a copied executable can run from there
+- libais_test_util.so exists
+- libais_client.so exists
+- ro.vehicle.type is Di5.0_DXF_W
+I noticed another Shark result in the thread reported Di5.0_DX_W, without the F.
+2. SELinux
+/system/etc/selinux/plat_sepolicy.cil is readable and contains 72 occurrences of shell_data_file.
+Relevant rules include shell directory create/write/sea
+
+>> yash-srivastava 2026-09-28T03:07:36Z
+Try with v51.0. Enable alternate daemon storage and then restart all the daemon post that activate the di5mode and select shark profile for cameras.
+
+>> sp-hy 2026-09-28T03:54:29Z
+Hey @yash-srivastava thanks a lot, confirmed working after setting the daemon toggle and Dilink5/Shark profile, just need imagery for the Shark.
+
+Fuel + Battery levels correctly detected
+<img width="1879" height="1053" alt="Image" src="https://github.com/user-attachments/assets/f4ae71e6-040f-4015-a0bf-2da230483367" />
+
+This is correct, currently using a spare on my rear-right
+<img width="1883" height="991" alt="Image" src="https://github.com/user-attachments/assets/5b586f4d-9f05-4b1c-a102-ce4c27da3e6b" />
+
+Live feed is good:
+<img width="1909" height="1067" alt="Image" src="https://github.com/user-attachments/assets/721d64f0-a676-4640-a937-289fcfc9e95f" />
+
+Recording is working.
+
+Haven't tested everything yet or trying to keep the car alive via API polling.
+
+
+I had to install the v51 apk directly though, the website linked one doesn't seem to be able to update to this:
+
+Trying to set update channel fails
+<img width="1702" height="1069" alt="Image" src="https://github.com/user-attachments/assets/def95594-30e8-4032-a614-99c316f9db3a" />
+
+Trying to update to the latest alpha also fails
+
+<img width="1854" height="743" alt="Image" src="https://github.com/user-attachments/assets/b915dfbb-
+
+>> yash-srivastava 2026-09-28T04:18:24Z
+In the older version which u might be running the updates were broken.. which was already resolved in the newer versions.
+
+>> sp-hy 2026-09-28T08:24:13Z
+@yash-srivastava this happens if someone tries to do a fresh install of the current version linked on the website (48.18) or 49.7 on a Shark.
+
+In either of these releases it's not possible to switch to the braveheart channel or install an update.
+
+I believe it's because changing update channel in those versions relies on `/data/local/tmp/`:
+```
+2026-09-28 18:07:03.525 14515-16225 UnifiedConfig           com.overdrive.app                    W  IPC UPDATE_SECTION unreachable (failed to connect to /127.0.0.1 (port 19877) from /127.0.0.1 (port 36968) after 1500ms: isConnected failed: ECONNREFUSED (Connection refused)); trying stable-lock local fallback
+2026-09-28 18:07:03.525 14515-16225 UnifiedConfig           com.overdrive.app                    W  Section 'updates' update deferred: Stable config lock /data/local/tmp/overdrive_config.json.lock is absent; local mutation must retry after daemon initialization
+2026-09-28 18:07:03.575 14515-14515 UnifiedConfig           com.overdrive.app                    W  Config load proceeding without cache publication: Stable config lock /data/local/tmp/overdrive_config.json.lock is absent; local mutation must retry after daemon initialization
+```
+
+
