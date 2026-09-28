@@ -103,14 +103,60 @@ class Recorder(private val context: Context) {
     fun clips(): List<File> = storageRoot().listFiles { f -> f.extension == "mp4" }?.sortedByDescending { it.lastModified() } ?: emptyList()
     fun events(): List<File> = eventsDir().listFiles { f -> f.extension == "mp4" }?.sortedByDescending { it.lastModified() } ?: emptyList()
 
-    fun prune(maxBytes: Long = 8L * 1024 * 1024 * 1024) {
+    private val prefs = nz.lonewolf.shark.data.Prefs(context)
+
+    fun prune(maxBytes: Long = prefs.storageCapGb * 1_073_741_824L) {
         var total = 0L
         clips().forEach { f -> total += f.length(); if (total > maxBytes) f.delete() }
     }
 
+    /** One saved clip as the recordings page shows it. */
+    data class Saved(val file: File, val name: String, val camera: String, val startedAt: Long, val bytes: Long, val protectedClip: Boolean)
+    data class Usage(val clipBytes: Long, val protectedBytes: Long, val freeBytes: Long, val folder: String)
+
+    /** Finished clips, newest first. Clips still being written are left out because they cannot be played yet. */
+    fun saved(): List<Saved> {
+        val open = synchronized(this) { workers.mapNotNull { it.currentClip?.name } }.toSet()
+        val kept = events().associateBy { it.name }
+        val rolling = clips().filter { it.name !in open }
+        val names = rolling.map { it.name }.toSet()
+        val all = rolling + kept.values.filter { it.name !in names && it.name !in open }
+        return all.map { f ->
+            val base = f.nameWithoutExtension
+            val parts = base.split('_')
+            val started = if (parts.size >= 3) runCatching { stamp.parse(parts.takeLast(2).joinToString("_"))?.time }.getOrNull() else null
+            val camera = if (parts.size >= 3) parts.dropLast(2).joinToString(" ") else base
+            Saved(f, f.name, camera, started ?: f.lastModified(), f.length(), kept.containsKey(f.name))
+        }.sortedByDescending { it.startedAt }
+    }
+
+    fun usage(): Usage {
+        val root = storageRoot()
+        return Usage(clips().sumOf { it.length() }, events().sumOf { it.length() }, root.usableSpace, root.path)
+    }
+
+    /** Protecting copies the clip into events. Unprotecting hands it back to the rolling clips. */
+    fun setProtected(s: Saved, on: Boolean) {
+        val kept = File(eventsDir(), s.name)
+        val rolling = File(storageRoot(), s.name)
+        runCatching {
+            if (on) { if (!kept.exists()) s.file.copyTo(kept) }
+            else if (kept.exists()) { if (!rolling.exists()) kept.copyTo(rolling); kept.delete() }
+        }
+        _status.value = _status.value.copy(eventsKept = eventsDir().listFiles()?.size ?: 0)
+    }
+
+    fun delete(s: Saved) {
+        File(storageRoot(), s.name).delete()
+        File(eventsDir(), s.name).delete()
+        _status.value = _status.value.copy(eventsKept = eventsDir().listFiles()?.size ?: 0)
+    }
+
     private inner class CamWorker(val cam: QCarCam.Cam, private val root: File) : Thread("rec-${cam.label}") {
         @Volatile var previousClip: File? = null
-        private var currentClip: File? = null
+        @Volatile var currentClip: File? = null
+            private set
+        private val clipStamp = if (prefs.clipStamp) runCatching { ClipStamp(context, width, height, cam.label) }.getOrNull() else null
         private var clipHadMotion = false
         private var clipHadEvent = false
         private var prevSample: ByteArray? = null
@@ -151,6 +197,7 @@ class Recorder(private val context: Context) {
                         val pts = (System.nanoTime() - t0) / 1000
                         if (n > 0) {
                             if (mode == Mode.SENTRY && frames % 3 == 0) detectMotion(buf)
+                            clipStamp?.let { s -> runCatching { s.apply(buf) } }
                             buf.limit(n); codec.queueInputBuffer(inIndex, 0, n, pts, 0); frames++; fpsCount++
                         } else codec.queueInputBuffer(inIndex, 0, 0, pts, 0)
                     }

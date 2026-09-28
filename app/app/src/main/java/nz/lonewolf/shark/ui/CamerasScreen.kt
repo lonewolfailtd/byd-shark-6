@@ -56,6 +56,8 @@ private const val PH = 868
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CamerasScreen() {
+    var browsing by remember { mutableStateOf(false) }
+    if (browsing) { RecordingsScreen { browsing = false }; return }
     val scope = rememberCoroutineScope()
     val rec by Vehicle.recorder.status.collectAsStateWithLifecycle()
     var current by remember { mutableStateOf<Cam?>(null) }
@@ -143,6 +145,7 @@ fun CamerasScreen() {
                     Tile(if (rec.mode == nz.lonewolf.shark.camera.Recorder.Mode.SENTRY) "Disarm sentry" else "Stop recording", true, Modifier.width(160.dp)) { scope.launch { withContext(Dispatchers.IO) { Vehicle.recorder.stop() } } }
                     Tile("Save event", false, Modifier.width(150.dp), sub = "keeps last clips") { Vehicle.recorder.markEvent() }
                 }
+                Tile("Recordings", false, Modifier.width(150.dp), sub = "watch and manage") { current = null; scope.launch { withContext(Dispatchers.IO) { if (!rec.recording) QCarCam.stopAll() } }; browsing = true }
                 Tile("Auto record when driving", autoRec, Modifier.width(230.dp)) { autoRec = !autoRec; prefs.autoRecord = autoRec }
                 Tile("Auto sentry when parked", autoSentry, Modifier.width(230.dp), sub = "while the ute stays on") { autoSentry = !autoSentry; prefs.autoSentry = autoSentry }
             }
