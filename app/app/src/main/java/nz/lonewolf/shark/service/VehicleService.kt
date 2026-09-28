@@ -60,6 +60,7 @@ class VehicleService : Service() {
         var startApplied = false
         var reverseClearTicks = 0
         var parkedTicks = 0
+        var assistRestored = false
         while (true) {
             runCatching {
                 telemetry.value = Vehicle.telemetry.read()
@@ -71,6 +72,11 @@ class VehicleService : Service() {
                 energy.value = Vehicle.energy.read()
                 modes.value = Vehicle.modes.read()
             }.onFailure { android.util.Log.e("SharkProbe", "poll failed", it) }
+            // Settings memory: once per start, only in Park, a few seconds after the link comes up.
+            if (!assistRestored && tick >= 6 && telemetry.value?.gear == 1) {
+                assistRestored = true
+                if (Vehicle.assistMemory.restoreOnStart) runCatching { Vehicle.assistMemory.restoreAll(Vehicle.assist) }.onFailure { android.util.Log.e("SharkWrite", "assist restore failed", it) }
+            }
             // Camera rules: reverse hands the cameras to BYD; auto record on drive; sentry when parked.
             val gear = telemetry.value?.gear
             val rec = Vehicle.recorder

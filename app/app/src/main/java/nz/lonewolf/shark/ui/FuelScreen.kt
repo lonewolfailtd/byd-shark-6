@@ -146,7 +146,7 @@ fun FuelScreen() {
     }
 }
 
-@Composable private fun Head(text: String) = Text(text.uppercase(), color = Shark.muted, fontSize = 12.sp, letterSpacing = 1.2.sp, fontWeight = FontWeight.SemiBold)
+@Composable private fun Head(text: String) = Text(text.uppercase(), color = Shark.accent, fontSize = 12.sp, letterSpacing = 1.2.sp, fontWeight = FontWeight.SemiBold)
 @Composable private fun Number(text: String, colour: Color = Shark.text) = Text(text, color = colour, fontSize = 36.sp, fontWeight = FontWeight.Bold)
 @Composable private fun Line(label: String, value: String) = Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
     Text(label, color = Shark.muted, fontSize = 13.sp, modifier = Modifier.weight(1f)); Text(value, color = Shark.text, fontSize = 13.sp)

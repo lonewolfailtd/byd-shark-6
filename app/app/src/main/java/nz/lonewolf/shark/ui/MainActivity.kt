@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Vehicle.init(this)
         Art.colour = Vehicle.prefs.uteColour
-        Shark.theme = runCatching { Shark.Theme.valueOf(Vehicle.prefs.theme) }.getOrDefault(Shark.Theme.GREEN)
+        Shark.theme = runCatching { Shark.Theme.valueOf(Vehicle.prefs.theme) }.getOrDefault(Shark.Theme.CYAN)
         inclinometer = Inclinometer(this)
         Thread {
             runCatching { BydSdkLoader.ensure(applicationContext) }
@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private val tabs = listOf("Home", "Climate", "Off Road", "Gauges", "Fuel", "Towing", "Cameras", "Trips", "Pet", "Settings")
+private val tabs = listOf("Home", "Climate", "Off Road", "Gauges", "Fuel", "Towing", "Cameras", "Trips", "Pet", "Memory", "Settings")
 
 @Composable
 private fun Shell(inclinometer: Inclinometer) {
@@ -98,6 +98,7 @@ private fun Shell(inclinometer: Inclinometer) {
                 "Cameras" -> CamerasScreen()
                 "Trips" -> TripsScreen()
                 "Pet" -> PetScreen()
+                "Memory" -> MemoryScreen()
                 else -> SettingsScreen(inclinometer)
             }
         }
@@ -107,8 +108,8 @@ private fun Shell(inclinometer: Inclinometer) {
                 Box(Modifier.weight(1f).fillMaxSize().clickable { tab = i }, contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(Modifier.height(3.dp).fillMaxWidth(0.5f).background(if (sel) Shark.accent else Color.Transparent))
-                        TabIcon(name, if (sel) Shark.accent else Shark.muted, Modifier.padding(top = 6.dp).size(26.dp))
-                        Text(name, color = if (sel) Shark.accent else Shark.muted, fontSize = 13.sp, fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal)
+                        TabIcon(name, if (sel) Shark.accent else Shark.text, Modifier.padding(top = 5.dp).size(28.dp))
+                        Text(name, color = if (sel) Shark.accent else Shark.text, fontSize = 13.sp, fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal)
                     }
                 }
             }

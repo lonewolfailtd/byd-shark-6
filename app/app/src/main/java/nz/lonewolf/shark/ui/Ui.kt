@@ -42,19 +42,23 @@ object Shark {
     val panelLine = Color(0xFF223047)
     /** Accent colour the owner picks in Settings. Red matches the Shark cabin trim. */
     enum class Theme(val label: String, val accent: Color, val dim: Color) {
-        GREEN("Green", Color(0xFF3DDC84), Color(0xFF1F6B45)),
-        RED("Red", Color(0xFFFF3B30), Color(0xFF7A1F1A)),
+        CYAN("Electric", Color(0xFF19E3FF), Color(0xFF0B5F78)),
+        GREEN("Green", Color(0xFF2BFF9A), Color(0xFF14704A)),
+        RED("Red", Color(0xFFFF2D3F), Color(0xFF7A1420)),
         BLUE("Blue", Color(0xFF2FA8FF), Color(0xFF15507A)),
         AMBER("Amber", Color(0xFFFFB020), Color(0xFF7A5410)),
         ICE("White", Color(0xFFE8EEF6), Color(0xFF4A5A70)),
     }
-    var theme by mutableStateOf(Theme.GREEN)
+    var theme by mutableStateOf(Theme.CYAN)
+    /** Glowing edge and dark glass fill shared by every card. */
+    val edge get() = androidx.compose.ui.graphics.Brush.verticalGradient(listOf(accent.copy(alpha = 0.75f), accent.copy(alpha = 0.18f)))
+    val glass get() = androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color(0xD9122038), Color(0xEB060B16)))
     val accent get() = theme.accent
     val accentDim get() = theme.dim
     val warm = Color(0xFFFF7043)
     val cool = Color(0xFF42A5F5)
     val text = Color(0xFFF2F5F9)
-    val muted = Color(0xFF8FA3BF)
+    val muted = Color(0xFFA9BCD6)
     /** Warnings go yellow on the red theme so they still stand out. */
     val bad get() = if (theme == Theme.RED) Color(0xFFFFD21F) else Color(0xFFFF5252)
 }
@@ -64,12 +68,12 @@ fun Panel(title: String? = null, modifier: Modifier = Modifier, content: @Compos
     Column(
         modifier
             .clip(RoundedCornerShape(18.dp))
-            .background(Color(0xD60E1626))
-            .border(1.dp, Shark.panelLine, RoundedCornerShape(18.dp))
+            .background(Shark.glass)
+            .border(1.2.dp, Shark.edge, RoundedCornerShape(18.dp))
             .padding(16.dp)
     ) {
         if (title != null) {
-            Text(title.uppercase(), color = Shark.muted, fontSize = 13.sp, letterSpacing = 1.5.sp, fontWeight = FontWeight.SemiBold)
+            Text(title.uppercase(), color = Shark.accent, fontSize = 13.sp, letterSpacing = 2.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(10.dp))
         }
         content()
@@ -79,8 +83,8 @@ fun Panel(title: String? = null, modifier: Modifier = Modifier, content: @Compos
 /** A big toggle or action tile sized for a finger while driving. */
 @Composable
 fun Tile(label: String, active: Boolean = false, modifier: Modifier = Modifier, sub: String? = null, height: Dp = 72.dp, onClick: () -> Unit) {
-    val bgc = if (active) Shark.accentDim else Color(0xFF1B2638)
-    val line = if (active) Shark.accent else Shark.panelLine
+    val bgc = if (active) androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Shark.accent.copy(alpha = 0.85f), Shark.accentDim)) else androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color(0xE61A2A47), Color(0xE60C1424)))
+    val line = if (active) Shark.accent else Shark.accent.copy(alpha = 0.35f)
     Column(
         modifier
             .height(height)
@@ -92,8 +96,8 @@ fun Tile(label: String, active: Boolean = false, modifier: Modifier = Modifier, 
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(label, color = if (active) Shark.text else Shark.muted, fontSize = 17.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
-        if (sub != null) Text(sub, color = Shark.muted, fontSize = 12.sp)
+        Text(label, color = if (active) Color.White else Shark.text, fontSize = 17.sp, fontWeight = if (active) FontWeight.Bold else FontWeight.SemiBold, textAlign = TextAlign.Center)
+        if (sub != null) Text(sub, color = if (active) Color.White.copy(alpha = 0.8f) else Shark.muted, fontSize = 12.sp)
     }
 }
 
@@ -134,14 +138,18 @@ fun Gauge(label: String, value: String, fraction: Float?, modifier: Modifier = M
                     drawLine(Color(0xFF4A5C7A), Offset(mid.x, inset + 10.dp.toPx()), Offset(mid.x, inset + (if (i % 3 == 0) 20 else 15).dp.toPx()), (if (i % 3 == 0) 2 else 1).dp.toPx())
                 }
                 drawArc(Color(0xFF223047), 135f, 270f, false, Offset(inset, inset), rect, style = stroke)
-                if (fraction != null) drawArc(colour, 135f, 270f * fraction.coerceIn(0f, 1f), false, Offset(inset, inset), rect, style = stroke)
+                if (fraction != null) {
+                    drawArc(colour.copy(alpha = 0.22f), 135f, 270f * fraction.coerceIn(0f, 1f), false, Offset(inset, inset), rect, style = Stroke(width = 24.dp.toPx(), cap = StrokeCap.Round))
+                    drawArc(colour, 135f, 270f * fraction.coerceIn(0f, 1f), false, Offset(inset, inset), rect, style = stroke)
+                }
+                drawCircle(colour.copy(alpha = 0.5f), size.minDimension / 2 - 1.dp.toPx(), style = Stroke(1.5.dp.toPx()))
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(value, color = if (fraction == null) Shark.muted else Shark.text, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                Text(value, color = if (fraction == null) Shark.muted else Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
                 if (unit.isNotEmpty()) Text(unit, color = Shark.muted, fontSize = 12.sp)
             }
         }
-        Text(label, color = Shark.muted, fontSize = 13.sp, textAlign = TextAlign.Center)
+        Text(label.uppercase(), color = Shark.text, fontSize = 12.sp, letterSpacing = 1.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
     }
 }
 

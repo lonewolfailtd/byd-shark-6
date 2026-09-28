@@ -17,6 +17,8 @@ object Vehicle {
     lateinit var modes: ModesBridge; private set
     lateinit var firmware: nz.lonewolf.shark.data.FirmwareWatch; private set
     lateinit var fuel: nz.lonewolf.shark.data.FuelLog; private set
+    lateinit var assist: AssistBridge; private set
+    lateinit var assistMemory: nz.lonewolf.shark.data.AssistMemory; private set
     lateinit var profiles: nz.lonewolf.shark.data.ProfileStore; private set
     @Volatile var ready = false; private set
 
@@ -37,6 +39,8 @@ object Vehicle {
         firmware = nz.lonewolf.shark.data.FirmwareWatch(app)
         fuel = nz.lonewolf.shark.data.FuelLog(app)
         profiles = nz.lonewolf.shark.data.ProfileStore(app)
+        assist = AssistBridge(app)
+        assistMemory = nz.lonewolf.shark.data.AssistMemory(app)
         ready = true
     }
 }

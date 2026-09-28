@@ -195,7 +195,7 @@ fun HomeScreen(onOpenTab: (String) -> Unit) {
                 slots.forEachIndexed { i, pkg ->
                     val e = entries[pkg]
                     Row(
-                        Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp)).background(Color(0xCC0E1626)).border(1.dp, Shark.panelLine, RoundedCornerShape(14.dp))
+                        Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(14.dp)).background(Shark.glass).border(1.2.dp, Shark.edge, RoundedCornerShape(14.dp))
                             .combinedClickable(
                                 onClick = {
                                     if (e == null) picking = i
@@ -245,18 +245,18 @@ fun HomeScreen(onOpenTab: (String) -> Unit) {
 @Composable
 fun Glass(modifier: Modifier = Modifier, pad: Int = 12, content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit) {
     Column(
-        modifier.clip(RoundedCornerShape(16.dp)).background(Color(0xC20B1220)).border(1.dp, Shark.panelLine, RoundedCornerShape(16.dp)).padding(pad.dp),
+        modifier.clip(RoundedCornerShape(16.dp)).background(Shark.glass).border(1.2.dp, Shark.edge, RoundedCornerShape(16.dp)).padding(pad.dp),
         verticalArrangement = Arrangement.Center, content = content,
     )
 }
 
-@Composable private fun Label(text: String) = Text(text.uppercase(), color = Shark.muted, fontSize = 12.sp, letterSpacing = 1.2.sp, fontWeight = FontWeight.SemiBold)
-@Composable private fun Big(text: String, size: Int = 34, colour: Color = Shark.text) = Text(text, color = colour, fontSize = size.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+@Composable private fun Label(text: String) = Text(text.uppercase(), color = Shark.accent, fontSize = 12.sp, letterSpacing = 1.6.sp, fontWeight = FontWeight.Bold)
+@Composable private fun Big(text: String, size: Int = 38, colour: Color = Color.White) = Text(text, color = colour, fontSize = size.sp, fontWeight = FontWeight.Bold, maxLines = 1)
 @Composable private fun Small(text: String) = Text(text, color = Shark.muted, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
 
 @Composable
 fun Bar(fraction: Float?, colour: Color, modifier: Modifier = Modifier) {
-    Box(modifier.padding(vertical = 5.dp).fillMaxWidth().height(7.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFF223047))) {
+    Box(modifier.padding(vertical = 5.dp).fillMaxWidth().height(9.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFF223047))) {
         if (fraction != null) Box(Modifier.fillMaxHeight().fillMaxWidth(fraction.coerceIn(0f, 1f)).clip(RoundedCornerShape(4.dp)).background(colour))
     }
 }

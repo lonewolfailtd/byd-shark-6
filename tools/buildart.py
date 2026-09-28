@@ -4,7 +4,14 @@ Backgrounds are cropped to 16:9 and sized 1920x1080. The two dial pictures have 
 studio background made see through and are trimmed to the ute.
 """
 import glob, os
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
+
+
+def lift(im):
+    """The source pictures are shot at dusk. Lift them so the screen does not look dim."""
+    im = ImageEnhance.Brightness(im).enhance(1.32)
+    im = ImageEnhance.Color(im).enhance(1.45)
+    return ImageEnhance.Contrast(im).enhance(1.12)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'art', 'source')
@@ -17,7 +24,7 @@ def background(path, name):
     w, h = im.size
     th = int(w * 9 / 16)
     top = int((h - th) * 0.55)
-    im = im.crop((0, top, w, top + th)).resize((1920, 1080), Image.LANCZOS)
+    im = lift(im.crop((0, top, w, top + th)).resize((1920, 1080), Image.LANCZOS))
     im.save(os.path.join(RES, name + '.webp'), 'WEBP', quality=86, method=6)
 
 
@@ -40,7 +47,7 @@ def cutout(path, name):
         for x in range(w):
             if px[x, y] == key: ap[x, y] = 0
     alpha = alpha.filter(ImageFilter.GaussianBlur(1.2))
-    out = im.convert('RGBA'); out.putalpha(alpha)
+    out = ImageEnhance.Brightness(im).enhance(1.15).convert('RGBA'); out.putalpha(alpha)
     box = alpha.point(lambda v: 255 if v > 40 else 0).getbbox()
     out = out.crop(box)
     out.thumbnail((900, 900), Image.LANCZOS)

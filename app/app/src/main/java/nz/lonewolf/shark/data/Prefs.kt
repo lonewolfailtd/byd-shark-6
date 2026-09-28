@@ -12,7 +12,7 @@ class Prefs(context: Context) {
     var storageCapGb: Int get() = p.getInt("storageCapGb", 8); set(v) = p.edit().putInt("storageCapGb", v).apply()
     var clipStamp: Boolean get() = p.getBoolean("clipStamp", true); set(v) = p.edit().putBoolean("clipStamp", v).apply()
     var uteColour: String get() = p.getString("uteColour", "white") ?: "white"; set(v) = p.edit().putString("uteColour", v).apply()
-    var theme: String get() = p.getString("theme", "GREEN") ?: "GREEN"; set(v) = p.edit().putString("theme", v).apply()
+    var theme: String get() = p.getString("theme", "CYAN") ?: "CYAN"; set(v) = p.edit().putString("theme", v).apply()
     /** Six home page shortcut slots, blank when empty. */
     var shortcuts: List<String>
         get() = (p.getString("shortcuts", null) ?: "com.byd.dlc.drivingmode|||||").split("|").let { l -> List(6) { l.getOrElse(it) { "" } } }

@@ -61,7 +61,7 @@ fun Backdrop(name: String, coloured: Boolean = true, wash: Float = 0.35f, conten
     val img = rememberArt(name, coloured)
     Box(Modifier.fillMaxSize().background(Shark.bg)) {
         if (img != null) Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop, alignment = Alignment.Center)
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = wash + 0.25f), Color.Black.copy(alpha = wash * 0.4f), Color.Black.copy(alpha = wash + 0.3f)))))
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = wash * 0.6f + 0.12f), Color.Black.copy(alpha = wash * 0.15f), Color.Black.copy(alpha = wash * 0.6f + 0.18f)))))
         content()
     }
 }

@@ -39,6 +39,7 @@ fun TabIcon(name: String, colour: Color, modifier: Modifier = Modifier) {
             "Cameras" -> { box(2.5f, 7f, 13f, 10.5f, 2f); poly(15.5f, 10.5f, 21.5f, 7.5f, 21.5f, 17f, 15.5f, 14f) }
             "Trips" -> { ring(6f, 18f, 2.2f); ring(18f, 6f, 2.2f); drawPath(Path().apply { moveTo(8f * u, 17f * u); cubicTo(16f * u, 17f * u, 6f * u, 8f * u, 15.8f * u, 6.6f * u) }, colour, style = pen) }
             "Pet" -> { drawOval(colour, p(7.5f, 12.5f), Size(9f * u, 7.5f * u)); dot(5.5f, 10.5f, 1.9f); dot(9.5f, 6.5f, 1.9f); dot(14.5f, 6.5f, 1.9f); dot(18.5f, 10.5f, 1.9f) }
+            "Memory" -> { box(4f, 3.5f, 16f, 17f, 2f); box(8f, 3.5f, 8f, 5.5f, 1f); box(7.5f, 13f, 9f, 7.5f, 1f) }
             else -> cog(colour, u, pen)
         }
     }
