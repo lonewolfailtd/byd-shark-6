@@ -97,7 +97,11 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
                     if (status.isNotBlank()) Text(status, color = androidx.compose.ui.graphics.Color(0xFFFFD54F), fontSize = 13.sp)
                     Text("EV/HEV and Crawl stay on the physical buttons and BYD's screen until their numbering is confirmed. Press the EV/HEV button and read the energy number above.", color = Shark.muted, fontSize = 11.sp)
                 }
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.End) {
+                    Tile(when (m?.hillDescentOn) { true -> "Hill descent ON"; false -> "Hill descent off"; null -> "Hill descent" }, m?.hillDescentOn == true, Modifier.width(200.dp), height = 56.dp,
+                        sub = if (m?.hillDescent == null) "not answering" else "raw ${m?.hillDescent}") {
+                        write("Hill descent") { Vehicle.modes.setHillDescent(m?.hillDescentOn != true) }
+                    }
                     Tile("Rage mode", false, Modifier.width(200.dp), height = 56.dp, sub = "BYD screen") {
                         runCatching { ctx.startActivity(ctx.packageManager.getLaunchIntentForPackage("com.byd.dlc.drivingmode")?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
                     }

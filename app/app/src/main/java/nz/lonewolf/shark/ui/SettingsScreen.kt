@@ -126,6 +126,8 @@ fun SettingsScreen(inclinometer: Inclinometer) {
                 var floating by remember { mutableStateOf(Vehicle.prefs.floatingPanel) }
                 androidx.compose.runtime.LaunchedEffect(Unit) { while (true) { floating = Vehicle.prefs.floatingPanel; kotlinx.coroutines.delay(1000) } }
                 Tile("Floating quick panel", floating, Modifier.width(200.dp), sub = "shark bubble over other apps") { floating = !floating; VehicleService.setFloating(ctx, floating) }
+                var atStart by remember { mutableStateOf(Vehicle.prefs.openAtStart) }
+                Tile("Open when the ute starts", atStart, Modifier.width(240.dp), sub = "does not keep the ute awake") { atStart = !atStart; Vehicle.prefs.openAtStart = atStart }
                 Tile("Restart vehicle link", false, Modifier.width(200.dp)) { VehicleService.stop(ctx); VehicleService.start(ctx) }
                 Tile("Grant permissions", false, Modifier.width(200.dp)) { scope.launch { LocalAdb.setup(ctx) } }
                 Tile("Clear tilt zero", false, Modifier.width(160.dp)) { inclinometer.clearCalibration() }

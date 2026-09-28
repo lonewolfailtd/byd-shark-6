@@ -32,6 +32,14 @@ import nz.lonewolf.shark.ui.MainActivity
 class VehicleService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val quickPanel by lazy { nz.lonewolf.shark.ui.QuickPanel(this) }
+    private var screenOffAt = 0L
+    private val screenWatcher = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == Intent.ACTION_SCREEN_OFF) screenOffAt = System.currentTimeMillis()
+            // Only after a real stop, not a quick screen blank.
+            else if (screenOffAt > 0 && System.currentTimeMillis() - screenOffAt > 120_000) { screenOffAt = 0; StartReceiver.open(context) }
+        }
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -41,6 +49,7 @@ class VehicleService : Service() {
         instance = this
         startForeground(NOTIFICATION_ID, notification())
         running.value = true
+        runCatching { registerReceiver(screenWatcher, android.content.IntentFilter().apply { addAction(Intent.ACTION_SCREEN_ON); addAction(Intent.ACTION_SCREEN_OFF) }) }
         scope.launch { poll() }
         if (Vehicle.prefs.floatingPanel) android.os.Handler(mainLooper).post { quickPanel.show() }
     }
@@ -50,6 +59,7 @@ class VehicleService : Service() {
     override fun onDestroy() {
         runCatching { Vehicle.trips.finish() }
         runCatching { quickPanel.hide() }
+        runCatching { unregisterReceiver(screenWatcher) }
         running.value = false
         scope.cancel()
         super.onDestroy()

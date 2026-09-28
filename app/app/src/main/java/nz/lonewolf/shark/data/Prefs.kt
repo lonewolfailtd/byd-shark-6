@@ -20,5 +20,6 @@ class Prefs(context: Context) {
     var petTemp: Int get() = p.getInt("petTemp", 21); set(v) = p.edit().putInt("petTemp", v).apply()
     var petMessage: String get() = p.getString("petMessage", "Back soon") ?: ""; set(v) = p.edit().putString("petMessage", v).apply()
     var petPhone: String get() = p.getString("petPhone", "") ?: ""; set(v) = p.edit().putString("petPhone", v).apply()
+    var openAtStart: Boolean get() = p.getBoolean("openAtStart", false); set(v) = p.edit().putBoolean("openAtStart", v).apply()
     var parkStopSeconds: Int get() = p.getInt("parkStop", 60); set(v) = p.edit().putInt("parkStop", v).apply()
 }

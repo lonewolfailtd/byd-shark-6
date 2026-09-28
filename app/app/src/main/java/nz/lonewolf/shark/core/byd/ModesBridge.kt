@@ -11,9 +11,12 @@ class ModesBridge(context: Context) {
     val energy = BydDevice(context, "android.hardware.bydauto.energy.BYDAutoEnergyDevice")
     val setting = BydDevice(context, "android.hardware.bydauto.setting.BYDAutoSettingDevice")
     val instrument = BydDevice(context, "android.hardware.bydauto.instrument.BYDAutoInstrumentDevice")
+    val adas = BydDevice(context, "android.hardware.bydauto.adas.BYDAutoADASDevice")
 
     data class State(val energyMode: Int?, val operationMode: Int?, val roadSurface: Int?, val sportState: Int?, val driveMode: Int?,
-                     val creepState: Int?, val creepWork: Int?, val wadingState: Int?, val wadingSpeedTip: Int?, val wadingSocTip: Int?) {
+                     val creepState: Int?, val creepWork: Int?, val wadingState: Int?, val wadingSpeedTip: Int?, val wadingSocTip: Int?, val hillDescent: Int? = null) {
+        /** BYD switch convention: 1 on, 2 off. Null when this firmware does not answer. */
+        val hillDescentOn: Boolean? get() = hillDescent?.let { it == 1 }
         val energyName get() = when (energyMode) { 0 -> "EV"; 1 -> "HEV"; null -> "--"; else -> "energy $energyMode" }
         /** Corrected by Tane 29 Sep 2026: Sport and Normal were swapped. 1 Eco, 2 Sport, 3 Normal. */
         val driveName get() = when (operationMode) { 1 -> "Eco"; 2 -> "Sport"; 3 -> "Normal"; null -> "--"; else -> "mode $operationMode" }
@@ -49,6 +52,9 @@ class ModesBridge(context: Context) {
         return if (after == target) last else last.copy(ok = false, detail = "vehicle settled on $after")
     }
 
+    /** Hill descent control, the same switch as the button by the gear lever. Read back to confirm. */
+    fun setHillDescent(on: Boolean) = verified({ adas.getInt("getHDCState") }, if (on) 1 else 2) { adas.call("setHDCState", if (on) 1 else 2) }
+
     fun setPower(mode: Int) = verified({ energy.getInt("getEnergyMode") }, mode) { energy.call("setEnergyMode", mode) }
     fun setCrawl(on: Boolean) = verified({ setting.getInt("getCreepModeState") }, if (on) 1 else 2) { setting.call("setCreepModeState", if (on) 1 else 2) }
 
@@ -57,5 +63,6 @@ class ModesBridge(context: Context) {
         sportState = instrument.getInt("getSportModeState"), driveMode = setting.getInt("getDriveMode"),
         creepState = setting.getInt("getCreepModeState"), creepWork = setting.getInt("getCreepModeWorkState"),
         wadingState = setting.getInt("getWadingPatternStateTips"), wadingSpeedTip = setting.getInt("getWadingPatternSpeedTips"), wadingSocTip = setting.getInt("getWadingPatternSocTips"),
+        hillDescent = adas.getInt("getHDCState"),
     )
 }
