@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,7 +53,10 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
     var peakRoll by remember { mutableFloatStateOf(0f) }
     peakPitch = max(peakPitch, abs(r.pitch)); peakRoll = max(peakRoll, abs(r.roll))
 
-    Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    var gps by remember { androidx.compose.runtime.mutableStateOf<android.location.Location?>(null) }
+    androidx.compose.runtime.LaunchedEffect(Unit) { while (true) { gps = withContext(Dispatchers.IO) { Gps.last(ctx) }; kotlinx.coroutines.delay(3000) } }
+    Backdrop("bg_offroad", wash = 0.2f) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
             TiltDial("Pitch", r.pitch, side = true)
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.padding(top = 40.dp)) {
@@ -68,6 +73,9 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
                 Spacer(Modifier.height(20.dp))
                 Text("Speed ${fmt(t?.speedKmh, " km/h")}   Wading limit 700 mm", color = Shark.muted, fontSize = 13.sp)
                 Text("Approach 31°  Ramp 17°  Departure 19°", color = Shark.muted, fontSize = 13.sp)
+                Text(gps?.let { "GPS %.5f, %.5f   %.0f m".format(it.latitude, it.longitude, it.altitude) } ?: "GPS waiting for a fix", color = Shark.muted, fontSize = 13.sp)
+                Text("Tyres  ${fmt(t?.tyres?.fl, "", 1)}  ${fmt(t?.tyres?.fr, "", 1)}  ${fmt(t?.tyres?.rl, "", 1)}  ${fmt(t?.tyres?.rr, "", 1)} psi", color = Shark.muted, fontSize = 13.sp)
+                Text("Wading: ${when (m?.wadingState) { null -> "--"; 0 -> "off"; else -> "on" }}", color = if ((m?.wadingState ?: 0) > 0) Shark.accent else Shark.muted, fontSize = 13.sp)
             }
             TiltDial("Roll", r.roll, side = false)
         }
@@ -104,18 +112,21 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
             color = Shark.muted, fontSize = 12.sp,
         )
     }
+    }
 }
 
 /** Round dial with a ute silhouette that tilts with the angle. */
 @Composable
 private fun TiltDial(label: String, angle: Float, side: Boolean) {
     val warn = abs(angle) >= 25f
+    val ute = rememberArt(if (side) "dial_side" else "dial_front")
+    val accent = Shark.accent; val bad = Shark.bad
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(label.uppercase(), color = if (warn) Shark.bad else Shark.accent, fontSize = 14.sp, letterSpacing = 2.sp)
         Box(Modifier.size(300.dp), contentAlignment = Alignment.Center) {
             Canvas(Modifier.size(300.dp)) {
                 val cx = size.width / 2; val cy = size.height / 2; val rad = size.minDimension / 2 - 8.dp.toPx()
-                drawCircle(Color(0xFF131C2E), rad)
+                drawCircle(Color(0xE6000000), rad)
                 drawCircle(Color(0xFF223047), rad, style = Stroke(4.dp.toPx()))
                 // tick marks every 15 degrees
                 for (deg in -45..45 step 15) {
@@ -123,9 +134,18 @@ private fun TiltDial(label: String, angle: Float, side: Boolean) {
                         drawLine(Color(0xFF3A4B66), Offset(cx, cy - rad + 4.dp.toPx()), Offset(cx, cy - rad + (if (deg % 45 == 0) 22 else 12).dp.toPx()), 3.dp.toPx(), StrokeCap.Round)
                     }
                 }
-                // horizon line rotates with the angle; the ute stays put
+                // level reference stays put; the ute tilts with the angle
+                drawLine(Color(0xFF3A4B66), Offset(cx - rad * 0.85f, cy + 34.dp.toPx()), Offset(cx + rad * 0.85f, cy + 34.dp.toPx()), 2.dp.toPx(), StrokeCap.Round)
+                if (ute != null) {
+                    val iw = rad * (if (side) 1.5f else 0.95f); val ih = iw * ute.height / ute.width
+                    rotate(if (side) -angle else angle, Offset(cx, cy)) {
+                        drawImage(ute, dstOffset = androidx.compose.ui.unit.IntOffset((cx - iw / 2).toInt(), (cy + 34.dp.toPx() - ih).toInt()), dstSize = androidx.compose.ui.unit.IntSize(iw.toInt(), ih.toInt()))
+                        drawLine(if (warn) bad else accent, Offset(cx - rad * 0.8f, cy + 34.dp.toPx()), Offset(cx + rad * 0.8f, cy + 34.dp.toPx()), 3.dp.toPx(), StrokeCap.Round)
+                    }
+                    return@Canvas
+                }
                 rotate(-angle, Offset(cx, cy)) {
-                    drawLine(if (warn) Shark.bad else Shark.accent, Offset(cx - rad * 0.8f, cy + 30.dp.toPx()), Offset(cx + rad * 0.8f, cy + 30.dp.toPx()), 3.dp.toPx(), StrokeCap.Round)
+                    drawLine(if (warn) bad else accent, Offset(cx - rad * 0.8f, cy + 30.dp.toPx()), Offset(cx + rad * 0.8f, cy + 30.dp.toPx()), 3.dp.toPx(), StrokeCap.Round)
                 }
                 // ute silhouette
                 val w = rad * 0.9f; val h = rad * 0.32f

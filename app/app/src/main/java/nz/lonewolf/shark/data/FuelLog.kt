@@ -55,5 +55,52 @@ class FuelLog(context: Context) {
     private fun percentBefore(fill: Fill): Int = prefs.getInt("before_${fill.time}", fill.fuelPercentAfter ?: 100)
     fun notePercentBefore(time: Long, percent: Int?) { percent?.let { prefs.edit().putInt("before_$time", it).apply() } }
 
+    /** Litres of any extra tank fitted. The factory gauge only knows about the stock 60 L. */
+    var extendedLitres: Int
+        get() = prefs.getInt("extended", 0)
+        set(v) = prefs.edit().putInt("extended", v).apply()
+    var calibrationPct: Int
+        get() = prefs.getInt("calibration", 0)
+        set(v) = prefs.edit().putInt("calibration", v).apply()
+    val totalLitres: Int get() = tankLitres.toInt() + extendedLitres
+    /** True when litres are being counted down from a logged fill instead of read from the gauge. */
+    val tracking: Boolean get() = extendedLitres > 0 && prefs.contains("trackLitres")
+
+    private fun gaugeLitres(fuelPercent: Int?): Double? =
+        fuelPercent?.let { (it / 100.0 * tankLitres * (1 + calibrationPct / 100.0)).coerceIn(0.0, tankLitres) }
+
+    /** Litres left. Stock tank: from the gauge. Extra tank: counted down from the last fill by engine kilometres. */
+    fun remaining(fuelPercent: Int?, odometer: Int?, evKm: Int?, consumption: Double): Double? {
+        if (!tracking) return gaugeLitres(fuelPercent)
+        val base = prefs.getFloat("trackLitres", 0f).toDouble()
+        val km = ((odometer ?: return base) - prefs.getInt("trackOdo", odometer)).coerceAtLeast(0)
+        val onBattery = if (evKm != null && prefs.contains("trackEv")) (evKm - prefs.getInt("trackEv", evKm)).coerceIn(0, km) else 0
+        val counted = (base - (km - onBattery) * consumption / 100.0).coerceIn(0.0, totalLitres.toDouble())
+        // Once the extra tank is empty the factory gauge is the truth again, so never report less than it shows.
+        val gauge = gaugeLitres(fuelPercent)
+        return if (gauge != null && fuelPercent != null && fuelPercent < 95) maxOf(gauge, minOf(counted, gauge + extendedLitres)) else counted
+    }
+
+    private fun track(litres: Double, odometer: Int?, evKm: Int?) {
+        prefs.edit().putFloat("trackLitres", litres.toFloat()).putInt("trackOdo", odometer ?: 0).apply {
+            if (evKm != null) putInt("trackEv", evKm) else remove("trackEv")
+        }.apply()
+    }
+
+    fun fillTank(odometer: Int?, evKm: Int?, fuelPercent: Int?) {
+        filledToFull(odometer, fuelPercent)
+        track(totalLitres.toDouble(), odometer, evKm)
+    }
+
+    fun addToTank(litres: Double, leftNow: Double?, odometer: Int?, evKm: Int?, fuelPercent: Int?) {
+        addFuel(litres, odometer, fuelPercent)
+        track(((leftNow ?: 0.0) + litres).coerceAtMost(totalLitres.toDouble()), odometer, evKm)
+    }
+
+    fun reset() {
+        prefs.edit().remove("trackLitres").remove("trackOdo").remove("trackEv").apply()
+        _fills.value = emptyList(); persist()
+    }
+
     fun rangeAt(consumption: Double, fuelPercent: Int?): Int? = litresLeft(fuelPercent)?.let { (it / consumption * 100).toInt() }
 }

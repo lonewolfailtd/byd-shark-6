@@ -60,7 +60,18 @@ fun SettingsScreen(inclinometer: Inclinometer) {
         } }
     }
 
+    Backdrop("bg_climate", coloured = false, wash = 0.45f) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Panel("Look") {
+            Text("Ute colour in the pictures", color = Shark.muted, fontSize = 13.sp)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp, bottom = 10.dp)) {
+                Art.colours.forEach { (key, label) -> Tile(label, Art.colour == key, Modifier.width(120.dp), height = 52.dp) { Art.colour = key; Vehicle.prefs.uteColour = key } }
+            }
+            Text("Highlight colour", color = Shark.muted, fontSize = 13.sp)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
+                Shark.Theme.entries.forEach { th -> Tile(th.label, Shark.theme == th, Modifier.width(120.dp), height = 52.dp, sub = if (th == Shark.Theme.RED) "matches the cabin" else null) { Shark.theme = th; Vehicle.prefs.theme = th.name } }
+            }
+        }
         Panel("Profiles") {
             Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(name, { name = it }, label = { Text("New profile name") }, singleLine = true, modifier = Modifier.width(320.dp))
@@ -121,6 +132,7 @@ fun SettingsScreen(inclinometer: Inclinometer) {
             }
         }
         if (status.isNotBlank()) Text(status, color = Color(0xFFFFD54F), fontSize = 14.sp)
+    }
     }
 }
 

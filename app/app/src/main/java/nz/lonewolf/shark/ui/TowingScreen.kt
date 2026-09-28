@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -35,7 +37,18 @@ fun TowingScreen() {
         scope.launch { status = withContext(Dispatchers.IO) { val r = block(); runCatching { VehicleService.energy.value = Vehicle.energy.read() }; if (r.ok) "$label done" else "$label: ${r.detail}" } }
     }
     val unit = t?.tyres?.unit ?: "kPa"
+    Backdrop("bg_towing", wash = 0.15f) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Text("TOWING", color = Shark.text, fontSize = 30.sp, letterSpacing = 3.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, modifier = Modifier.weight(1f))
+            Tile("Small", tr?.dragType == 1, Modifier.width(130.dp), height = 52.dp) { write("Small trailer") { Vehicle.energy.setTrailerSize(1) } }
+            Tile("Medium", tr?.dragType == 2, Modifier.width(130.dp), height = 52.dp) { write("Medium trailer") { Vehicle.energy.setTrailerSize(2) } }
+            Tile("Large", tr?.dragType == 3, Modifier.width(130.dp), height = 52.dp) { write("Large trailer") { Vehicle.energy.setTrailerSize(3) } }
+            androidx.compose.foundation.layout.Spacer(Modifier.width(16.dp))
+            Tile(if (tr?.active == true) "Tow mode ON" else "Tow mode off", tr?.active == true, Modifier.width(190.dp), height = 52.dp) { write("Tow mode") { Vehicle.energy.setTowMode(tr?.active != true) } }
+        }
+        if (status.isNotBlank()) Text(status, color = androidx.compose.ui.graphics.Color(0xFFFFD54F), fontSize = 13.sp)
+        androidx.compose.foundation.layout.Spacer(Modifier.height(230.dp))
         Panel("Range with the load on") {
             Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
                 Gauge("Combined", fmt(t?.combinedRangeKm), t?.combinedRangeKm?.let { it / 800f }, unit = "km")
@@ -54,15 +67,6 @@ fun TowingScreen() {
                 Text("Loaded target: 36 psi front, 42 psi rear", color = Shark.muted, fontSize = 12.sp)
             }
             Panel("Tow mode (live)", Modifier.weight(1f)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Tile(if (tr?.active == true) "Tow mode ON" else "Tow mode off", tr?.active == true, Modifier.weight(1f), height = 52.dp) { write("Tow mode") { Vehicle.energy.setTowMode(tr?.active != true) } }
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 6.dp)) {
-                    Tile("Small", tr?.dragType == 1, Modifier.weight(1f), height = 52.dp) { write("Small trailer") { Vehicle.energy.setTrailerSize(1) } }
-                    Tile("Medium", tr?.dragType == 2, Modifier.weight(1f), height = 52.dp) { write("Medium trailer") { Vehicle.energy.setTrailerSize(2) } }
-                    Tile("Large", tr?.dragType == 3, Modifier.weight(1f), height = 52.dp) { write("Large trailer") { Vehicle.energy.setTrailerSize(3) } }
-                }
-                if (status.isNotBlank()) Text(status, color = androidx.compose.ui.graphics.Color(0xFFFFD54F), fontSize = 13.sp)
                 Text("Trailer size can only be set once the 7 pin plug is in and tow mode is on; the ute answers 15 (none) otherwise.", color = Shark.muted, fontSize = 11.sp)
                 StatRow("Tow mode", when (tr?.active) { true -> "ON"; false -> "off"; null -> "--" }, tr?.active)
                 StatRow("Trailer size set", tr?.sizeName ?: "--")
@@ -86,5 +90,6 @@ fun TowingScreen() {
                 }
             }
         }
+    }
     }
 }

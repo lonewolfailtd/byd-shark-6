@@ -51,6 +51,14 @@
     <uses-permission android:name="android.permission.BYDAUTO_COLLECTDATA_COMMON" />
     <uses-permission android:name="android.permission.BYDAUTO_COLLECTDATA_GET" />
 
+    <!-- Lets the home page list installed apps for its shortcuts. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
     <application
         android:name=".Shark"
         android:allowBackup="true"

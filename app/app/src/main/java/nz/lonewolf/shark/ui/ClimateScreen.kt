@@ -68,6 +68,7 @@ fun ClimateScreen() {
     val st = Vehicle.seats
     val on = c?.powerOn == true
 
+    Backdrop("bg_climate", coloured = false, wash = 0.35f) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             // Passenger seat
@@ -130,6 +131,7 @@ fun ClimateScreen() {
             }
             Text("V2L is switched on from BYD's Energy screen (Charging and Discharging). The engine will start itself below the floor. Camp profile above keeps the cabin comfortable at low fan.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
         }
+    }
     }
 }
 

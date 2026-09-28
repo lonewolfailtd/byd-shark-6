@@ -39,6 +39,7 @@ fun TripsScreen() {
     val fills by Vehicle.fuel.fills.collectAsStateWithLifecycle()
     var basis by remember { mutableStateOf(Vehicle.fuel.basis) }
 
+    Backdrop("bg_cameras", coloured = false, wash = 0.45f) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Panel("This month", Modifier.weight(1f)) {
@@ -58,38 +59,12 @@ fun TripsScreen() {
                 if (cur != null) Text("Trip in progress: ${cur.km} km so far", color = Shark.accent, fontSize = 14.sp)
             }
         }
-        Panel("Fuel") {
-            val f = Vehicle.fuel
-            val litres = f.litresLeft(t?.fuelPercent)
-            val measured = f.measuredConsumption()
-            val use = measured ?: basis
-            Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
-                Gauge("Fuel left", fmt(t?.fuelPercent, "%"), t?.fuelPercent?.let { it / 100f }, unit = fmt(litres, " L of 60"), colour = Shark.warm)
-                Gauge("Range at %.1f L/100".format(use), fmt(f.rangeAt(use, t?.fuelPercent)), f.rangeAt(use, t?.fuelPercent)?.let { it / 800f }, unit = "km", colour = Shark.warm)
-                Gauge("BYD says", fmt(t?.fuelRangeKm), t?.fuelRangeKm?.let { it / 800f }, unit = "km")
-                Gauge("Full tank", "${(f.tankLitres / use * 100).toInt()}", 1f, unit = "km at %.1f".format(use))
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Consumption basis", color = Shark.muted, fontSize = 13.sp)
-                Tile("−0.5", false, Modifier.width(80.dp), height = 48.dp) { basis = (basis - 0.5).coerceAtLeast(3.0); f.basis = basis }
-                Text("%.1f L/100 km".format(basis), color = Shark.text, fontSize = 16.sp)
-                Tile("+0.5", false, Modifier.width(80.dp), height = 48.dp) { basis = (basis + 0.5).coerceAtMost(20.0); f.basis = basis }
-                Text(if (measured != null) "Measured between your last two full fills: %.1f L/100 km, and that is what the range uses.".format(measured) else "Log two full tank fills and the range will switch to your measured figure.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.weight(1f))
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-                Tile("Filled to full", false, Modifier.width(150.dp), height = 52.dp) { f.filledToFull(t?.odometerKm, t?.fuelPercent); status = "Full tank logged at ${t?.odometerKm} km" }
-                Tile("Added 10 L", false, Modifier.width(130.dp), height = 52.dp) { f.addFuel(10.0, t?.odometerKm, t?.fuelPercent); status = "10 L logged" }
-                Tile("Added 20 L", false, Modifier.width(130.dp), height = 52.dp) { f.addFuel(20.0, t?.odometerKm, t?.fuelPercent); status = "20 L logged" }
-                Tile("Undo last", false, Modifier.width(120.dp), height = 52.dp) { f.deleteLast(); status = "Last fill removed" }
-            }
-            fills.takeLast(4).reversed().forEach { fl -> Text("${TripLog.day.format(Date(fl.time))} ${TripLog.time.format(Date(fl.time))}  ${if (fl.toFull) "full tank" else "${fl.litres} L"}  at ${fl.odometer} km", color = Shark.muted, fontSize = 12.sp) }
-            Text("Tap Filled to full at the pump before you drive off; the gauge reading at that moment is what makes the measured figure accurate.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
-        }
         Panel("Trips") {
             if (trips.isEmpty()) Text("No trips yet. Drive somewhere with the app open.", color = Shark.muted, fontSize = 14.sp)
             trips.reversed().take(40).forEach { t -> TripRow(t) }
         }
         if (status.isNotBlank()) Text(status, color = Color(0xFFFFD54F), fontSize = 14.sp)
+    }
     }
 }
 

@@ -17,6 +17,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,13 +40,23 @@ object Shark {
     val bg = Color(0xFF0B1220)
     val panel = Color(0xFF131C2E)
     val panelLine = Color(0xFF223047)
-    val accent = Color(0xFF3DDC84)
-    val accentDim = Color(0xFF1F6B45)
+    /** Accent colour the owner picks in Settings. Red matches the Shark cabin trim. */
+    enum class Theme(val label: String, val accent: Color, val dim: Color) {
+        GREEN("Green", Color(0xFF3DDC84), Color(0xFF1F6B45)),
+        RED("Red", Color(0xFFFF3B30), Color(0xFF7A1F1A)),
+        BLUE("Blue", Color(0xFF2FA8FF), Color(0xFF15507A)),
+        AMBER("Amber", Color(0xFFFFB020), Color(0xFF7A5410)),
+        ICE("White", Color(0xFFE8EEF6), Color(0xFF4A5A70)),
+    }
+    var theme by mutableStateOf(Theme.GREEN)
+    val accent get() = theme.accent
+    val accentDim get() = theme.dim
     val warm = Color(0xFFFF7043)
     val cool = Color(0xFF42A5F5)
     val text = Color(0xFFF2F5F9)
     val muted = Color(0xFF8FA3BF)
-    val bad = Color(0xFFFF5252)
+    /** Warnings go yellow on the red theme so they still stand out. */
+    val bad get() = if (theme == Theme.RED) Color(0xFFFFD21F) else Color(0xFFFF5252)
 }
 
 @Composable
@@ -50,7 +64,7 @@ fun Panel(title: String? = null, modifier: Modifier = Modifier, content: @Compos
     Column(
         modifier
             .clip(RoundedCornerShape(18.dp))
-            .background(Shark.panel)
+            .background(Color(0xD60E1626))
             .border(1.dp, Shark.panelLine, RoundedCornerShape(18.dp))
             .padding(16.dp)
     ) {
@@ -114,6 +128,11 @@ fun Gauge(label: String, value: String, fraction: Float?, modifier: Modifier = M
                 val stroke = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
                 val inset = 10.dp.toPx()
                 val rect = Size(size.width - inset * 2, size.height - inset * 2)
+                drawCircle(Color(0xB3080D18), size.minDimension / 2)
+                val mid = Offset(size.width / 2, size.height / 2)
+                for (i in 0..18) rotate(-135f + i * 15f, mid) {
+                    drawLine(Color(0xFF4A5C7A), Offset(mid.x, inset + 10.dp.toPx()), Offset(mid.x, inset + (if (i % 3 == 0) 20 else 15).dp.toPx()), (if (i % 3 == 0) 2 else 1).dp.toPx())
+                }
                 drawArc(Color(0xFF223047), 135f, 270f, false, Offset(inset, inset), rect, style = stroke)
                 if (fraction != null) drawArc(colour, 135f, 270f * fraction.coerceIn(0f, 1f), false, Offset(inset, inset), rect, style = stroke)
             }

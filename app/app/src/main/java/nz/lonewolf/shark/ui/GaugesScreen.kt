@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -28,16 +29,32 @@ fun GaugesScreen() {
     val c by VehicleService.climate.collectAsStateWithLifecycle()
     val tyreUnit = t?.tyres?.unit ?: "kPa"
 
+    Backdrop("bg_gauges", wash = 0.15f) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Panel("Live") {
-            FlowRow(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.Bottom) {
+            FlowRow(Modifier.width(330.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Gauge("Engine", if ((t?.engineRpm ?: 0) <= 0 && t?.engineRpm != null) "Off" else fmt(t?.engineRpm), t?.engineRpm?.let { it / 6000f }, unit = "rpm", colour = Shark.warm)
                 Gauge("HV battery", fmt(t?.soc, "%"), t?.soc?.let { it / 100f }, colour = Shark.accent)
+                Gauge("12 V", fmt(t?.battery12v, " V"), t?.battery12v?.let { ((it - 10) / 6).toFloat() }, colour = if ((t?.battery12v ?: 13.0) < 12.2) Shark.bad else Shark.accent)
+                Gauge("Speed", fmt(t?.speedKmh), t?.speedKmh?.let { it / 180f }, unit = "km/h", colour = Shark.cool)
+            }
+            Row(Modifier.weight(1f).padding(horizontal = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Glass(Modifier.weight(1f)) {
+                    Text("GEAR", color = Shark.muted, fontSize = 12.sp)
+                    Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) { listOf("P" to 1, "R" to 2, "N" to 3, "D" to 4).forEach { (g, n) -> Text(g, color = if (t?.gear == n) Shark.accent else Shark.muted, fontSize = if (t?.gear == n) 30.sp else 22.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) } }
+                }
+                Glass(Modifier.weight(1f)) { Text("COOLANT", color = Shark.muted, fontSize = 12.sp); Text(fmt(t?.coolantC, "°C"), color = Shark.text, fontSize = 28.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) }
+                Glass(Modifier.weight(1f)) { Text("MODE", color = Shark.muted, fontSize = 12.sp); Text(modeShort(t?.operationMode), color = Shark.text, fontSize = 28.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) }
+            }
+            FlowRow(Modifier.width(330.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Gauge("Fuel", fmt(t?.fuelPercent, "%"), t?.fuelPercent?.let { it / 100f }, colour = Shark.warm)
                 Gauge("EV range", fmt(t?.evRangeKm), t?.evRangeKm?.let { it / 100f }, unit = "km")
                 Gauge("Fuel range", fmt(t?.fuelRangeKm), t?.fuelRangeKm?.let { it / 800f }, unit = "km", colour = Shark.warm)
-                Gauge("Speed", fmt(t?.speedKmh), t?.speedKmh?.let { it / 180f }, unit = "km/h", colour = Shark.cool)
-                Gauge("Engine", fmt(t?.engineRpm), t?.engineRpm?.let { it / 6000f }, unit = "rpm", colour = Shark.warm)
-                Gauge("12 V", fmt(t?.battery12v, " V"), t?.battery12v?.let { ((it - 10) / 6).toFloat() }, colour = if ((t?.battery12v ?: 13.0) < 12.2) Shark.bad else Shark.accent)
+                Gauge("Combined", fmt(t?.combinedRangeKm), t?.combinedRangeKm?.let { it / 900f }, unit = "km", colour = Shark.cool)
+            }
+        }
+        Panel("More") {
+            FlowRow(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
                 Gauge("Battery health", fmt(t?.soh, "%"), t?.soh?.let { it / 100f })
             }
         }
@@ -73,6 +90,7 @@ fun GaugesScreen() {
             }
         }
     }
+    }
 }
 
 @Composable
@@ -90,5 +108,7 @@ private fun modeName(energy: Int?, op: Int?, sport: Int?): String {
     val s = when (sport) { 1 -> "Eco"; 2 -> "Sport"; 3 -> "Normal"; null -> ""; else -> "mode $sport" }
     return listOf(e, s, "op $op").filter { it.isNotBlank() }.joinToString(" · ")
 }
+
+private fun modeShort(op: Int?) = when (op) { 1 -> "Eco"; 2 -> "Sport"; 3 -> "Normal"; else -> "--" }
 
 private fun gearName(g: Int?) = when (g) { null -> "--"; 1 -> "P"; 2 -> "R"; 3 -> "N"; 4 -> "D"; else -> "gear $g" }

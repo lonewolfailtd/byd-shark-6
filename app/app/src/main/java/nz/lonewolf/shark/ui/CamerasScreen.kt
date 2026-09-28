@@ -3,6 +3,8 @@ package nz.lonewolf.shark.ui
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,6 +50,8 @@ import nz.lonewolf.shark.core.byd.Vehicle
 
 private const val PW = 1280
 private const val PH = 868
+private const val TW = 320
+private const val TH = 216
 
 /**
  * Live view of the ute's cameras and the drive recorder.
@@ -57,7 +61,10 @@ private const val PH = 868
 @Composable
 fun CamerasScreen() {
     var browsing by remember { mutableStateOf(false) }
-    if (browsing) { RecordingsScreen { browsing = false }; return }
+    if (browsing) { Backdrop("bg_cameras", coloured = false, wash = 0.5f) { RecordingsScreen { browsing = false } }; return }
+    var quad by remember { mutableStateOf(false) }
+    val thumbs = remember { Cam.entries.filter { it.exterior }.associateWith { Bitmap.createBitmap(TW, TH, Bitmap.Config.ARGB_8888) } }
+    var thumbTick by remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
     val rec by Vehicle.recorder.status.collectAsStateWithLifecycle()
     var current by remember { mutableStateOf<Cam?>(null) }
@@ -74,29 +81,44 @@ fun CamerasScreen() {
     fun show(cam: Cam) {
         scope.launch {
             report = withContext(Dispatchers.IO) {
-                current?.let { if (it != cam && !rec.recording) QCarCam.stopOne(it.id) }
+                current?.let { if (it != cam && !rec.recording && !(quad && it.exterior)) QCarCam.stopOne(it.id) }
                 QCarCam.open(cam.id)
             }
             current = cam
         }
     }
 
-    LaunchedEffect(current, rec.recording, flat, focal, fov) {
-        val cam = current ?: return@LaunchedEffect
+    LaunchedEffect(current, rec.recording, flat, focal, fov, quad) {
         if (rec.recording) return@LaunchedEffect
-        var n = 0; var last = System.currentTimeMillis()
+        val cam = current
+        val small = if (quad) thumbs.keys.toList() else emptyList()
+        if (cam == null && small.isEmpty()) return@LaunchedEffect
+        if (small.isNotEmpty()) withContext(Dispatchers.IO) { small.forEach { QCarCam.open(it.id) } }
+        var n = 0; var last = System.currentTimeMillis(); var turn = 0
         while (isActive) {
-            val px = withContext(Dispatchers.IO) { QCarCam.frame(cam.id, PW, PH, flat && cam.exterior, focal, fov) }
-            if (px != null) {
-                bitmap.setPixels(px, 0, PW, 0, 0, PW, PH); tick++; n++
-                val now = System.currentTimeMillis(); if (now - last >= 1000) { fps = n; n = 0; last = now }
-            } else delay(40)
+            var got = false
+            if (cam != null) {
+                val px = withContext(Dispatchers.IO) { QCarCam.frame(cam.id, PW, PH, flat && cam.exterior, focal, fov) }
+                if (px != null) {
+                    bitmap.setPixels(px, 0, PW, 0, 0, PW, PH); tick++; n++; got = true
+                    val now = System.currentTimeMillis(); if (now - last >= 1000) { fps = n; n = 0; last = now }
+                }
+            }
+            // One small picture every few big ones, all on this one loop so the cameras are never read from two places at once.
+            if (small.isNotEmpty() && (cam == null || turn % 4 == 0)) {
+                val c = small[(turn / (if (cam == null) 1 else 4)) % small.size]
+                val px = withContext(Dispatchers.IO) { QCarCam.frame(c.id, TW, TH, flat, focal, fov) }
+                if (px != null) { thumbs[c]?.setPixels(px, 0, TW, 0, 0, TW, TH); thumbTick++; got = true }
+            }
+            turn++
+            if (!got) delay(40) else if (cam == null) delay(120)
         }
     }
     DisposableEffect(Unit) {
         onDispose { if (!Vehicle.recorder.status.value.recording) Thread { QCarCam.stopAll() }.start() }
     }
 
+    Backdrop("bg_cameras", coloured = false, wash = 0.5f) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Panel(current?.label ?: "Camera", Modifier.weight(2f)) {
@@ -108,13 +130,23 @@ fun CamerasScreen() {
                     }
                 }
                 Text(if (current != null && !rec.recording) "$fps fps" else "", color = Shark.muted, fontSize = 13.sp, modifier = Modifier.padding(top = 6.dp))
+                if (quad && !rec.recording) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    thumbs.forEach { (cam, bmp) ->
+                        Column(Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(Color.Black).then(if (current == cam) Modifier.border(2.dp, Shark.accent, RoundedCornerShape(10.dp)) else Modifier).clickable { show(cam) }) {
+                            @Suppress("UNUSED_EXPRESSION") thumbTick
+                            Image(bmp.asImageBitmap(), null, Modifier.fillMaxWidth().aspectRatio(TW.toFloat() / TH), contentScale = ContentScale.Crop)
+                            Text(cam.label, color = Shark.text, fontSize = 13.sp, modifier = Modifier.padding(6.dp))
+                        }
+                    }
+                }
             }
             Panel("Cameras", Modifier.weight(1f)) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Cam.entries.forEach { cam -> Tile(cam.label, current == cam, Modifier.width(130.dp)) { show(cam) } }
-                    Tile("Stop view", false, Modifier.width(130.dp)) { current = null; scope.launch { withContext(Dispatchers.IO) { if (!rec.recording) QCarCam.stopAll() } } }
+                    Tile("All four", quad, Modifier.width(130.dp), sub = "small live views") { quad = !quad; if (!quad) scope.launch { withContext(Dispatchers.IO) { if (!rec.recording) { QCarCam.stopAll(); current?.let { QCarCam.open(it.id) } } } } }
+                    Tile("Stop view", false, Modifier.width(130.dp)) { current = null; quad = false; scope.launch { withContext(Dispatchers.IO) { if (!rec.recording) QCarCam.stopAll() } } }
                     Tile("BYD 360 view", false, Modifier.width(130.dp)) {
-                        current = null
+                        current = null; quad = false
                         scope.launch {
                             withContext(Dispatchers.IO) { if (!rec.recording) QCarCam.stopAll() }
                             runCatching { ctx.startActivity(android.content.Intent().setClassName("com.byd.avm", "com.byd.avm.MainActivity").addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
@@ -139,13 +171,13 @@ fun CamerasScreen() {
             var autoSentry by remember { mutableStateOf(prefs.autoSentry) }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (!rec.recording) {
-                    Tile("Record now", false, Modifier.width(150.dp)) { current = null; scope.launch { withContext(Dispatchers.IO) { QCarCam.stopAll(); Vehicle.recorder.start(Cam.entries.filter { it.exterior }) } } }
-                    Tile("Arm sentry", false, Modifier.width(150.dp), sub = "parked, ute on") { current = null; scope.launch { withContext(Dispatchers.IO) { QCarCam.stopAll(); Vehicle.recorder.start(Cam.entries.filter { it.exterior }, nz.lonewolf.shark.camera.Recorder.Mode.SENTRY) } } }
+                    Tile("Record now", false, Modifier.width(150.dp)) { current = null; quad = false; scope.launch { withContext(Dispatchers.IO) { QCarCam.stopAll(); Vehicle.recorder.start(Cam.entries.filter { it.exterior }) } } }
+                    Tile("Arm sentry", false, Modifier.width(150.dp), sub = "parked, ute on") { current = null; quad = false; scope.launch { withContext(Dispatchers.IO) { QCarCam.stopAll(); Vehicle.recorder.start(Cam.entries.filter { it.exterior }, nz.lonewolf.shark.camera.Recorder.Mode.SENTRY) } } }
                 } else {
                     Tile(if (rec.mode == nz.lonewolf.shark.camera.Recorder.Mode.SENTRY) "Disarm sentry" else "Stop recording", true, Modifier.width(160.dp)) { scope.launch { withContext(Dispatchers.IO) { Vehicle.recorder.stop() } } }
                     Tile("Save event", false, Modifier.width(150.dp), sub = "keeps last clips") { Vehicle.recorder.markEvent() }
                 }
-                Tile("Recordings", false, Modifier.width(150.dp), sub = "watch and manage") { current = null; scope.launch { withContext(Dispatchers.IO) { if (!rec.recording) QCarCam.stopAll() } }; browsing = true }
+                Tile("Recordings", false, Modifier.width(150.dp), sub = "watch and manage") { current = null; quad = false; scope.launch { withContext(Dispatchers.IO) { if (!rec.recording) QCarCam.stopAll() } }; browsing = true }
                 Tile("Auto record when driving", autoRec, Modifier.width(230.dp)) { autoRec = !autoRec; prefs.autoRecord = autoRec }
                 Tile("Auto sentry when parked", autoSentry, Modifier.width(230.dp), sub = "while the ute stays on") { autoSentry = !autoSentry; prefs.autoSentry = autoSentry }
             }
@@ -157,5 +189,6 @@ fun CamerasScreen() {
             clips.forEach { f -> Text("${f.name}  ${f.length() / 1_000_000} MB", color = Shark.text, fontSize = 12.sp) }
         }
         if (report.isNotBlank()) Text(report, color = Shark.muted, fontSize = 11.sp)
+    }
     }
 }

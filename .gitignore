@@ -4,3 +4,8 @@ research/decompiled/
 research/camera-poc/
 app/app/.cxx/
 research/device-dump/clips/
+
+# Art working files
+art/source/
+art/gen.log
+art/*.jpg
