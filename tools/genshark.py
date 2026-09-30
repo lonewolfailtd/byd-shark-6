@@ -13,6 +13,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REF = os.path.join(ROOT, 'research', 'shark-reference')
 OUT = os.path.join(ROOT, 'art', 'source')
 MODEL = os.environ.get('SHARK_IMAGE_MODEL', 'gpt-image-2')
+# OpenRouter is the second door when the OpenAI account is empty. Same prompts, references sent inline.
+BACKEND = os.environ.get('SHARK_IMAGE_BACKEND', 'openai')
+OR_MODEL = os.environ.get('SHARK_OR_MODEL', 'openai/gpt-image-2')
+BASE = 'https://openrouter.ai/api/v1' if BACKEND == 'openrouter' else 'https://api.openai.com/v1'
+
+
+def apikey():
+    return key('OPENROUTER_API_KEY' if BACKEND == 'openrouter' else 'OPENAI_API_KEY')
 ENV = 'C:/Users/Hodgs/Lonewolf-ai-solutions/.env.local'
 
 FRONT = '2025_BYD_Shark_6_front.jpg'
@@ -69,11 +77,24 @@ COLOURS = {
 }
 
 
-def key():
+def key(name='OPENAI_API_KEY'):
     for line in open(ENV, encoding='utf-8'):
-        if line.startswith('OPENAI_API_KEY'):
+        if line.startswith(name):
             return line.split('=', 1)[1].strip().strip('"').strip()
-    raise SystemExit('no key')
+    raise SystemExit('no key ' + name)
+
+
+def openrouter(name, prompt, files, size):
+    """OpenRouter's unified image API. References go in as data URLs, same prompt as the OpenAI door."""
+    refs = []
+    for f in files:
+        mime = 'image/png' if f.endswith('.png') else 'image/jpeg'
+        refs.append({'type': 'image_url', 'image_url': {'url': 'data:%s;base64,%s' % (mime, base64.b64encode(open(f, 'rb').read()).decode())}})
+    body = {'model': OR_MODEL, 'prompt': prompt, 'size': size, 'quality': 'high', 'output_format': 'png'}
+    if refs:
+        body['input_references'] = refs
+    resp = post('https://openrouter.ai/api/v1/images', json.dumps(body).encode(), {'Authorization': 'Bearer ' + key('OPENROUTER_API_KEY'), 'Content-Type': 'application/json'})
+    save(resp, name)
 
 
 def post(url, body, headers):
@@ -110,6 +131,8 @@ def save(resp, name):
 def edit(name, prompt, files, size='1536x1024'):
     if os.path.exists(os.path.join(OUT, name + '.png')) and '--force' not in sys.argv:
         print(name, 'exists'); return
+    if BACKEND == 'openrouter':
+        return openrouter(name, prompt, files, size)
     body, ctype = multipart({'model': MODEL, 'prompt': prompt, 'size': size, 'quality': 'high'}, files)
     save(post('https://api.openai.com/v1/images/edits', body, {'Authorization': 'Bearer ' + key(), 'Content-Type': ctype}), name)
 
@@ -117,6 +140,8 @@ def edit(name, prompt, files, size='1536x1024'):
 def text(name, prompt, size='1536x1024'):
     if os.path.exists(os.path.join(OUT, name + '.png')) and '--force' not in sys.argv:
         print(name, 'exists'); return
+    if BACKEND == 'openrouter':
+        return openrouter(name, prompt, [], size)
     body = json.dumps({'model': MODEL, 'prompt': prompt, 'size': size, 'quality': 'high'}).encode()
     save(post('https://api.openai.com/v1/images/generations', body, {'Authorization': 'Bearer ' + key(), 'Content-Type': 'application/json'}), name)
 
