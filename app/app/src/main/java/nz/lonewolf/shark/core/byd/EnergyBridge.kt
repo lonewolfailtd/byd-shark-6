@@ -25,8 +25,8 @@ class EnergyBridge(context: Context) {
          * BYD stores the single session discharge time but the unit is not documented. Work it out from the
          * number itself: a small number is hours, a multiple of 60 up to two days is minutes, bigger is seconds.
          */
-        val timeUnit: String? get() = when { timeSetting == null || timeSetting <= 0 -> null; timeSetting <= 48 -> "h"; timeSetting <= 2880 -> "min"; else -> "s" }
-        val timeHours: Double? get() = when (timeUnit) { "h" -> timeSetting!!.toDouble(); "min" -> timeSetting!! / 60.0; "s" -> timeSetting!! / 3600.0; else -> null }
+        val timeUnit: String? get() = when { timeSetting == null || timeSetting <= 0 -> null; timeSetting <= 48 -> "h"; timeSetting <= 2880 -> "min"; timeSetting <= 172_800 -> "s"; else -> "ms" }
+        val timeHours: Double? get() = when (timeUnit) { "h" -> timeSetting!!.toDouble(); "min" -> timeSetting!! / 60.0; "s" -> timeSetting!! / 3600.0; "ms" -> timeSetting!! / 3_600_000.0; else -> null }
         val on: Boolean? get() = toggle?.let { it == 1 } ?: carState?.let { it != 0 }
         val watts: Double? get() = if (volts != null && amps != null) volts * amps else null
     }
@@ -69,7 +69,7 @@ class EnergyBridge(context: Context) {
      */
     fun setDischargeHours(hours: Int): CommandResult {
         val now = read().v2l
-        val value = when (now.timeUnit) { "h" -> hours.toLong(); "min" -> hours * 60L; "s" -> hours * 3600L; else -> return CommandResult(false, "setDischargeTime", null, "ute reports ${now.timeSetting}, unit unknown") }
+        val value = when (now.timeUnit) { "h" -> hours.toLong(); "min" -> hours * 60L; "s" -> hours * 3600L; "ms" -> hours * 3_600_000L; else -> return CommandResult(false, "setDischargeTime", null, "ute reports ${now.timeSetting}, unit unknown") }
         val r = charging.call("setDischargeTime", value); Thread.sleep(400)
         val after = charging.getLong("getDischargeTime")
         return if (r.ok && after == value) r else r.copy(ok = false, detail = if (r.ok) "ute reports $after" else r.detail)

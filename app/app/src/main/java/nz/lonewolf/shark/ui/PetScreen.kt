@@ -60,7 +60,7 @@ fun PetNotice(temp: Int, message: String, phone: String, onOff: () -> Unit) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("MY PET IS SAFE", color = Shark.accent, fontSize = 64.sp, fontWeight = FontWeight.Bold, letterSpacing = 3.sp)
             Text("The air conditioning is on and set to ${temp}°C", color = Shark.text, fontSize = 32.sp, textAlign = TextAlign.Center)
-            if (message.isNotBlank()) Text(message, color = Shark.text, fontSize = 26.sp, textAlign = TextAlign.Center)
+            if (message.isNotBlank()) Text(message.uppercase(), color = Color.White, fontSize = 44.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(vertical = 18.dp))
             if (phone.isNotBlank()) Text("If you are worried please call $phone", color = Shark.warm, fontSize = 30.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
             Text("Climate ${if (c?.powerOn == true) "running" else "OFF"}   Outside ${fmt(c?.outsideTemp, "°C")}   Battery ${fmt(t?.soc, "%")}", color = if (c?.powerOn == true) Shark.muted else Shark.bad, fontSize = 18.sp)
             Spacer(Modifier.height(16.dp))
