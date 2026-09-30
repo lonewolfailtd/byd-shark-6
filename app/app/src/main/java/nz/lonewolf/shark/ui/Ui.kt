@@ -104,12 +104,12 @@ fun Tile(label: String, active: Boolean = false, modifier: Modifier = Modifier, 
 
 /** A value with minus and plus buttons either side. */
 @Composable
-fun Stepper(label: String, value: String, modifier: Modifier = Modifier, valueColour: Color = Shark.text, onMinus: () -> Unit, onPlus: () -> Unit) {
+fun Stepper(label: String, value: String, modifier: Modifier = Modifier, valueColour: Color = Shark.text, valueWidth: Dp = 150.dp, onMinus: () -> Unit, onPlus: () -> Unit) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(label, color = Shark.muted, fontSize = 13.sp)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
             RoundButton("−", onMinus)
-            Text(value, color = valueColour, fontSize = 44.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(150.dp), textAlign = TextAlign.Center)
+            Text(value, color = valueColour, fontSize = 44.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(valueWidth), textAlign = TextAlign.Center)
             RoundButton("+", onPlus)
         }
     }

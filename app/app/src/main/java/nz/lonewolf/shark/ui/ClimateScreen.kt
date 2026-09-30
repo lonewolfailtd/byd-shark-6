@@ -71,26 +71,26 @@ fun ClimateScreen() {
     Backdrop("bg_climate", coloured = false, wash = 0.35f) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Panel("Passenger", Modifier.width(250.dp)) {
+            Panel("Passenger", Modifier.width(220.dp)) {
                 SeatCard(s?.passenger, onHeat = { write("Passenger heat") { st.setHeat(SeatBridge.PASSENGER, it) } }, onVent = { write("Passenger vent") { st.setVent(SeatBridge.PASSENGER, it) } })
             }
             Panel("Climate", Modifier.weight(1f)) {
                 Row(horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    Stepper("Passenger", fmt(c?.passengerTemp, "°"), valueColour = tempColour(c?.passengerTemp),
+                    Stepper("Passenger", fmt(c?.passengerTemp, "°"), valueColour = tempColour(c?.passengerTemp), valueWidth = 100.dp,
                         onMinus = { write("Passenger temp") { cl.nudgePassengerTemp(-1) } }, onPlus = { write("Passenger temp") { cl.nudgePassengerTemp(+1) } })
                     FanArc(c?.fan, onMinus = { write("Fan") { cl.nudgeFan(-1) } }, onPlus = { write("Fan") { cl.nudgeFan(+1) } })
-                    Stepper("Driver", fmt(c?.driverTemp, "°"), valueColour = tempColour(c?.driverTemp),
+                    Stepper("Driver", fmt(c?.driverTemp, "°"), valueColour = tempColour(c?.driverTemp), valueWidth = 100.dp,
                         onMinus = { write("Driver temp") { cl.nudgeDriverTemp(-1) } }, onPlus = { write("Driver temp") { cl.nudgeDriverTemp(+1) } })
                 }
                 Spacer(Modifier.height(10.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp, androidx.compose.ui.Alignment.CenterHorizontally), modifier = Modifier.fillMaxWidth()) {
-                    Tile(if (on) "Power on" else "Power off", on, Modifier.width(120.dp), height = 60.dp) { write("Climate power") { cl.power(!on) } }
-                    Tile("Auto", c?.auto == true, Modifier.width(100.dp), height = 60.dp) { write("Auto") { cl.setAuto(c?.auto != true) } }
-                    Tile("A/C", c?.compressorOn == true, Modifier.width(100.dp), height = 60.dp) { write("A/C") { cl.setCompressor(c?.compressorOn != true) } }
-                    Tile("Recirc", c?.recirc == true, Modifier.width(110.dp), height = 60.dp) { write("Recirc") { cl.setRecirc(c?.recirc != true) } }
-                    Tile("Dual", c?.synced == false, Modifier.width(100.dp), height = 60.dp) { write("Dual") { cl.setSynced(c?.synced == false) } }
-                    Tile("Demist", c?.frontDemist == true, Modifier.width(110.dp), height = 60.dp) { write("Demist") { cl.setFrontDemist(c?.frontDemist != true) } }
-                    Tile("Rear heat", c?.rearHeat == true, Modifier.width(120.dp), height = 60.dp) { write("Rear heat") { cl.setRearHeat(c?.rearHeat != true) } }
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+                    Tile(if (on) "Power on" else "Power off", on, Modifier.weight(1f), height = 60.dp) { write("Climate power") { cl.power(!on) } }
+                    Tile("Auto", c?.auto == true, Modifier.weight(1f), height = 60.dp) { write("Auto") { cl.setAuto(c?.auto != true) } }
+                    Tile("A/C", c?.compressorOn == true, Modifier.weight(1f), height = 60.dp) { write("A/C") { cl.setCompressor(c?.compressorOn != true) } }
+                    Tile("Recirc", c?.recirc == true, Modifier.weight(1f), height = 60.dp) { write("Recirc") { cl.setRecirc(c?.recirc != true) } }
+                    Tile("Dual", c?.synced == false, Modifier.weight(1f), height = 60.dp) { write("Dual") { cl.setSynced(c?.synced == false) } }
+                    Tile("Demist", c?.frontDemist == true, Modifier.weight(1f), height = 60.dp) { write("Demist") { cl.setFrontDemist(c?.frontDemist != true) } }
+                    Tile("Rear heat", c?.rearHeat == true, Modifier.weight(1f), height = 60.dp) { write("Rear heat") { cl.setRearHeat(c?.rearHeat != true) } }
                 }
                 Spacer(Modifier.height(8.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, androidx.compose.ui.Alignment.CenterHorizontally), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
@@ -98,7 +98,7 @@ fun ClimateScreen() {
                 }
                 Text("Outside ${fmt(c?.outsideTemp, "°C")}. ${if (status.isNotBlank()) status else "Save your own presets in Settings."}", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp).fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             }
-            Panel("Driver", Modifier.width(250.dp)) {
+            Panel("Driver", Modifier.width(220.dp)) {
                 SeatCard(s?.driver, onHeat = { write("Driver heat") { st.setHeat(SeatBridge.DRIVER, it) } }, onVent = { write("Driver vent") { st.setVent(SeatBridge.DRIVER, it) } }, ventFirst = true)
             }
         }
@@ -143,18 +143,14 @@ private fun SeatCard(seat: SeatBridge.Seat?, onHeat: (SeatBridge.Level) -> Unit,
     val heat = when (seat?.heat) { SeatBridge.Level.LOW -> 1; SeatBridge.Level.HIGH -> 2; else -> 0 }
     val vent = when (seat?.vent) { SeatBridge.Level.LOW -> 1; SeatBridge.Level.HIGH -> 2; else -> 0 }
     Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        androidx.compose.foundation.Canvas(Modifier.width(150.dp).height(180.dp)) {
-            val u = size.width / 120f
-            val face = androidx.compose.ui.graphics.Brush.verticalGradient(listOf(androidx.compose.ui.graphics.Color(0xFF2A3650), androidx.compose.ui.graphics.Color(0xFF0F1626)))
-            val line = androidx.compose.ui.graphics.Color(0xFF4A5C7A)
-            fun part(x: Float, y: Float, w: Float, h: Float, r: Float) {
-                drawRoundRect(face, androidx.compose.ui.geometry.Offset(x * u, y * u), androidx.compose.ui.geometry.Size(w * u, h * u), androidx.compose.ui.geometry.CornerRadius(r * u))
-                drawRoundRect(line, androidx.compose.ui.geometry.Offset(x * u, y * u), androidx.compose.ui.geometry.Size(w * u, h * u), androidx.compose.ui.geometry.CornerRadius(r * u), style = androidx.compose.ui.graphics.drawscope.Stroke(2f))
+        val seatPic = rememberArt("seat", coloured = false)
+        androidx.compose.foundation.layout.Box(Modifier.width(150.dp).height(180.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+            if (seatPic != null) androidx.compose.foundation.Image(seatPic, null, Modifier.fillMaxSize(), contentScale = androidx.compose.ui.layout.ContentScale.Fit)
+            androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
+                val centre = androidx.compose.ui.geometry.Offset(size.width / 2, size.height * 0.45f)
+                if (heat > 0) drawCircle(androidx.compose.ui.graphics.Brush.radialGradient(listOf(androidx.compose.ui.graphics.Color(0xFFFF3C28).copy(alpha = if (heat == 2) 0.7f else 0.4f), androidx.compose.ui.graphics.Color.Transparent), centre, size.width * 0.42f), size.width * 0.42f, centre)
+                if (vent > 0) drawCircle(androidx.compose.ui.graphics.Brush.radialGradient(listOf(androidx.compose.ui.graphics.Color(0xFF3CA0FF).copy(alpha = if (vent == 2) 0.65f else 0.38f), androidx.compose.ui.graphics.Color.Transparent), centre, size.width * 0.42f), size.width * 0.42f, centre)
             }
-            part(38f, 4f, 44f, 26f, 10f); part(18f, 34f, 84f, 76f, 10f); part(8f, 112f, 104f, 34f, 10f)
-            for (x in listOf(40f, 60f, 80f)) drawLine(androidx.compose.ui.graphics.Color(0xFF3A4B66), androidx.compose.ui.geometry.Offset(x * u, 44f * u), androidx.compose.ui.geometry.Offset(x * u, 98f * u), 2f)
-            if (heat > 0) drawCircle(androidx.compose.ui.graphics.Brush.radialGradient(listOf(androidx.compose.ui.graphics.Color(0xFFFF3C28).copy(alpha = if (heat == 2) 0.75f else 0.45f), androidx.compose.ui.graphics.Color.Transparent)), 46f * u, androidx.compose.ui.geometry.Offset(60f * u, 78f * u))
-            if (vent > 0) drawCircle(androidx.compose.ui.graphics.Brush.radialGradient(listOf(androidx.compose.ui.graphics.Color(0xFF3CA0FF).copy(alpha = if (vent == 2) 0.7f else 0.4f), androidx.compose.ui.graphics.Color.Transparent)), 46f * u, androidx.compose.ui.geometry.Offset(60f * u, 78f * u))
         }
         val cols: List<@Composable () -> Unit> = listOf(
             { Levels("Heat", heat, onHeat) },
@@ -181,7 +177,7 @@ private fun Levels(label: String, level: Int, onSet: (SeatBridge.Level) -> Unit)
 private fun FanArc(fan: Int?, onMinus: () -> Unit, onPlus: () -> Unit) {
     val accent = Shark.accent
     Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
-        androidx.compose.foundation.layout.Box(Modifier.width(220.dp).height(120.dp), contentAlignment = androidx.compose.ui.Alignment.BottomCenter) {
+        androidx.compose.foundation.layout.Box(Modifier.width(180.dp).height(110.dp), contentAlignment = androidx.compose.ui.Alignment.BottomCenter) {
             androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
                 val stroke = androidx.compose.ui.graphics.drawscope.Stroke(10.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
                 val d = size.width - 20.dp.toPx()
