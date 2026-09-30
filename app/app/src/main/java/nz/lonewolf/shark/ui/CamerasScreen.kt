@@ -69,6 +69,7 @@ fun CamerasScreen() {
     val scope = rememberCoroutineScope()
     val rec by Vehicle.recorder.status.collectAsStateWithLifecycle()
     var current by remember { mutableStateOf<Cam?>(null) }
+    var lensOpen by remember { mutableStateOf(false) }
     var report by remember { mutableStateOf("") }
     var fps by remember { mutableIntStateOf(0) }
     val bitmap = remember { Bitmap.createBitmap(PW, PH, Bitmap.Config.ARGB_8888) }
@@ -115,6 +116,8 @@ fun CamerasScreen() {
             if (!got) delay(40) else if (cam == null) delay(120)
         }
     }
+    // Open on the front camera, unless the recorder already owns the cameras.
+    LaunchedEffect(Unit) { if (current == null && !Vehicle.recorder.status.value.recording) show(Cam.FRONT) }
     DisposableEffect(Unit) {
         onDispose { if (!Vehicle.recorder.status.value.recording) Thread { QCarCam.stopAll() }.start() }
     }
@@ -144,7 +147,7 @@ fun CamerasScreen() {
             Panel("Cameras", Modifier.weight(1f)) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Cam.entries.forEach { cam -> Tile(cam.label, current == cam, Modifier.width(130.dp)) { show(cam) } }
-                    Tile("All four", quad, Modifier.width(130.dp), sub = "small live views") { quad = !quad; if (!quad) scope.launch { withContext(Dispatchers.IO) { if (!rec.recording) { QCarCam.stopAll(); current?.let { QCarCam.open(it.id) } } } } }
+                    Tile("All four", quad, Modifier.width(130.dp), sub = "live strip below") { quad = !quad; if (!quad) scope.launch { withContext(Dispatchers.IO) { if (!rec.recording) { QCarCam.stopAll(); current?.let { QCarCam.open(it.id) } } } } }
                     Tile("Stop view", false, Modifier.width(130.dp)) { current = null; quad = false; scope.launch { withContext(Dispatchers.IO) { if (!rec.recording) QCarCam.stopAll() } } }
                     Tile("BYD 360 view", false, Modifier.width(130.dp)) {
                         current = null; quad = false
@@ -155,14 +158,15 @@ fun CamerasScreen() {
                     }
                 }
                 Spacer(Modifier.height(8.dp))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Tile(if (lensOpen) "Hide lens settings" else "Lens settings", lensOpen, Modifier.width(220.dp), height = 52.dp, sub = if (lensOpen) null else "flat view and curve") { lensOpen = !lensOpen }
+                if (lensOpen) FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
                     Tile(if (flat) "Flat" else "Original", flat, Modifier.width(110.dp), sub = "lens") { flat = !flat; prefsView.edit().putBoolean("flat", flat).apply() }
                     Tile("Less curve", false, Modifier.width(110.dp)) { focal = (focal + 20f).coerceAtMost(900f); prefsView.edit().putFloat("focal", focal).apply() }
                     Tile("More curve", false, Modifier.width(110.dp)) { focal = (focal - 20f).coerceAtLeast(300f); prefsView.edit().putFloat("focal", focal).apply() }
                     Tile("Wider", false, Modifier.width(100.dp)) { fov = (fov + 10f).coerceAtMost(150f); prefsView.edit().putFloat("fov", fov).apply() }
                     Tile("Narrower", false, Modifier.width(100.dp)) { fov = (fov - 10f).coerceAtLeast(60f); prefsView.edit().putFloat("fov", fov).apply() }
                 }
-                Text("Lens ${focal.toInt()}  view ${fov.toInt()} degrees. Tune until fence lines and the horizon are straight.", color = Shark.muted, fontSize = 12.sp)
+                if (lensOpen) Text("Lens ${focal.toInt()}  view ${fov.toInt()} degrees. Tune until fence lines and the horizon are straight.", color = Shark.muted, fontSize = 12.sp)
                 Text("Park first. Stop the view before opening BYD's own 360 view.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
             }
         }
