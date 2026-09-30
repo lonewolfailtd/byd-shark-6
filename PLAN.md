@@ -109,3 +109,19 @@ Decision: touch only. Instead, Phase 2 includes a floating quick panel (temp, fa
 1. `git add -A && git commit` the research in C:\Users\Hodgs\byd-shark-6 and push.
 2. Install the Android command line tools and JDK 17, create the app project skeleton with the injector, permission context and self grant ported from open-dikey.
 3. Wait for the ute to be on WiFi, run recon.ps1 and the probes, and fill in research/device-dump.
+
+## Status 30 Sep 2026
+
+Built and compiling, not yet run on the ute: recordings browser, storage limit, time stamp on clips,
+home page, fuel page with long range tank, pet mode, settings memory, hill descent button, open at
+start, four camera thumbnails, photographs in five colours, highlight colour picker, brighter look.
+Clickable browser demo in demo/ (python -m http.server in that folder).
+
+Next, in order:
+1. Install on the ute and test everything above. Fix what fails.
+2. Large text mode and a plain dark night skin (owner requests).
+3. Off road toggles moved to the right side; app shortcuts on every page.
+4. Rolling 50 km consumption for range.
+5. Clip transfer to a phone over the ute hotspot with a QR code.
+6. Sell it: one click installer for Windows and Mac, short licence code, sales page with the
+   warranty and safety wording, video demo. See research/owner-requests-2026-09-29.md.
