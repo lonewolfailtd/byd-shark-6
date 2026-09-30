@@ -69,6 +69,8 @@ fun SettingsScreen(inclinometer: Inclinometer) {
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 10.dp)) {
                 Tile("Large text", Art.large, Modifier.width(150.dp), height = 52.dp, sub = "easier without glasses") { Art.large = !Art.large; Vehicle.prefs.largeText = Art.large }
+                var introOn by remember { mutableStateOf(Vehicle.prefs.intro) }
+                Tile("Intro when opening", introOn, Modifier.width(170.dp), height = 52.dp, sub = "tap the screen to skip") { introOn = !introOn; Vehicle.prefs.intro = introOn }
                 Tile("Plain dark skin", Art.plain, Modifier.width(170.dp), height = 52.dp, sub = "no photographs") { Art.plain = !Art.plain; Vehicle.prefs.plainSkin = Art.plain }
             }
             Text("Highlight colour", color = Shark.muted, fontSize = 13.sp)

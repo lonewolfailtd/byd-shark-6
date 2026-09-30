@@ -77,12 +77,14 @@ private val tabs = listOf("Home", "Climate", "Off Road", "Gauges", "Fuel", "Towi
 @Composable
 private fun Shell(inclinometer: Inclinometer) {
     var tab by remember { mutableIntStateOf(0) }
+    var intro by remember { mutableStateOf(Vehicle.prefs.intro) }
     val running by VehicleService.running.collectAsStateWithLifecycle()
     val t by VehicleService.telemetry.collectAsStateWithLifecycle()
     val c by VehicleService.climate.collectAsStateWithLifecycle()
     val rec by Vehicle.recorder.status.collectAsStateWithLifecycle()
     var clock by remember { mutableStateOf("") }
     LaunchedEffect(Unit) { val f = java.text.SimpleDateFormat("h:mm a", java.util.Locale.US); while (true) { clock = f.format(java.util.Date()); kotlinx.coroutines.delay(5000) } }
+    if (intro) { Intro { intro = false }; return }
     Column(Modifier.fillMaxSize().background(Shark.bg)) {
         Row(Modifier.fillMaxWidth().height(40.dp).background(Color(0xFF070B14)).padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("LONEWOLF", color = Shark.text, fontSize = 16.sp, fontWeight = FontWeight.Bold, letterSpacing = 3.sp)

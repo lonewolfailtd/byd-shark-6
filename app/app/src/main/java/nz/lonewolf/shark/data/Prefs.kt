@@ -25,5 +25,6 @@ class Prefs(context: Context) {
     var largeText: Boolean get() = p.getBoolean("largeText", false); set(v) = p.edit().putBoolean("largeText", v).apply()
     /** Plain dark pages with no photographs, easier on the eyes at night. */
     var plainSkin: Boolean get() = p.getBoolean("plainSkin", false); set(v) = p.edit().putBoolean("plainSkin", v).apply()
+    var intro: Boolean get() = p.getBoolean("intro", true); set(v) = p.edit().putBoolean("intro", v).apply()
     var parkStopSeconds: Int get() = p.getInt("parkStop", 60); set(v) = p.edit().putInt("parkStop", v).apply()
 }

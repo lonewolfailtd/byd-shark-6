@@ -46,10 +46,22 @@ input[type=text]{width:100%;background:#0B1220;border:1px solid var(--line);bord
 #pet{position:absolute;inset:40px 0 66px 0;background:#05080F;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center}
 .note{position:absolute;right:14px;top:50px;background:#FFD54F;color:#111;padding:6px 12px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:5}
 .note.show{opacity:1}
+
+#intro{position:absolute;inset:0;background:#000;z-index:9;overflow:hidden;cursor:pointer;transition:opacity .45s}
+#intro.out{opacity:0;pointer-events:none}
+#intro .ph{position:absolute;inset:0;background:center/cover;opacity:0;animation:iph .9s linear forwards,izoom 2.6s cubic-bezier(.2,.7,.2,1) forwards}
+#intro .sh{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.55),transparent,rgba(0,0,0,.8))}
+#intro .tx{position:absolute;left:64px;bottom:72px}
+#intro .w,#intro .k{display:inline-block;font-size:56px;font-weight:700;letter-spacing:8px;opacity:0;transform:translateY(24px);animation:iup .5s cubic-bezier(.2,.7,.2,1) forwards}
+#intro .w{color:#fff;animation-delay:.35s}#intro .k{color:var(--accent);margin-left:18px;animation-delay:.6s}
+#intro .ln{height:3px;width:0;margin-top:6px;background:linear-gradient(90deg,var(--accent),transparent);animation:iln .6s cubic-bezier(.2,.7,.2,1) .9s forwards;box-shadow:0 0 12px var(--glow)}
+#intro .tg{color:var(--muted);font-size:14px;letter-spacing:4px;margin-top:12px;opacity:0;animation:ifd .4s 1.15s forwards}
+@keyframes iph{to{opacity:.75}}@keyframes izoom{from{transform:scale(1.12)}to{transform:scale(1)}}@keyframes iup{to{opacity:1;transform:none}}@keyframes iln{to{width:520px}}@keyframes ifd{to{opacity:1}}
 </style>
 </head>
 <body>
 <div id="fit">
+  <div id="intro"><div class="ph" id="iph"></div><div class="sh"></div><div class="tx"><span class="w">LONEWOLF</span><span class="k">SHARK</span><div class="ln"></div><div class="tg">BUILT FOR THE BYD SHARK 6</div></div></div>
   <div id="top"><b>LONEWOLF<i>SHARK</i></b><span class="sp"></span><span class="demo" id="rec"></span><span class="ok">demo data</span><span id="out"></span><span id="clock"></span></div>
   <div id="page"><div id="in"></div></div>
   <div class="note" id="note"></div>
@@ -187,6 +199,7 @@ document.addEventListener('pointermove',e=>{if(!drag)return;S[drag.k]=Math.max(-
 document.addEventListener('pointerup',()=>drag=null);
 let ph=0;setInterval(()=>{if(S.drive){ph+=.12;S.gear=4;S.speed=Math.round(55+40*Math.sin(ph)+8*Math.sin(ph*3.1));S.rpm=S.speed>70?Math.round(1400+S.speed*14):0;S.power=S.rpm?1:0;S.soc=Math.max(15,S.soc-.03);if(S.rpm)S.fuel=Math.max(5,S.fuel-.02);S.odo+=S.speed/3600*.5;S.coolant=Math.min(92,S.coolant+.05);S.bearing=(S.bearing+2)%360;if(['Gauges','Home'].includes(S.tab)&&!document.activeElement.matches('input'))draw()}else if(S.speed){S.speed=0;S.rpm=0;S.gear=1;S.power=0;draw()}tick()},500);
 function fit(){const s=Math.min(innerWidth/1280,innerHeight/720);$('#fit').style.transform=`translate(-50%,-50%) scale(${s})`}addEventListener('resize',fit);fit();draw();
+(function(){const i=$('#intro');i.querySelector('#iph').style.backgroundImage=`url(art/bg_home_${S.colour}.webp)`;const end=()=>{i.classList.add('out');setTimeout(()=>i.remove(),500)};i.addEventListener('click',end);setTimeout(end,2600)})();
 </script>
 </body>
 </html>
