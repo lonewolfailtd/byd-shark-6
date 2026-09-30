@@ -55,7 +55,7 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
 
     var gps by remember { androidx.compose.runtime.mutableStateOf<android.location.Location?>(null) }
     androidx.compose.runtime.LaunchedEffect(Unit) { while (true) { gps = withContext(Dispatchers.IO) { Gps.last(ctx) }; kotlinx.coroutines.delay(3000) } }
-    Backdrop("bg_offroad", wash = 0.2f) {
+    Backdrop("bg_offroad", wash = 0.2f, align = androidx.compose.ui.Alignment.BottomCenter) {
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     var status by remember { androidx.compose.runtime.mutableStateOf("") }
     fun write(label: String, block: () -> nz.lonewolf.shark.core.byd.CommandResult) {

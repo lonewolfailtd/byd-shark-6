@@ -37,7 +37,7 @@ fun TowingScreen() {
         scope.launch { status = withContext(Dispatchers.IO) { val r = block(); runCatching { VehicleService.energy.value = Vehicle.energy.read() }; if (r.ok) "$label done" else "$label: ${r.detail}" } }
     }
     val unit = t?.tyres?.unit ?: "kPa"
-    Backdrop("bg_towing", wash = 0.15f) {
+    Backdrop("bg_towing", wash = 0.15f, align = androidx.compose.ui.Alignment.BottomCenter) {
     var more by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
@@ -56,7 +56,7 @@ fun TowingScreen() {
             if (status.isNotBlank()) status else if (tr?.active == true) "Tow mode on. Trailer ${tr?.sizeName ?: "--"}. Locks Normal mode and disables 10 driver aids." else "Tow mode off. It arms itself 15 s after the 7 pin plug goes in.",
             color = if (status.isNotBlank()) androidx.compose.ui.graphics.Color(0xFFFFD54F) else Shark.muted, fontSize = 12.sp, modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
-        androidx.compose.foundation.layout.Spacer(Modifier.height(300.dp))
+        androidx.compose.foundation.layout.Spacer(Modifier.height(250.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TowStat("Combined range", fmt(t?.combinedRangeKm, " km"), t?.combinedRangeKm?.let { it / 900f }, Shark.cool, Modifier.weight(1f))
             TowStat("Fuel range", fmt(t?.fuelRangeKm, " km"), t?.fuelRangeKm?.let { it / 800f }, Shark.warm, Modifier.weight(1f))

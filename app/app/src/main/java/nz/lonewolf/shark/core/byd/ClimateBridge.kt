@@ -120,6 +120,16 @@ class ClimateBridge(context: Context) {
         )
     }
 
+    /** Rear seat air, the vents behind the centre console. BYD's own climate app calls start and stop with 0. */
+    fun rearAirOn(): Boolean? = device.getInt("getRearAcStartState")?.let { it == 1 }
+
+    fun setRearAir(on: Boolean): CommandResult {
+        val r = if (on) device.call("startRearAc", 0) else device.call("stopRearAc", 0)
+        Thread.sleep(400)
+        val now = rearAirOn()
+        return if (r.ok && (now == null || now == on)) r else r.copy(ok = false, detail = if (r.ok) "ute reports rear air ${if (now == true) "on" else "off"}" else r.detail)
+    }
+
     fun setFan(level: Int): CommandResult {
         val lv = level.coerceIn(FAN_MIN, FAN_MAX)
         if (device.getInt("getAcControlMode") == autoMode()) setAuto(false)

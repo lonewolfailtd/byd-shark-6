@@ -90,7 +90,10 @@ fun ClimateScreen() {
                     Tile("Recirc", c?.recirc == true, Modifier.weight(1f), height = 60.dp) { write("Recirc") { cl.setRecirc(c?.recirc != true) } }
                     Tile("Dual", c?.synced == false, Modifier.weight(1f), height = 60.dp) { write("Dual") { cl.setSynced(c?.synced == false) } }
                     Tile("Demist", c?.frontDemist == true, Modifier.weight(1f), height = 60.dp) { write("Demist") { cl.setFrontDemist(c?.frontDemist != true) } }
-                    Tile("Rear heat", c?.rearHeat == true, Modifier.weight(1f), height = 60.dp) { write("Rear heat") { cl.setRearHeat(c?.rearHeat != true) } }
+                    Tile("Rear demist", c?.rearHeat == true, Modifier.weight(1f), height = 60.dp) { write("Rear demist") { cl.setRearHeat(c?.rearHeat != true) } }
+                    var rear by remember { mutableStateOf<Boolean?>(null) }
+                    androidx.compose.runtime.LaunchedEffect(Unit) { while (true) { rear = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { runCatching { cl.rearAirOn() }.getOrNull() }; kotlinx.coroutines.delay(2000) } }
+                    Tile("Rear air", rear == true, Modifier.weight(1f), height = 60.dp) { write("Rear air") { cl.setRearAir(rear != true).also { r -> if (r.ok) rear = rear != true } } }
                 }
                 Spacer(Modifier.height(8.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, androidx.compose.ui.Alignment.CenterHorizontally), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {

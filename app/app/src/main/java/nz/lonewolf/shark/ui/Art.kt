@@ -59,10 +59,10 @@ fun rememberArt(name: String, coloured: Boolean = true): ImageBitmap? {
 
 /** A page background: the photograph, then a dark wash so text stays readable. */
 @Composable
-fun Backdrop(name: String, coloured: Boolean = true, wash: Float = 0.35f, content: @Composable () -> Unit) {
+fun Backdrop(name: String, coloured: Boolean = true, wash: Float = 0.35f, align: Alignment = Alignment.Center, content: @Composable () -> Unit) {
     val img = if (Art.plain) null else rememberArt(name, coloured)
     Box(Modifier.fillMaxSize().background(if (Art.plain) Color(0xFF05080F) else Shark.bg)) {
-        if (img != null) Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop, alignment = Alignment.Center)
+        if (img != null) Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop, alignment = align)
         Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = wash * 0.6f + 0.12f), Color.Black.copy(alpha = wash * 0.15f), Color.Black.copy(alpha = wash * 0.6f + 0.18f)))))
         content()
     }

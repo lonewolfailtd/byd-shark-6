@@ -164,8 +164,8 @@ fun HomeScreen(onOpenTab: (String) -> Unit) {
                         }
                     }
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Glass(Modifier.weight(1f).fillMaxHeight()) { Label("Power"); Big(m?.energyName ?: "--", 24) }
-                        Glass(Modifier.weight(1f).fillMaxHeight()) { Label("Terrain"); Big(m?.terrainName ?: "--", 24) }
+                        Glass(Modifier.weight(1f).fillMaxHeight()) { Label("Power"); Big(m?.energyName ?: "--", 20) }
+                        Glass(Modifier.weight(1f).fillMaxHeight()) { Label("Terrain"); Big(m?.terrainName ?: "--", 20) }
                         Glass(Modifier.weight(1f).fillMaxHeight()) { Label("Tow mode"); Big(when (e?.trailer?.active) { true -> "On"; false -> "Off"; null -> "--" }, 24) }
                     }
                 }
@@ -178,13 +178,13 @@ fun HomeScreen(onOpenTab: (String) -> Unit) {
                 Glass(Modifier.weight(1f).fillMaxHeight(), pad = 6) {
                     Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         val on = c?.powerOn == true
-                        Tile(if (on) "On" else "Off", on, Modifier.weight(1f), height = 64.dp) { write("Climate power") { Vehicle.climate.power(!on) } }
+                        Tile(if (on) "On" else "Off", on, Modifier.width(64.dp), height = 64.dp) { write("Climate power") { Vehicle.climate.power(!on) } }
                         Tile("−", false, Modifier.width(56.dp), height = 64.dp) { write("Fan") { Vehicle.climate.nudgeFan(-1) } }
                         Column(Modifier.width(60.dp), horizontalAlignment = Alignment.CenterHorizontally) { Small("Fan"); Text(fmt(c?.fan), color = Shark.text, fontSize = 26.sp, fontWeight = FontWeight.Bold) }
                         Tile("+", false, Modifier.width(56.dp), height = 64.dp) { write("Fan") { Vehicle.climate.nudgeFan(+1) } }
                         Tile("A/C", c?.compressorOn == true, Modifier.weight(1f), height = 64.dp) { write("A/C") { Vehicle.climate.setCompressor(c?.compressorOn != true) } }
                         Tile("Dual", c?.synced == false, Modifier.weight(1f), height = 64.dp) { write("Dual") { Vehicle.climate.setSynced(c?.synced == false) } }
-                        Tile("Recirc", c?.recirc == true, Modifier.weight(1f), height = 64.dp) { write("Recirc") { Vehicle.climate.setRecirc(c?.recirc != true) } }
+                        Tile("Recirc", c?.recirc == true, Modifier.weight(1.3f), height = 64.dp) { write("Recirc") { Vehicle.climate.setRecirc(c?.recirc != true) } }
                     }
                 }
                 SeatBox("Vent", s?.driver?.vent, Shark.cool) { write("Driver vent") { Vehicle.seats.setVent(SeatBridge.DRIVER, next(s?.driver?.vent)) } }
