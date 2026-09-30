@@ -84,7 +84,7 @@ class ClimateBridge(context: Context) {
     }
 
     fun setPassengerTemp(c: Int): CommandResult {
-        if (synced() != false) setSynced(false)
+        if (synced() != false) return setDriverTemp(c)
         val r = setZoneTemp(ZONE_PASSENGER, c)
         if (r.ok) pendingPassenger = c.coerceIn(TEMP_MIN, TEMP_MAX) to System.currentTimeMillis()
         return r
@@ -95,7 +95,9 @@ class ClimateBridge(context: Context) {
         return setDriverTemp(base + delta)
     }
 
+    /** When dual is off both sides move together through the driver zone, so Dual never switches on by itself. */
     fun nudgePassengerTemp(delta: Int): CommandResult {
+        if (synced() != false) return nudgeDriverTemp(delta)
         val base = pending(pendingPassenger, null) ?: device.getInt("getTemprature", ZONE_PASSENGER) ?: 22
         return setPassengerTemp(base + delta)
     }
