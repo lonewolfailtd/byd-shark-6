@@ -89,6 +89,7 @@ fun HomeScreen(onOpenTab: (String) -> Unit) {
     val c by VehicleService.climate.collectAsStateWithLifecycle()
     val s by VehicleService.seats.collectAsStateWithLifecycle()
     val m by VehicleService.modes.collectAsStateWithLifecycle()
+    val e by VehicleService.energy.collectAsStateWithLifecycle()
     var status by remember { mutableStateOf("") }
     var bearing by remember { mutableStateOf<Float?>(null) }
     var fixAge by remember { mutableStateOf<Long?>(null) }
@@ -165,7 +166,7 @@ fun HomeScreen(onOpenTab: (String) -> Unit) {
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Glass(Modifier.weight(1f).fillMaxHeight()) { Label("Power"); Big(m?.energyName ?: "--", 24) }
                         Glass(Modifier.weight(1f).fillMaxHeight()) { Label("Terrain"); Big(m?.terrainName ?: "--", 24) }
-                        Glass(Modifier.weight(1f).fillMaxHeight()) { Label("12 V"); Big(fmt(t?.battery12v, ""), 24, if ((t?.battery12v ?: 13.0) < 12.2) Shark.bad else Shark.text) }
+                        Glass(Modifier.weight(1f).fillMaxHeight()) { Label("Tow mode"); Big(when (e?.trailer?.active) { true -> "On"; false -> "Off"; null -> "--" }, 24) }
                     }
                 }
             }

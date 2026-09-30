@@ -102,32 +102,40 @@ fun ClimateScreen() {
                 SeatCard(s?.driver, onHeat = { write("Driver heat") { st.setHeat(SeatBridge.DRIVER, it) } }, onVent = { write("Driver vent") { st.setVent(SeatBridge.DRIVER, it) } }, ventFirst = true)
             }
         }
-        Panel("Camp and V2L") {
-            val v = e?.v2l
-            val watts = v?.watts
-            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                Column(Modifier.weight(1f)) {
-                    StatRow("V2L", when (v?.on) { true -> "ON"; false -> "off"; null -> "--" }, v?.on)
-                    StatRow("Output", if (watts != null) "%.0f W (%d V, %.1f A)".format(watts, v?.volts, v?.amps) else "--")
-                    StatRow("Energy this session", fmt(v?.energyKwh, " kWh"))
-                    StatRow("Time remaining", v?.remainMin?.let { "${it / 60} h ${it % 60} min" } ?: "--")
-                }
-                Column(Modifier.weight(1f)) {
-                    StatRow("Battery", fmt(t?.soc, "%"))
-                    StatRow("Stops at", fmt(v?.limitPercent, "%"))
-                    StatRow("Camping balance", when (v?.campingBalance) { null -> "--"; 1 -> "on"; 2, 0 -> "off"; else -> "state ${v?.campingBalance}" })
-                    StatRow("Runtime at this draw", if (watts != null && watts > 50) "%.1f h to the floor".format(((t?.soc ?: 0) - (v?.limitPercent ?: 15)).coerceAtLeast(0) / 100.0 * 29.58 * 1000 / watts) else "--")
-                }
-            }
-            val hrs = v?.timeHours
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
-                Text("Run time " + (if (hrs != null) "%.0f h".format(hrs) else "--"), color = Shark.text, fontSize = 16.sp, modifier = Modifier.width(130.dp))
-                listOf(5, 8, 12, 24).forEach { h -> Tile("$h h", hrs != null && kotlin.math.abs(hrs - h) < 0.5, Modifier.width(80.dp), height = 48.dp) { write("V2L $h h") { Vehicle.energy.setDischargeHours(h) } } }
-                Text(if (v?.timeUnit == null) "The ute reports ${v?.timeSetting ?: "nothing"} for run time, so the unit is not known yet and these stay off." else "Sets how long V2L runs in one go. Raw ${v.timeSetting} ${v.timeUnit}", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.weight(1f))
-            }
-            Text("V2L is switched on from BYD's Energy screen (Charging and Discharging). The engine will start itself below the floor. Camp preset above keeps the cabin comfortable at low fan.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
-        }
+        PetPanel(write = { label, block -> write(label, block) })
     }
+    }
+}
+
+/** Pet mode lives with climate because that is what it sets. The notice screen is in PetScreen.kt. */
+@Composable
+private fun PetPanel(write: (String, () -> CommandResult) -> Unit) {
+    val prefs = Vehicle.prefs
+    var temp by remember { androidx.compose.runtime.mutableIntStateOf(prefs.petTemp) }
+    var message by remember { mutableStateOf(prefs.petMessage) }
+    var phone by remember { mutableStateOf(prefs.petPhone) }
+    var active by remember { mutableStateOf(false) }
+    if (active) { PetNotice(temp, message, phone) { active = false }; return }
+    Panel {
+        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(Modifier.width(190.dp)) {
+                Text("PET MODE", color = Shark.accent, fontSize = 13.sp, letterSpacing = 2.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                Text("Keeps the cabin at a set temperature and shows a notice on the screen. The ute must stay on.", color = Shark.muted, fontSize = 12.sp)
+            }
+            Tile("−", false, Modifier.width(52.dp), height = 48.dp) { temp = (temp - 1).coerceAtLeast(17); prefs.petTemp = temp }
+            Text("$temp°", color = Shark.text, fontSize = 28.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, modifier = Modifier.width(64.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            Tile("+", false, Modifier.width(52.dp), height = 48.dp) { temp = (temp + 1).coerceAtMost(26); prefs.petTemp = temp }
+            androidx.compose.material3.OutlinedTextField(message, { message = it.take(80); prefs.petMessage = message }, label = { Text("Message for people walking past") }, singleLine = true, modifier = Modifier.weight(1f))
+            androidx.compose.material3.OutlinedTextField(phone, { phone = it.take(20); prefs.petPhone = phone }, label = { Text("Your phone number") }, singleLine = true, modifier = Modifier.width(200.dp))
+            Tile("Turn pet mode on", false, Modifier.width(190.dp), height = 56.dp) {
+                write("Pet mode") {
+                    val r = Vehicle.climate.power(true)
+                    Vehicle.climate.setSynced(true); Vehicle.climate.setDriverTemp(temp); Vehicle.climate.setCompressor(true); Vehicle.climate.setRecirc(false)
+                    r
+                }
+                active = true
+            }
+        }
     }
 }
 

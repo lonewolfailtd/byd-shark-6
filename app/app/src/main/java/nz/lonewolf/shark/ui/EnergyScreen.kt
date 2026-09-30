@@ -25,16 +25,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import nz.lonewolf.shark.core.byd.Vehicle
 import nz.lonewolf.shark.data.TripLog
 import nz.lonewolf.shark.service.VehicleService
 import java.util.Date
 
-/** Fuel in litres, with support for a long range tank the factory gauge cannot see. Nothing here writes to the ute. */
+/** Everything that is in the ute: fuel and the long range tank, V2L and camping, the battery. Only the V2L run time writes to the ute. */
 @Composable
-fun FuelScreen() {
+fun EnergyScreen() {
     val t by VehicleService.telemetry.collectAsStateWithLifecycle()
     val fills by Vehicle.fuel.fills.collectAsStateWithLifecycle()
+    val e by VehicleService.energy.collectAsStateWithLifecycle()
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
     val f = Vehicle.fuel
     var extended by remember { mutableIntStateOf(f.extendedLitres) }
     var cal by remember { mutableIntStateOf(f.calibrationPct) }
@@ -131,6 +136,33 @@ fun FuelScreen() {
                     }
                 }
                 if (status.isNotBlank()) Text(status, color = Color(0xFFFFD54F), fontSize = 14.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    val v = e?.v2l
+                    val hrs = v?.timeHours
+                    Glass(Modifier.weight(1f)) {
+                        Head("V2L and camping")
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
+                            Text("Run time " + (if (hrs != null) "%.0f h".format(hrs) else "--"), color = Shark.text, fontSize = 15.sp, modifier = Modifier.width(120.dp))
+                            listOf(5, 8, 12, 24).forEach { h -> Tile("$h h", hrs != null && kotlin.math.abs(hrs - h) < 0.5, Modifier.width(72.dp), height = 44.dp) {
+                                scope.launch { status = withContext(Dispatchers.IO) { val r = Vehicle.energy.setDischargeHours(h); runCatching { VehicleService.energy.value = Vehicle.energy.read() }; if (r.ok) "V2L run time set to $h h" else "V2L run time: ${r.detail}" } }
+                            } }
+                        }
+                        Text(if (v?.timeUnit == null) "The ute reports ${v?.timeSetting ?: "nothing"} for run time, so the unit is not known yet and the buttons stay off." else "V2L is switched on from the BYD energy screen. The engine starts itself below the battery floor.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
+                        Line("V2L", when (v?.on) { true -> "ON"; false -> "off"; null -> "--" })
+                        Line("Output", v?.watts?.let { "%.0f W".format(it) } ?: "--")
+                        Line("Stops at", fmt(v?.limitPercent, "%"))
+                        Line("Time remaining", v?.remainMin?.let { "${it / 60} h ${it % 60} min" } ?: "--")
+                    }
+                    Glass(Modifier.weight(1f)) {
+                        Head("Battery"); Number(fmt(t?.soc, "%"), Shark.accent)
+                        Bar(t?.soc?.let { it / 100f }, Shark.accent)
+                        Line("Health", fmt(t?.soh, "%"))
+                        Line("Usable", fmt(t?.usableKwh, " kWh"))
+                        Line("Parked loss", Vehicle.batteryLog.averagePerDay()?.let { "%.1f%% a day".format(it) } ?: "not enough data yet")
+                        Line("12 V", fmt(t?.battery12v, " V"))
+                        Line("Charging", if (t?.chargingState == null) "--" else if (t?.chargingState == 0) "not charging" else "state ${t?.chargingState}")
+                    }
+                }
                 Glass(Modifier.fillMaxWidth()) {
                     Head("How this works")
                     Text(

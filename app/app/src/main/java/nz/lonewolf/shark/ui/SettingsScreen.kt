@@ -60,25 +60,27 @@ fun SettingsScreen(inclinometer: Inclinometer) {
         } }
     }
 
+    var section by remember { mutableStateOf("Look") }
     Backdrop("bg_climate", coloured = false, wash = 0.45f) {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Panel("Look") {
+    Row(Modifier.fillMaxSize().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.width(200.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf("Look" to "colours and pictures", "Screen" to "text, night, intro", "Memory" to "warnings after each start", "System" to "link and permissions").forEach { (name, sub) ->
+                Tile(name, section == name, Modifier.fillMaxWidth(), height = 64.dp, sub = sub) { section = name }
+            }
+        }
+        if (section == "Memory") { MemoryScreen(); return@Row }
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (section == "Look") Panel("Look") {
             Text("Ute colour in the pictures", color = Shark.muted, fontSize = 13.sp)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp, bottom = 10.dp)) {
                 Art.colours.forEach { (key, label) -> Tile(label, Art.colour == key, Modifier.width(120.dp), height = 52.dp) { Art.colour = key; Vehicle.prefs.uteColour = key } }
-            }
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 10.dp)) {
-                Tile("Large text", Art.large, Modifier.width(150.dp), height = 52.dp, sub = "easier without glasses") { Art.large = !Art.large; Vehicle.prefs.largeText = Art.large }
-                var introOn by remember { mutableStateOf(Vehicle.prefs.intro) }
-                Tile("Intro when opening", introOn, Modifier.width(170.dp), height = 52.dp, sub = "tap the screen to skip") { introOn = !introOn; Vehicle.prefs.intro = introOn }
-                Tile("Plain dark skin", Art.plain, Modifier.width(170.dp), height = 52.dp, sub = "no photographs") { Art.plain = !Art.plain; Vehicle.prefs.plainSkin = Art.plain }
             }
             Text("Highlight colour", color = Shark.muted, fontSize = 13.sp)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
                 Shark.Theme.entries.forEach { th -> Tile(th.label, Shark.theme == th, Modifier.width(120.dp), height = 52.dp, sub = if (th == Shark.Theme.RED) "matches the cabin" else null) { Shark.theme = th; Vehicle.prefs.theme = th.name } }
             }
         }
-        Panel("Profiles") {
+        if (section == "Look") Panel("Profiles") {
             Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(name, { name = it }, label = { Text("New profile name") }, singleLine = true, modifier = Modifier.width(320.dp))
                 Tile("Save current state", false, Modifier.width(200.dp)) {
@@ -98,7 +100,7 @@ fun SettingsScreen(inclinometer: Inclinometer) {
                 }
             }
         }
-        Panel("Lighting") {
+        if (section == "Look") Panel("Lighting") {
             Text("Ambient: on ${l?.on} colour ${l?.colour} brightness ${l?.brightness} mode ${l?.mode}", color = Shark.muted, fontSize = 13.sp)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
                 Tile("Ambient on", l?.on == true, Modifier.width(130.dp)) { write("Ambient") { Vehicle.lights.setAmbientOn(l?.on != true) } }
@@ -111,14 +113,23 @@ fun SettingsScreen(inclinometer: Inclinometer) {
                 Tile("Daytime lights", l?.drl == 1, Modifier.width(150.dp)) { write("Daytime lights") { Vehicle.lights.setDaytimeRunningLights(l?.drl != 1) } }
             }
         }
-        Panel("Screen") {
+        if (section == "Screen") Panel("Screen") {
             var night by remember { mutableStateOf(VehicleService.nightShade) }
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Tile("Large text", Art.large, Modifier.width(150.dp), sub = "easier without glasses") { Art.large = !Art.large; Vehicle.prefs.largeText = Art.large }
+                Tile("Plain dark skin", Art.plain, Modifier.width(170.dp), sub = "no photographs") { Art.plain = !Art.plain; Vehicle.prefs.plainSkin = Art.plain }
+                var introOn by remember { mutableStateOf(Vehicle.prefs.intro) }
+                Tile("Intro when opening", introOn, Modifier.width(180.dp), sub = "tap the screen to skip") { introOn = !introOn; Vehicle.prefs.intro = introOn }
+                var floating by remember { mutableStateOf(Vehicle.prefs.floatingPanel) }
+                androidx.compose.runtime.LaunchedEffect(Unit) { while (true) { floating = Vehicle.prefs.floatingPanel; kotlinx.coroutines.delay(1000) } }
+                Tile("Floating quick panel", floating, Modifier.width(200.dp), sub = "shark bubble over other apps") { floating = !floating; VehicleService.setFloating(ctx, floating) }
+                var atStart by remember { mutableStateOf(Vehicle.prefs.openAtStart) }
+                Tile("Open when the ute starts", atStart, Modifier.width(240.dp), sub = "does not keep the ute awake") { atStart = !atStart; Vehicle.prefs.openAtStart = atStart }
                 Tile(if (night) "Night shade on" else "Night shade", night, Modifier.width(180.dp), sub = "dims every screen") { night = !night; VehicleService.setNightShade(night) }
             }
             Text("BYD's own brightness is on a light sensor and overrides manual changes within seconds, so night mode is a dark shade over the whole screen instead. The shark bubble also has a Night button.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
         }
-        Panel("System") {
+        if (section == "System") Panel("System") {
             StatRow("Vehicle SDK", "${BydSdkLoader.mode} ${BydSdkLoader.lastError ?: ""}", BydSdkLoader.mode != BydSdkLoader.Mode.UNAVAILABLE)
             StatRow("Vehicle link", if (running) "running" else "stopped", running)
             StatRow("Permissions", adb.toString().substringAfterLast('.'), adb is LocalAdb.Status.Done || VehicleService.telemetry.value != null)
@@ -129,17 +140,13 @@ fun SettingsScreen(inclinometer: Inclinometer) {
             Tile(if (fw.tested.isBlank()) "Mark this build as tested" else "Tested on ${fw.tested}", !fw.changed && fw.tested.isNotBlank(), Modifier.width(260.dp), height = 48.dp) { fw.markTested(); status = "Marked ${fw.current} as tested" }
             StatRow("Tilt sensor", inclinometer.availableSensors().joinToString())
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-                var floating by remember { mutableStateOf(Vehicle.prefs.floatingPanel) }
-                androidx.compose.runtime.LaunchedEffect(Unit) { while (true) { floating = Vehicle.prefs.floatingPanel; kotlinx.coroutines.delay(1000) } }
-                Tile("Floating quick panel", floating, Modifier.width(200.dp), sub = "shark bubble over other apps") { floating = !floating; VehicleService.setFloating(ctx, floating) }
-                var atStart by remember { mutableStateOf(Vehicle.prefs.openAtStart) }
-                Tile("Open when the ute starts", atStart, Modifier.width(240.dp), sub = "does not keep the ute awake") { atStart = !atStart; Vehicle.prefs.openAtStart = atStart }
                 Tile("Restart vehicle link", false, Modifier.width(200.dp)) { VehicleService.stop(ctx); VehicleService.start(ctx) }
                 Tile("Grant permissions", false, Modifier.width(200.dp)) { scope.launch { LocalAdb.setup(ctx) } }
                 Tile("Clear tilt zero", false, Modifier.width(160.dp)) { inclinometer.clearCalibration() }
             }
         }
         if (status.isNotBlank()) Text(status, color = Color(0xFFFFD54F), fontSize = 14.sp)
+        }
     }
     }
 }

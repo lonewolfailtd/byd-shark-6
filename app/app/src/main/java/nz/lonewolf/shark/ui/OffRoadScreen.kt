@@ -71,8 +71,8 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
             }
             Tile("Level here", false, Modifier.width(130.dp), height = 52.dp, sub = "sets zero") { inclinometer.calibrate(); peakPitch = 0f; peakRoll = 0f }
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("OFF ROAD", color = Shark.text, fontSize = 26.sp, fontWeight = FontWeight.Bold, letterSpacing = 4.sp)
-                Text("EXPLORE FURTHER", color = Shark.muted, fontSize = 11.sp, letterSpacing = 3.sp)
+                Text("DRIVE", color = Shark.text, fontSize = 26.sp, fontWeight = FontWeight.Bold, letterSpacing = 4.sp)
+                Text("ANGLES, MODES AND TERRAIN", color = Shark.muted, fontSize = 11.sp, letterSpacing = 3.sp)
             }
             Tile(when (m?.hillDescentOn) { true -> "Hill descent ON"; false -> "Hill descent"; null -> "Hill descent" }, m?.hillDescentOn == true, Modifier.width(170.dp), height = 52.dp,
                 sub = if (m?.hillDescent == null) "not answering" else null) { write("Hill descent") { Vehicle.modes.setHillDescent(m?.hillDescentOn != true) } }

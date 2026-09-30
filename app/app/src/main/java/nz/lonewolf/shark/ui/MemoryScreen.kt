@@ -53,8 +53,8 @@ fun MemoryScreen() {
     }
     @Suppress("UNUSED_EXPRESSION") bump
 
-    Backdrop("bg_climate", coloured = false, wash = 0.4f) {
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    run {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Column(Modifier.weight(1f)) {
                     Text("SETTINGS MEMORY", color = Shark.text, fontSize = 28.sp, fontWeight = FontWeight.Bold, letterSpacing = 3.sp)

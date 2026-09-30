@@ -32,9 +32,9 @@ fun TabIcon(name: String, colour: Color, modifier: Modifier = Modifier) {
         when (name) {
             "Home" -> { poly(3f, 11f, 12f, 3.5f, 21f, 11f); poly(5.5f, 9.5f, 5.5f, 20f, 18.5f, 20f, 18.5f, 9.5f); poly(10f, 20f, 10f, 14f, 14f, 14f, 14f, 20f) }
             "Climate" -> { ring(12f, 12f, 2f); for (a in 0 until 4) rotate(a * 90f, p(12f, 12f)) { drawArc(colour, 200f, 140f, false, p(8f, 2.5f), Size(8f * u, 8f * u), style = pen) } }
-            "Off Road" -> { poly(2f, 20f, 9f, 7f, 13f, 14f, 16f, 10f, 22f, 20f, close = true) }
+            "Drive" -> { poly(2f, 20f, 9f, 7f, 13f, 14f, 16f, 10f, 22f, 20f, close = true) }
             "Gauges" -> { drawArc(colour, 150f, 240f, false, p(3f, 4f), Size(18f * u, 18f * u), style = pen); line(12f, 13f, 16.5f, 8.5f); dot(12f, 13f, 1.4f) }
-            "Fuel" -> { box(4f, 3.5f, 10f, 17f); line(4f, 10f, 14f, 10f); poly(14f, 8f, 18f, 8f, 19.5f, 10f, 19.5f, 17f); ring(19.5f, 18.2f, 1.2f); line(2.5f, 20.5f, 15.5f, 20.5f) }
+            "Energy" -> { box(4f, 3.5f, 10f, 17f); line(4f, 10f, 14f, 10f); poly(14f, 8f, 18f, 8f, 19.5f, 10f, 19.5f, 17f); ring(19.5f, 18.2f, 1.2f); line(2.5f, 20.5f, 15.5f, 20.5f) }
             "Towing" -> { poly(2f, 16f, 2f, 11f, 5f, 11f, 7f, 7.5f, 12f, 7.5f, 12f, 11f, 17f, 11f, 17f, 16f); ring(6f, 16.5f, 2f); ring(14f, 16.5f, 2f); line(17f, 14.5f, 21f, 14.5f); dot(21.5f, 14.5f, 1.2f) }
             "Cameras" -> { box(2.5f, 7f, 13f, 10.5f, 2f); poly(15.5f, 10.5f, 21.5f, 7.5f, 21.5f, 17f, 15.5f, 14f) }
             "Trips" -> { ring(6f, 18f, 2.2f); ring(18f, 6f, 2.2f); drawPath(Path().apply { moveTo(8f * u, 17f * u); cubicTo(16f * u, 17f * u, 6f * u, 8f * u, 15.8f * u, 6.6f * u) }, colour, style = pen) }

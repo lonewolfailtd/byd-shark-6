@@ -72,7 +72,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private val tabs = listOf("Home", "Climate", "Off Road", "Gauges", "Fuel", "Towing", "Cameras", "Trips", "Pet", "Memory", "Settings")
+private val tabs = listOf("Home", "Climate", "Drive", "Gauges", "Energy", "Towing", "Cameras", "Trips", "Settings")
 
 @Composable
 private fun Shell(inclinometer: Inclinometer) {
@@ -101,14 +101,12 @@ private fun Shell(inclinometer: Inclinometer) {
             when (tabs[tab]) {
                 "Home" -> HomeScreen { name -> tabs.indexOf(name).takeIf { it >= 0 }?.let { tab = it } }
                 "Climate" -> ClimateScreen()
-                "Off Road" -> OffRoadScreen(inclinometer)
+                "Drive" -> OffRoadScreen(inclinometer)
                 "Gauges" -> GaugesScreen()
-                "Fuel" -> FuelScreen()
+                "Energy" -> EnergyScreen()
                 "Towing" -> TowingScreen()
                 "Cameras" -> CamerasScreen()
                 "Trips" -> TripsScreen()
-                "Pet" -> PetScreen()
-                "Memory" -> MemoryScreen()
                 else -> SettingsScreen(inclinometer)
             }
         }
