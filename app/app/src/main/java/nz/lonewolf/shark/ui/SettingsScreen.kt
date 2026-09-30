@@ -67,6 +67,10 @@ fun SettingsScreen(inclinometer: Inclinometer) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp, bottom = 10.dp)) {
                 Art.colours.forEach { (key, label) -> Tile(label, Art.colour == key, Modifier.width(120.dp), height = 52.dp) { Art.colour = key; Vehicle.prefs.uteColour = key } }
             }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 10.dp)) {
+                Tile("Large text", Art.large, Modifier.width(150.dp), height = 52.dp, sub = "easier without glasses") { Art.large = !Art.large; Vehicle.prefs.largeText = Art.large }
+                Tile("Plain dark skin", Art.plain, Modifier.width(170.dp), height = 52.dp, sub = "no photographs") { Art.plain = !Art.plain; Vehicle.prefs.plainSkin = Art.plain }
+            }
             Text("Highlight colour", color = Shark.muted, fontSize = 13.sp)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
                 Shark.Theme.entries.forEach { th -> Tile(th.label, Shark.theme == th, Modifier.width(120.dp), height = 52.dp, sub = if (th == Shark.Theme.RED) "matches the cabin" else null) { Shark.theme = th; Vehicle.prefs.theme = th.name } }

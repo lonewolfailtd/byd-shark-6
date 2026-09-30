@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -67,6 +68,7 @@ fun RecordingsScreen(onBack: () -> Unit) {
     var stamp by remember { mutableStateOf(Vehicle.prefs.clipStamp) }
     var reload by remember { mutableIntStateOf(0) }
     var note by remember { mutableStateOf("") }
+    var sharing by remember { mutableStateOf(Vehicle.clipServer.running) }
 
     LaunchedEffect(reload, rec.clip, rec.eventsKept) {
         val (list, use) = withContext(Dispatchers.IO) { Vehicle.recorder.saved() to Vehicle.recorder.usage() }
@@ -151,6 +153,19 @@ fun RecordingsScreen(onBack: () -> Unit) {
                     if (capGb * 1_073_741_824L > u.clipBytes + u.freeBytes) Text("The limit is bigger than the space left on the drive.", color = Shark.warm, fontSize = 12.sp)
                 }
                 Text("Oldest rolling clips are removed once the limit is reached. Protected clips are never removed automatically.", color = Shark.muted, fontSize = 12.sp)
+            }
+            Panel("Send to your phone") {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Tile(if (sharing) "Sharing on" else "Share clips", sharing, Modifier.width(150.dp), height = 52.dp, sub = "same wifi as the ute") {
+                        if (sharing) Vehicle.clipServer.stop() else runCatching { Vehicle.clipServer.start() }.onFailure { note = "Could not start sharing: ${it.message}" }
+                        sharing = Vehicle.clipServer.running
+                    }
+                    val url = if (sharing) Vehicle.clipServer.url() else null
+                    if (url != null) {
+                        QrCode(url, Modifier.width(96.dp).height(96.dp))
+                        Column { Text(url, color = Shark.accent, fontSize = 16.sp, fontWeight = FontWeight.Bold); Text("Put your phone on the ute's hotspot, scan this, then tap a clip to watch or save it. Switch it off when you are done.", color = Shark.muted, fontSize = 12.sp) }
+                    } else if (sharing) Text("The ute has no wifi address yet. Turn on the hotspot in BYD settings.", color = Shark.warm, fontSize = 13.sp)
+                }
             }
         }
     }

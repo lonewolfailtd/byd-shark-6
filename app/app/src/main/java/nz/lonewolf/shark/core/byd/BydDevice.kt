@@ -87,6 +87,11 @@ class BydDevice(private val context: Context, val className: String) {
         }.getOrNull()?.takeUnless { it.toInt() in sentinels }
     }
 
+    fun getLong(name: String): Long? {
+        val dev = instance ?: if (bind()) instance!! else return null
+        return runCatching { (dev.javaClass.getMethod(name).invoke(dev) as? Number)?.toLong() }.getOrNull()?.takeUnless { it.toInt() in sentinels }
+    }
+
     fun getString(name: String): String? {
         val dev = instance ?: if (bind()) instance!! else return null
         return runCatching { dev.javaClass.getMethod(name).invoke(dev) as? String }.getOrNull()
@@ -121,6 +126,7 @@ class BydDevice(private val context: Context, val className: String) {
 
     private fun argType(a: Any): Class<*> = when (a) {
         is Int -> Int::class.javaPrimitiveType!!
+        is Long -> Long::class.javaPrimitiveType!!
         is IntArray -> IntArray::class.java
         is String -> String::class.java
         else -> a.javaClass

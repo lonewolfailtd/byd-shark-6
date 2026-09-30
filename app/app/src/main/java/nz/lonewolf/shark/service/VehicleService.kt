@@ -102,6 +102,7 @@ class VehicleService : Service() {
             if (prefs.autoSentry && gear == 1 && parkedTicks >= prefs.parkStopSeconds + 5 && !recording && !rec.isPaused) rec.start(nz.lonewolf.shark.camera.QCarCam.Cam.entries.filter { it.exterior }, nz.lonewolf.shark.camera.Recorder.Mode.SENTRY)
             if (recording && rec.status.value.mode == nz.lonewolf.shark.camera.Recorder.Mode.SENTRY && driving) rec.stop()
             runCatching { Vehicle.trips.tick(telemetry.value) }
+            runCatching { telemetry.value?.let { Vehicle.fuel.sample(it.odometerKm, it.evMileageKm, it.fuelPercent) } }
             telemetry.value?.fuelPercent?.let { lastFuelPercent = it }
             // Battery log: once soon after start, then every 30 minutes.
             telemetry.value?.let { t -> if (t.soc != null && (tick == 5 || tick % 1800 == 0)) runCatching { Vehicle.batteryLog.record(t.battery12v, t.soc, t.odometerKm, t.fuelPercent) } }

@@ -21,5 +21,9 @@ class Prefs(context: Context) {
     var petMessage: String get() = p.getString("petMessage", "Back soon") ?: ""; set(v) = p.edit().putString("petMessage", v).apply()
     var petPhone: String get() = p.getString("petPhone", "") ?: ""; set(v) = p.edit().putString("petPhone", v).apply()
     var openAtStart: Boolean get() = p.getBoolean("openAtStart", false); set(v) = p.edit().putBoolean("openAtStart", v).apply()
+    /** Bigger text everywhere, for reading without glasses. */
+    var largeText: Boolean get() = p.getBoolean("largeText", false); set(v) = p.edit().putBoolean("largeText", v).apply()
+    /** Plain dark pages with no photographs, easier on the eyes at night. */
+    var plainSkin: Boolean get() = p.getBoolean("plainSkin", false); set(v) = p.edit().putBoolean("plainSkin", v).apply()
     var parkStopSeconds: Int get() = p.getInt("parkStop", 60); set(v) = p.edit().putInt("parkStop", v).apply()
 }

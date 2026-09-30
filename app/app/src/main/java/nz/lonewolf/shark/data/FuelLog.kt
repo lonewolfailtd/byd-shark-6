@@ -102,5 +102,30 @@ class FuelLog(context: Context) {
         _fills.value = emptyList(); persist()
     }
 
+    private val samples = java.util.ArrayDeque<IntArray>()   // odometer km, engine km so far, fuel percent
+
+    /** Called every second by the service; keeps one point per kilometre for the rolling figure. */
+    fun sample(odometer: Int?, evKm: Int?, fuelPercent: Int?) {
+        if (odometer == null || fuelPercent == null) return
+        val last = samples.peekLast()
+        if (last != null && odometer - last[0] < 1) return
+        val engineKm = if (evKm != null) odometer - evKm else odometer
+        if (last != null && fuelPercent > last[2] + 3) samples.clear()   // a fill up resets the window
+        samples.addLast(intArrayOf(odometer, engineKm, fuelPercent))
+        while (samples.size > 400) samples.pollFirst()
+    }
+
+    /** L/100 km over roughly the last 50 engine kilometres, null until the gauge has moved enough to trust. */
+    fun rollingConsumption(): Double? {
+        val newest = samples.peekLast() ?: return null
+        var oldest: IntArray? = null
+        for (p in samples) { if (newest[1] - p[1] <= 60) { oldest = p; break } }
+        val o = oldest ?: samples.peekFirst() ?: return null
+        val engineKm = newest[1] - o[1]
+        val drop = o[2] - newest[2]
+        if (engineKm < 40 || drop < 3) return null
+        return drop / 100.0 * tankLitres * (1 + calibrationPct / 100.0) / engineKm * 100
+    }
+
     fun rangeAt(consumption: Double, fuelPercent: Int?): Int? = litresLeft(fuelPercent)?.let { (it / consumption * 100).toInt() }
 }

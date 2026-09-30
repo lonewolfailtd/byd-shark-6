@@ -20,7 +20,13 @@ class EnergyBridge(context: Context) {
     }
 
     data class V2L(val toggle: Int?, val carState: Int?, val volts: Int?, val amps: Double?, val energyKwh: Double?, val remainMin: Int?, val limitPercent: Int?,
-                   val totalMin: Int?, val campingBalance: Int?) {
+                   val totalMin: Int?, val campingBalance: Int?, val timeSetting: Long? = null) {
+        /**
+         * BYD stores the single session discharge time but the unit is not documented. Work it out from the
+         * number itself: a small number is hours, a multiple of 60 up to two days is minutes, bigger is seconds.
+         */
+        val timeUnit: String? get() = when { timeSetting == null || timeSetting <= 0 -> null; timeSetting <= 48 -> "h"; timeSetting <= 2880 -> "min"; else -> "s" }
+        val timeHours: Double? get() = when (timeUnit) { "h" -> timeSetting!!.toDouble(); "min" -> timeSetting!! / 60.0; "s" -> timeSetting!! / 3600.0; else -> null }
         val on: Boolean? get() = toggle?.let { it == 1 } ?: carState?.let { it != 0 }
         val watts: Double? get() = if (volts != null && amps != null) volts * amps else null
     }
@@ -38,6 +44,7 @@ class EnergyBridge(context: Context) {
             toggle = charging.getInt("getDischargeToggle"), carState = charging.getInt("getCarDischargeState"), volts = charging.getInt("getDischargeVoltage"),
             amps = charging.getDouble("getDischargeElectric"), energyKwh = instrument.getDouble("getDischargeElecEnergy"), remainMin = charging.getInt("getDischargeRemainTime"),
             limitPercent = charging.getInt("getDischargeLimit"), totalMin = charging.getInt("getDischargeTotalTime"), campingBalance = setting.getInt("getCampingBlanceState"),
+            timeSetting = charging.getLong("getDischargeTime"),
         ),
         brightness = instrument.getInt("getBacklightBrightness"),
     )
@@ -54,6 +61,18 @@ class EnergyBridge(context: Context) {
         val r = setting.call("setTrailerModeState", target); Thread.sleep(300)
         val after = setting.getInt("getTrailerModeState")
         return if (r.ok && after == target) r else r.copy(ok = false, detail = if (r.ok) "vehicle reports $after" else r.detail)
+    }
+
+    /**
+     * Set how long V2L runs in one go, in the same unit the ute already reports. Refuses if the unit
+     * cannot be told from the current reading, so it never writes a number it does not understand.
+     */
+    fun setDischargeHours(hours: Int): CommandResult {
+        val now = read().v2l
+        val value = when (now.timeUnit) { "h" -> hours.toLong(); "min" -> hours * 60L; "s" -> hours * 3600L; else -> return CommandResult(false, "setDischargeTime", null, "ute reports ${now.timeSetting}, unit unknown") }
+        val r = charging.call("setDischargeTime", value); Thread.sleep(400)
+        val after = charging.getLong("getDischargeTime")
+        return if (r.ok && after == value) r else r.copy(ok = false, detail = if (r.ok) "ute reports $after" else r.detail)
     }
 
     /** BYD's own display brightness setting. Range is learned from the read value; 0 to 10 is typical on DiLink. */

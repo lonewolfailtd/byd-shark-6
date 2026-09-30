@@ -19,6 +19,7 @@ object Vehicle {
     lateinit var fuel: nz.lonewolf.shark.data.FuelLog; private set
     lateinit var assist: AssistBridge; private set
     lateinit var assistMemory: nz.lonewolf.shark.data.AssistMemory; private set
+    lateinit var clipServer: nz.lonewolf.shark.data.ClipServer; private set
     lateinit var profiles: nz.lonewolf.shark.data.ProfileStore; private set
     @Volatile var ready = false; private set
 
@@ -31,6 +32,7 @@ object Vehicle {
         telemetry = TelemetryBridge(app)
         seatPosition = SeatPositionBridge(app)
         recorder = nz.lonewolf.shark.camera.Recorder(app)
+        clipServer = nz.lonewolf.shark.data.ClipServer(recorder)
         prefs = nz.lonewolf.shark.data.Prefs(app)
         batteryLog = nz.lonewolf.shark.data.BatteryLog(app)
         trips = nz.lonewolf.shark.data.TripLog(app)

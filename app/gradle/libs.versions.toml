@@ -7,6 +7,7 @@ lifecycle = "2.8.7"
 composeBom = "2024.12.01"
 coroutines = "1.8.1"
 dadb = "1.2.7"
+zxing = "3.5.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -21,6 +22,7 @@ compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 dadb = { group = "dev.mobile", name = "dadb", version.ref = "dadb" }
+zxing = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

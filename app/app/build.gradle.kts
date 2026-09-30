@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.foundation)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.zxing)
     // dadb declares JUnit as a runtime dependency; keep it out of the APK.
     implementation(libs.dadb) {
         exclude(group = "org.junit.jupiter")

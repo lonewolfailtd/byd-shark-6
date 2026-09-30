@@ -28,6 +28,8 @@ import kotlinx.coroutines.withContext
 object Art {
     val colours = listOf("white" to "White", "grey" to "Grey", "black" to "Black", "blue" to "Blue", "orange" to "Orange")
     var colour by mutableStateOf("white")
+    var plain by mutableStateOf(false)
+    var large by mutableStateOf(false)
 
     private val cache = LinkedHashMap<String, ImageBitmap>()
 
@@ -58,8 +60,8 @@ fun rememberArt(name: String, coloured: Boolean = true): ImageBitmap? {
 /** A page background: the photograph, then a dark wash so text stays readable. */
 @Composable
 fun Backdrop(name: String, coloured: Boolean = true, wash: Float = 0.35f, content: @Composable () -> Unit) {
-    val img = rememberArt(name, coloured)
-    Box(Modifier.fillMaxSize().background(Shark.bg)) {
+    val img = if (Art.plain) null else rememberArt(name, coloured)
+    Box(Modifier.fillMaxSize().background(if (Art.plain) Color(0xFF05080F) else Shark.bg)) {
         if (img != null) Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop, alignment = Alignment.Center)
         Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = wash * 0.6f + 0.12f), Color.Black.copy(alpha = wash * 0.15f), Color.Black.copy(alpha = wash * 0.6f + 0.18f)))))
         content()

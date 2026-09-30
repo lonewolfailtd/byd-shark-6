@@ -129,6 +129,12 @@ fun ClimateScreen() {
                     StatRow("Runtime at this draw", if (watts != null && watts > 50) "%.1f h to the floor".format(((t?.soc ?: 0) - (v?.limitPercent ?: 15)).coerceAtLeast(0) / 100.0 * 29.58 * 1000 / watts) else "--")
                 }
             }
+            val hrs = v?.timeHours
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
+                Text("Run time " + (if (hrs != null) "%.0f h".format(hrs) else "--"), color = Shark.text, fontSize = 16.sp, modifier = Modifier.width(130.dp))
+                listOf(5, 8, 12, 24).forEach { h -> Tile("$h h", hrs != null && kotlin.math.abs(hrs - h) < 0.5, Modifier.width(80.dp), height = 48.dp) { write("V2L $h h") { Vehicle.energy.setDischargeHours(h) } } }
+                Text(if (v?.timeUnit == null) "The ute reports ${v?.timeSetting ?: "nothing"} for run time, so the unit is not known yet and these stay off." else "Raw ${v.timeSetting} ${v.timeUnit}", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.weight(1f))
+            }
             Text("V2L is switched on from BYD's Energy screen (Charging and Discharging). The engine will start itself below the floor. Camp profile above keeps the cabin comfortable at low fan.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
         }
     }

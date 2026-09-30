@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,6 +44,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Vehicle.init(this)
         Art.colour = Vehicle.prefs.uteColour
+        Art.plain = Vehicle.prefs.plainSkin
+        Art.large = Vehicle.prefs.largeText
         Shark.theme = runCatching { Shark.Theme.valueOf(Vehicle.prefs.theme) }.getOrDefault(Shark.Theme.CYAN)
         inclinometer = Inclinometer(this)
         Thread {
@@ -51,7 +54,11 @@ class MainActivity : ComponentActivity() {
         }.start()
         setContent {
             MaterialTheme(colorScheme = darkColorScheme(primary = Shark.accent, background = Shark.bg, surface = Shark.panel)) {
-                Shell(inclinometer)
+                // Large text scales every font in the app by a fifth and nothing else.
+                val base = androidx.compose.ui.platform.LocalDensity.current
+                androidx.compose.runtime.CompositionLocalProvider(androidx.compose.ui.platform.LocalDensity provides androidx.compose.ui.unit.Density(base.density, if (Art.large) base.fontScale * 1.2f else base.fontScale)) {
+                    Shell(inclinometer)
+                }
             }
         }
     }
@@ -81,6 +88,7 @@ private fun Shell(inclinometer: Inclinometer) {
             Text("LONEWOLF", color = Shark.text, fontSize = 16.sp, fontWeight = FontWeight.Bold, letterSpacing = 3.sp)
             Text("SHARK", color = Shark.accent, fontSize = 16.sp, fontWeight = FontWeight.Bold, letterSpacing = 3.sp)
             Spacer(Modifier.weight(1f))
+            TopShortcuts()
             if (rec.recording) Text(if (rec.mode == nz.lonewolf.shark.camera.Recorder.Mode.SENTRY) "● Sentry armed" else "● Recording", color = Shark.bad, fontSize = 13.sp, modifier = Modifier.padding(end = 18.dp))
             val linked = running && t != null
             Text(if (linked) "linked" else if (running) "waiting" else "no link", color = if (linked) Shark.accent else Shark.bad, fontSize = 13.sp, modifier = Modifier.padding(end = 18.dp))
@@ -113,6 +121,36 @@ private fun Shell(inclinometer: Inclinometer) {
                     }
                 }
             }
+        }
+    }
+}
+
+/** The home page shortcuts, small, on every page. */
+@Composable
+private fun TopShortcuts() {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    var icons by remember { mutableStateOf<List<Pair<String, androidx.compose.ui.graphics.ImageBitmap>>>(emptyList()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            val pkgs = Vehicle.prefs.shortcuts.filter { it.isNotBlank() }
+            if (pkgs != icons.map { it.first }) icons = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                pkgs.mapNotNull { p: String ->
+                    runCatching {
+                        val d = ctx.packageManager.getApplicationIcon(p)
+                        val b = android.graphics.Bitmap.createBitmap(64, 64, android.graphics.Bitmap.Config.ARGB_8888)
+                        d.setBounds(0, 0, 64, 64); d.draw(android.graphics.Canvas(b))
+                        Pair<String, androidx.compose.ui.graphics.ImageBitmap>(p, b.asImageBitmap())
+                    }.getOrNull()
+                }
+            }
+            kotlinx.coroutines.delay(3000)
+        }
+    }
+    Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp), modifier = Modifier.padding(end = 18.dp)) {
+        icons.forEach { (p, img) ->
+            androidx.compose.foundation.Image(img, null, Modifier.size(26.dp).clickable {
+                runCatching { ctx.startActivity(ctx.packageManager.getLaunchIntentForPackage(p)?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+            })
         }
     }
 }

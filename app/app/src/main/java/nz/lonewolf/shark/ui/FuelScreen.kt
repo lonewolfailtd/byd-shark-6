@@ -46,7 +46,8 @@ fun FuelScreen() {
 
     @Suppress("UNUSED_EXPRESSION") bump
     val measured = f.measuredConsumption()
-    val use = measured ?: basis
+    val rolling = f.rollingConsumption()
+    val use = rolling ?: measured ?: basis
     val total = f.totalLitres
     val left = f.remaining(t?.fuelPercent, t?.odometerKm, t?.evMileageKm, use)
     val percent = left?.let { (it / total * 100).toInt().coerceIn(0, 100) }
@@ -105,8 +106,8 @@ fun FuelScreen() {
                     }
                     Glass(Modifier.weight(1f)) {
                         Head("Consumption"); Number("%.1f".format(use))
-                        Text(if (measured != null) "L/100 km, measured between fills" else "L/100 km, your setting", color = Shark.muted, fontSize = 12.sp)
-                        if (measured == null) Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
+                        Text(when { rolling != null -> "L/100 km, last 50 km of engine driving"; measured != null -> "L/100 km, measured between fills"; else -> "L/100 km, your setting" }, color = Shark.muted, fontSize = 12.sp)
+                        if (measured == null && rolling == null) Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
                             Tile("−", false, Modifier.width(56.dp), height = 38.dp) { basis = (basis - 0.5).coerceAtLeast(3.0); f.basis = basis }
                             Tile("+", false, Modifier.width(56.dp), height = 38.dp) { basis = (basis + 0.5).coerceAtMost(25.0); f.basis = basis }
                         }
