@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -122,7 +123,7 @@ fun CamerasScreen() {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Panel(current?.label ?: "Camera", Modifier.weight(2f)) {
-                Box(Modifier.fillMaxWidth().aspectRatio(PW.toFloat() / PH).clip(RoundedCornerShape(12.dp)).background(Color.Black)) {
+                Box(Modifier.fillMaxWidth().aspectRatio(PW.toFloat() / PH).heightIn(max = 330.dp).clip(RoundedCornerShape(12.dp)).background(Color.Black)) {
                     when {
                         rec.recording -> Text("Recording ${rec.cameras.joinToString { it.label }}\n${rec.clip ?: ""}\n" + rec.fps.entries.joinToString("  ") { "${Cam.byId(it.key)?.label} ${it.value} fps" }, color = Shark.accent, modifier = Modifier.padding(16.dp))
                         current != null -> { @Suppress("UNUSED_EXPRESSION") tick; Image(bitmap.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
