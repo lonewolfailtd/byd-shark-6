@@ -111,7 +111,11 @@ fun ClimateScreen() {
 @Composable
 private fun PetPanel(write: (String, () -> CommandResult) -> Unit) {
     val prefs = Vehicle.prefs
-    var temp by remember { androidx.compose.runtime.mutableIntStateOf(prefs.petTemp) }
+    // Starts from whatever the climate is set to now; adjust from there if the day needs colder or warmer.
+    val climateNow by VehicleService.climate.collectAsStateWithLifecycle()
+    var touched by remember { mutableStateOf(false) }
+    var temp by remember { androidx.compose.runtime.mutableIntStateOf(climateNow?.driverTemp ?: prefs.petTemp) }
+    androidx.compose.runtime.LaunchedEffect(climateNow?.driverTemp) { if (!touched) climateNow?.driverTemp?.let { temp = it.coerceIn(17, 30) } }
     var message by remember { mutableStateOf(prefs.petMessage) }
     var phone by remember { mutableStateOf(prefs.petPhone) }
     Panel {
@@ -120,9 +124,9 @@ private fun PetPanel(write: (String, () -> CommandResult) -> Unit) {
                 Text("PET MODE", color = Shark.accent, fontSize = 13.sp, letterSpacing = 2.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                 Text("Keeps the cabin at a set temperature and shows a notice on the screen. The ute must stay on.", color = Shark.muted, fontSize = 12.sp)
             }
-            Tile("−", false, Modifier.width(56.dp), height = 52.dp) { temp = (temp - 1).coerceAtLeast(17); prefs.petTemp = temp }
+            Tile("−", false, Modifier.width(56.dp), height = 52.dp) { touched = true; temp = (temp - 1).coerceAtLeast(17); prefs.petTemp = temp }
             Text("$temp°", color = Shark.text, fontSize = 28.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, modifier = Modifier.width(64.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            Tile("+", false, Modifier.width(56.dp), height = 52.dp) { temp = (temp + 1).coerceAtMost(26); prefs.petTemp = temp }
+            Tile("+", false, Modifier.width(56.dp), height = 52.dp) { touched = true; temp = (temp + 1).coerceAtMost(30); prefs.petTemp = temp }
             androidx.compose.material3.OutlinedTextField(message, { message = it.take(80); prefs.petMessage = message }, label = { Text("Message for people walking past") }, singleLine = true, modifier = Modifier.weight(1f))
             androidx.compose.material3.OutlinedTextField(phone, { phone = it.take(20); prefs.petPhone = phone }, label = { Text("Your phone number") }, singleLine = true, modifier = Modifier.width(200.dp))
             Tile("Turn pet mode on", false, Modifier.width(190.dp), height = 56.dp) {
