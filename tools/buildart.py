@@ -19,11 +19,14 @@ RES = os.path.join(ROOT, 'app', 'app', 'src', 'main', 'res', 'drawable-nodpi')
 os.makedirs(RES, exist_ok=True)
 
 
+ANCHOR = {'bg_towing': 0.35, 'bg_offroad': 0.45}
+
+
 def background(path, name):
     im = Image.open(path).convert('RGB')
     w, h = im.size
     th = int(w * 9 / 16)
-    top = int((h - th) * 0.55)
+    top = int((h - th) * ANCHOR.get(name.rsplit('_', 1)[0], 0.55))
     im = lift(im.crop((0, top, w, top + th)).resize((1920, 1080), Image.LANCZOS))
     im.save(os.path.join(RES, name + '.webp'), 'WEBP', quality=86, method=6)
 
@@ -57,8 +60,9 @@ def cutout(path, name):
 
 for f in sorted(glob.glob(os.path.join(SRC, '*.png'))):
     base = os.path.splitext(os.path.basename(f))[0]
-    if base.startswith('side_') or base.startswith('front_'):
-        print('dial_' + base, cutout(f, 'dial_' + base))
+    if base.startswith('side_') or base.startswith('front_') or base == 'seat':
+        name = base if base == 'seat' else 'dial_' + base
+        print(name, cutout(f, name))
     else:
         background(f, 'bg_' + base)
         print('bg_' + base)

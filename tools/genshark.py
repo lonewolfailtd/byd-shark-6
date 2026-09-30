@@ -34,12 +34,13 @@ JOBS = {
     'gauges': ([REAR, SIDE], UTE + 'Seen straight on from behind, centred, tail light bar glowing red, parked on a gravel '
                'high country road in the South Island of New Zealand, tussock either side, dark ranges ahead under the last light. '
                'The ute fills the middle third of the frame, the left and right thirds are dark and uncluttered. ' + LOOK),
-    'offroad': ([FRONT, SIDE], UTE + 'Front three quarter view, centred, headlights on, stopped on the shingle bed of a braided '
-                'New Zealand river with shallow water around the tyres, beech forest and steep dark hills behind. '
-                'The ute fills the middle third of the frame, the left and right thirds are dark and uncluttered. ' + LOOK),
+    'offroad': ([FRONT, SIDE], UTE + 'Front three quarter view, small in the frame, centred and sitting in the lower half, headlights on, '
+                'stopped on the shingle bed of a braided New Zealand river with shallow water around the tyres, beech forest and steep dark hills behind. '
+                'The ute takes up only the middle fifth of the frame width. Everything around it is open landscape with no bright detail. ' + LOOK),
     'towing': ([SIDE, FRONT, REAR], UTE + 'Side on view facing left, hitched to a modern dark grey twin axle off road caravan '
                'with no writing on it, parked on a gravel lakefront at Lake Pukaki style New Zealand scenery, mountains across the water. '
-               'Ute and caravan together span the width of the frame and sit in the middle band, with dark sky above and dark gravel below. ' + LOOK),
+               'Ute and caravan together span the middle half of the frame width and sit in the lower half of the frame, seen from a little above, '
+               'with open sky and mountains above and plain dark gravel in the bottom quarter. ' + LOOK),
     'fuel': ([REAR, SIDE], UTE + 'Rear three quarter view on the left half of the frame, tail lights on, parked beside a single '
              'unbranded fuel pump at a small rural New Zealand forecourt at night, wet concrete, one overhead light, dark paddocks behind. '
              'The right half of the frame is dark and empty. ' + LOOK),
@@ -48,6 +49,8 @@ JOBS = {
             'The right half of the frame is dark and empty. ' + LOOK),
     'side': ([SIDE, FRONT], UTE + 'Exact side profile facing left, perfectly level, whole vehicle visible with clear space all '
              'round, evenly lit studio product photograph on a plain solid pure black background, no floor, no shadow, no reflection, no text.'),
+    'seat': ([FRONT], 'Product photograph of a single modern black leather car front seat with a headrest and light stitching, seen straight on from the front, '
+             'whole seat visible with clear space all round, evenly lit studio photograph on a plain solid pure black background, no floor, no shadow, no text, no logos.'),
     'front': ([FRONT], UTE + 'Exact straight on front view, perfectly level and symmetrical, whole vehicle visible with clear space '
               'all round, headlights on, evenly lit studio product photograph on a plain solid pure black background, no floor, no shadow, '
               'no reflection, no text.'),
@@ -139,6 +142,6 @@ if __name__ == '__main__':
     if args == ['all']:
         args = list(JOBS) + list(SCENES)
     elif args == ['colours']:
-        args = ['%s_%s' % (j, c) for j in JOBS for c in COLOURS]
+        args = ['%s_%s' % (j, c) for j in JOBS if j != 'seat' for c in COLOURS]
     with ThreadPoolExecutor(4) as ex:
         list(ex.map(run, args))

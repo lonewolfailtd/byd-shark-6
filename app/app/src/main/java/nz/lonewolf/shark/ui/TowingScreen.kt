@@ -38,58 +38,60 @@ fun TowingScreen() {
     }
     val unit = t?.tyres?.unit ?: "kPa"
     Backdrop("bg_towing", wash = 0.15f) {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    var more by remember { mutableStateOf(false) }
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Text("TOWING", color = Shark.text, fontSize = 30.sp, letterSpacing = 3.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, modifier = Modifier.weight(1f))
-            Tile("Small", tr?.dragType == 1, Modifier.width(130.dp), height = 52.dp) { write("Small trailer") { Vehicle.energy.setTrailerSize(1) } }
-            Tile("Medium", tr?.dragType == 2, Modifier.width(130.dp), height = 52.dp) { write("Medium trailer") { Vehicle.energy.setTrailerSize(2) } }
-            Tile("Large", tr?.dragType == 3, Modifier.width(130.dp), height = 52.dp) { write("Large trailer") { Vehicle.energy.setTrailerSize(3) } }
+            Column(Modifier.weight(1f)) {
+                Text("TOWING", color = Shark.text, fontSize = 30.sp, letterSpacing = 4.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                Text("GO FURTHER TOGETHER", color = Shark.muted, fontSize = 11.sp, letterSpacing = 3.sp)
+            }
+            Text("TRAILER", color = Shark.muted, fontSize = 11.sp, letterSpacing = 2.sp)
+            Tile("Small", tr?.dragType == 1, Modifier.width(120.dp), height = 52.dp) { write("Small trailer") { Vehicle.energy.setTrailerSize(1) } }
+            Tile("Medium", tr?.dragType == 2, Modifier.width(120.dp), height = 52.dp) { write("Medium trailer") { Vehicle.energy.setTrailerSize(2) } }
+            Tile("Large", tr?.dragType == 3, Modifier.width(120.dp), height = 52.dp) { write("Large trailer") { Vehicle.energy.setTrailerSize(3) } }
             androidx.compose.foundation.layout.Spacer(Modifier.width(16.dp))
-            Tile(if (tr?.active == true) "Tow mode ON" else "Tow mode off", tr?.active == true, Modifier.width(190.dp), height = 52.dp) { write("Tow mode") { Vehicle.energy.setTowMode(tr?.active != true) } }
+            Tile(if (tr?.active == true) "Tow mode ON" else "Tow mode off", tr?.active == true, Modifier.width(180.dp), height = 52.dp) { write("Tow mode") { Vehicle.energy.setTowMode(tr?.active != true) } }
         }
-        if (status.isNotBlank()) Text(status, color = androidx.compose.ui.graphics.Color(0xFFFFD54F), fontSize = 13.sp)
-        androidx.compose.foundation.layout.Spacer(Modifier.height(230.dp))
-        Panel("Range with the load on") {
-            Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
-                Gauge("Combined", fmt(t?.combinedRangeKm), t?.combinedRangeKm?.let { it / 800f }, unit = "km")
-                Gauge("Fuel", fmt(t?.fuelRangeKm), t?.fuelRangeKm?.let { it / 800f }, unit = "km", colour = Shark.warm)
-                Gauge("EV", fmt(t?.evRangeKm), t?.evRangeKm?.let { it / 100f }, unit = "km", colour = Shark.cool)
-                Gauge("Battery", fmt(t?.soc, "%"), t?.soc?.let { it / 100f })
+        Text(
+            if (status.isNotBlank()) status else if (tr?.active == true) "Tow mode on. Trailer ${tr?.sizeName ?: "--"}. Locks Normal mode and disables 10 driver aids." else "Tow mode off. It arms itself 15 s after the 7 pin plug goes in.",
+            color = if (status.isNotBlank()) androidx.compose.ui.graphics.Color(0xFFFFD54F) else Shark.muted, fontSize = 12.sp, modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        )
+        androidx.compose.foundation.layout.Spacer(Modifier.height(300.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TowStat("Combined range", fmt(t?.combinedRangeKm, " km"), t?.combinedRangeKm?.let { it / 900f }, Shark.cool, Modifier.weight(1f))
+            TowStat("Fuel range", fmt(t?.fuelRangeKm, " km"), t?.fuelRangeKm?.let { it / 800f }, Shark.warm, Modifier.weight(1f))
+            TowStat("EV range", fmt(t?.evRangeKm, " km"), t?.evRangeKm?.let { it / 100f }, Shark.accent, Modifier.weight(1f))
+            TowStat("Battery", fmt(t?.soc, "%"), t?.soc?.let { it / 100f }, Shark.accent, Modifier.weight(1f))
+            Glass(Modifier.width(230.dp), pad = 10) {
+                Text("VEHICLE TYRES", color = Shark.accent, fontSize = 12.sp, letterSpacing = 1.6.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                Text("FL ${fmt(t?.tyres?.fl, " psi", 1)}  FR ${fmt(t?.tyres?.fr, " psi", 1)}", color = Shark.text, fontSize = 15.sp)
+                Text("RL ${fmt(t?.tyres?.rl, " psi", 1)}  RR ${fmt(t?.tyres?.rr, " psi", 1)}", color = Shark.text, fontSize = 15.sp)
             }
-            Text("Towing roughly halves range. Plan fuel stops from the fuel figure, not combined.", color = Shark.muted, fontSize = 12.sp)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Panel("Tyres ($unit)", Modifier.weight(1f)) {
-                StatRow("Front left", fmt(t?.tyres?.fl, " psi", 1))
-                StatRow("Front right", fmt(t?.tyres?.fr, " psi", 1))
-                StatRow("Rear left", fmt(t?.tyres?.rl, " psi", 1))
-                StatRow("Rear right", fmt(t?.tyres?.rr, " psi", 1))
-                Text("Loaded target: 36 psi front, 42 psi rear", color = Shark.muted, fontSize = 12.sp)
-            }
-            Panel("Tow mode (live)", Modifier.weight(1f)) {
-                Text("Trailer size can only be set once the 7 pin plug is in and tow mode is on; the ute answers 15 (none) otherwise.", color = Shark.muted, fontSize = 11.sp)
-                StatRow("Tow mode", when (tr?.active) { true -> "ON"; false -> "off"; null -> "--" }, tr?.active)
-                StatRow("Trailer size set", tr?.sizeName ?: "--")
+        Tile(if (more) "Hide checklist" else "Checklist and limits", more, Modifier.width(220.dp), height = 44.dp) { more = !more }
+        if (more) Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Panel("Limits (Premium)", Modifier.weight(1f)) {
+                StatRow("Braked trailer", "2,500 kg"); StatRow("Unbraked trailer", "750 kg"); StatRow("Tow ball", "250 kg"); StatRow("GVM", "3,500 kg"); StatRow("Payload", "790 kg")
                 StatRow("Trailer lights check", when (tr?.lightCheck) { null -> "--"; 0 -> "not run"; 1 -> "passed"; else -> "state ${tr?.lightCheck}" })
-                StatRow("Towing prohibited", when (tr?.towingProhibited) { null -> "--"; 0 -> "no"; else -> "yes (${tr?.towingProhibited})" })
                 StatRow("Km in tow mode", fmt(tr?.modeMileage, " km"))
                 StatRow("Size limits", "${fmt(tr?.smallLimit)} / ${fmt(tr?.middleLimit)} / ${fmt(tr?.largeLimit)} kg")
-                Text("Tow mode arms itself 15 s after the 7 pin plug goes in. It locks Normal mode and disables 10 driver aids.", color = Shark.muted, fontSize = 12.sp)
-            }
-            Panel("Limits (Premium)", Modifier.weight(1f)) {
-                StatRow("Braked trailer", "2,500 kg")
-                StatRow("Unbraked trailer", "750 kg")
-                StatRow("Tow ball", "250 kg")
-                StatRow("GVM", "3,500 kg")
-                StatRow("Payload", "790 kg")
-                StatRow("Tow mode", "auto after 15 s on the 7 pin plug; locks Normal mode and disables 10 driver aids")
             }
             Panel("Before you go", Modifier.weight(1f)) {
                 listOf("Chains crossed, breakaway cable on", "Trailer lights and brakes checked", "Mirrors set for the trailer", "Rear tyres to 42 psi", "Load 60/40 forward, ball weight 10%", "Fuel above half before the hills").forEach {
                     Text("• $it", color = Shark.text, fontSize = 14.sp, modifier = Modifier.padding(vertical = 3.dp))
                 }
+                Text("Towing roughly halves range. Plan fuel stops from the fuel figure, not combined.", color = Shark.muted, fontSize = 12.sp)
             }
         }
     }
+    }
+}
+
+@Composable
+private fun TowStat(label: String, value: String, fraction: Float?, colour: androidx.compose.ui.graphics.Color, modifier: Modifier) {
+    Glass(modifier, pad = 10) {
+        Text(label.uppercase(), color = Shark.accent, fontSize = 12.sp, letterSpacing = 1.6.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+        Text(value, color = androidx.compose.ui.graphics.Color.White, fontSize = 30.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+        Bar(fraction, colour)
     }
 }
