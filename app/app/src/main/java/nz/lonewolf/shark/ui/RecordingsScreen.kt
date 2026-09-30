@@ -141,9 +141,9 @@ fun RecordingsScreen(onBack: () -> Unit) {
             }
             Panel("Storage") {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Tile("Less", false, Modifier.width(90.dp), height = 52.dp) { capGb = (capGb - 2).coerceAtLeast(2); Vehicle.prefs.storageCapGb = capGb }
+                    Tile("Less", false, Modifier.width(90.dp), height = 52.dp) { capGb = (capGb - (if (capGb > 20) 10 else 2)).coerceAtLeast(2); Vehicle.prefs.storageCapGb = capGb }
                     Text("$capGb GB", color = Shark.text, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(100.dp))
-                    Tile("More", false, Modifier.width(90.dp), height = 52.dp) { capGb = (capGb + 2).coerceAtMost(64); Vehicle.prefs.storageCapGb = capGb }
+                    Tile("More", false, Modifier.width(90.dp), height = 52.dp) { capGb = (capGb + (if (capGb >= 20) 10 else 2)).coerceAtMost(110); Vehicle.prefs.storageCapGb = capGb }
                     Tile("Time stamp on clips", stamp, Modifier.width(220.dp), height = 52.dp, sub = "date, speed, position") { stamp = !stamp; Vehicle.prefs.clipStamp = stamp }
                 }
                 val u = usage

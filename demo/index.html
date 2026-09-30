@@ -174,7 +174,7 @@ function act(a){const [k,v,w]=a.split(':');
  else if(k=='clipstep')S.clip=Math.max(0,Math.min(CLIPS.length-1,S.clip+ +v));
  else if(k=='protect')CLIPS[S.clip].p=!CLIPS[S.clip].p;
  else if(k=='filter')S.filter=v;
- else if(k=='cap')S.cap=Math.max(2,Math.min(64,S.cap+ +v));
+ else if(k=='cap')S.cap=Math.max(2,Math.min(110,S.cap+(S.cap>=20?+v*5:+v)));
  else if(k=='biz')S['biz'+v]=!(S['biz'+v]??[1,0,1,1][v]);
  else if(k=='prof'){const p={Boost:[18,18,7],Winter:[24,24,3],Summer:[19,19,4],Camp:[21,21,1],Tane:[21,22,2]}[v];S.dt=p[0];S.pt=p[1];S.fan=p[2];S.on=true;if(v=='Winter'){S.dh=2;S.ph=2}toast(v+' applied')}
  else if(k=='app'){if(S.apps[v]){toast('Opens '+S.apps[v]+' on the ute')}else{S.apps[v]=['Spotify','Waze','YouTube','Maps','Podcasts'][v-1]||'App';toast('On the ute this lists your installed apps')}}
