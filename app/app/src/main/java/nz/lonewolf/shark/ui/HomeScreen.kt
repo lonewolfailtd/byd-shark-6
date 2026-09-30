@@ -172,7 +172,7 @@ fun HomeScreen(onOpenTab: (String) -> Unit) {
             }
             // Climate strip: passenger on the left, driver on the right.
             Row(Modifier.fillMaxWidth().height(84.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TempBox("Passenger", c?.passengerTemp, Modifier.width(170.dp), { write("Passenger temp") { Vehicle.climate.nudgePassengerTemp(+1) } }, { write("Passenger temp") { Vehicle.climate.nudgePassengerTemp(-1) } })
+                TempBox("Passenger", c?.passengerTemp, Modifier.width(200.dp), { write("Passenger temp") { Vehicle.climate.nudgePassengerTemp(+1) } }, { write("Passenger temp") { Vehicle.climate.nudgePassengerTemp(-1) } })
                 SeatBox("Heat", s?.passenger?.heat, Shark.warm) { write("Passenger heat") { Vehicle.seats.setHeat(SeatBridge.PASSENGER, next(s?.passenger?.heat)) } }
                 SeatBox("Vent", s?.passenger?.vent, Shark.cool) { write("Passenger vent") { Vehicle.seats.setVent(SeatBridge.PASSENGER, next(s?.passenger?.vent)) } }
                 Glass(Modifier.weight(1f).fillMaxHeight(), pad = 6) {
@@ -189,7 +189,7 @@ fun HomeScreen(onOpenTab: (String) -> Unit) {
                 }
                 SeatBox("Vent", s?.driver?.vent, Shark.cool) { write("Driver vent") { Vehicle.seats.setVent(SeatBridge.DRIVER, next(s?.driver?.vent)) } }
                 SeatBox("Heat", s?.driver?.heat, Shark.warm) { write("Driver heat") { Vehicle.seats.setHeat(SeatBridge.DRIVER, next(s?.driver?.heat)) } }
-                TempBox("Driver", c?.driverTemp, Modifier.width(170.dp), { write("Driver temp") { Vehicle.climate.nudgeDriverTemp(+1) } }, { write("Driver temp") { Vehicle.climate.nudgeDriverTemp(-1) } })
+                TempBox("Driver", c?.driverTemp, Modifier.width(200.dp), { write("Driver temp") { Vehicle.climate.nudgeDriverTemp(+1) } }, { write("Driver temp") { Vehicle.climate.nudgeDriverTemp(-1) } })
             }
             // Shortcuts: tap an empty slot to choose an app, hold a filled one to clear it.
             Row(Modifier.fillMaxWidth().height(70.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -265,15 +265,13 @@ fun Bar(fraction: Float?, colour: Color, modifier: Modifier = Modifier) {
 @Composable
 private fun TempBox(label: String, temp: Int?, modifier: Modifier, onUp: () -> Unit, onDown: () -> Unit) {
     Glass(modifier.fillMaxHeight(), pad = 6) {
-        Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Tile("−", false, Modifier.width(52.dp), height = 56.dp, onClick = onDown)
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                 Small(label)
                 Text(fmt(temp, "°"), color = when { temp == null -> Shark.muted; temp <= 19 -> Shark.cool; temp >= 25 -> Shark.warm; else -> Shark.text }, fontSize = 30.sp, fontWeight = FontWeight.Bold)
             }
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Tile("+", false, Modifier.width(62.dp), height = 33.dp, onClick = onUp)
-                Tile("−", false, Modifier.width(62.dp), height = 33.dp, onClick = onDown)
-            }
+            Tile("+", false, Modifier.width(52.dp), height = 56.dp, onClick = onUp)
         }
     }
 }

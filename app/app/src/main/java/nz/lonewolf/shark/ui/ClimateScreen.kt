@@ -122,9 +122,9 @@ private fun PetPanel(write: (String, () -> CommandResult) -> Unit) {
                 Text("PET MODE", color = Shark.accent, fontSize = 13.sp, letterSpacing = 2.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                 Text("Keeps the cabin at a set temperature and shows a notice on the screen. The ute must stay on.", color = Shark.muted, fontSize = 12.sp)
             }
-            Tile("−", false, Modifier.width(52.dp), height = 48.dp) { temp = (temp - 1).coerceAtLeast(17); prefs.petTemp = temp }
+            Tile("−", false, Modifier.width(56.dp), height = 52.dp) { temp = (temp - 1).coerceAtLeast(17); prefs.petTemp = temp }
             Text("$temp°", color = Shark.text, fontSize = 28.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, modifier = Modifier.width(64.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            Tile("+", false, Modifier.width(52.dp), height = 48.dp) { temp = (temp + 1).coerceAtMost(26); prefs.petTemp = temp }
+            Tile("+", false, Modifier.width(56.dp), height = 52.dp) { temp = (temp + 1).coerceAtMost(26); prefs.petTemp = temp }
             androidx.compose.material3.OutlinedTextField(message, { message = it.take(80); prefs.petMessage = message }, label = { Text("Message for people walking past") }, singleLine = true, modifier = Modifier.weight(1f))
             androidx.compose.material3.OutlinedTextField(phone, { phone = it.take(20); prefs.petPhone = phone }, label = { Text("Your phone number") }, singleLine = true, modifier = Modifier.width(200.dp))
             Tile("Turn pet mode on", false, Modifier.width(190.dp), height = 56.dp) {
@@ -172,9 +172,9 @@ private fun SeatCard(seat: SeatBridge.Seat?, onHeat: (SeatBridge.Level) -> Unit,
 private fun Levels(label: String, level: Int, onSet: (SeatBridge.Level) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp), horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
         Text(label, color = Shark.muted, fontSize = 12.sp)
-        Tile("II", level == 2, Modifier.fillMaxWidth(), height = 44.dp) { onSet(SeatBridge.Level.HIGH) }
-        Tile("I", level == 1, Modifier.fillMaxWidth(), height = 44.dp) { onSet(SeatBridge.Level.LOW) }
-        Tile("Off", level == 0, Modifier.fillMaxWidth(), height = 40.dp) { onSet(SeatBridge.Level.OFF) }
+        Tile("II", level == 2, Modifier.fillMaxWidth(), height = 52.dp) { onSet(SeatBridge.Level.HIGH) }
+        Tile("I", level == 1, Modifier.fillMaxWidth(), height = 52.dp) { onSet(SeatBridge.Level.LOW) }
+        Tile("Off", level == 0, Modifier.fillMaxWidth(), height = 48.dp) { onSet(SeatBridge.Level.OFF) }
     }
 }
 
@@ -201,8 +201,8 @@ private fun FanArc(fan: Int?, onMinus: () -> Unit, onPlus: () -> Unit) {
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Tile("−", false, Modifier.width(64.dp), height = 44.dp, onClick = onMinus)
-            Tile("+", false, Modifier.width(64.dp), height = 44.dp, onClick = onPlus)
+            Tile("−", false, Modifier.width(72.dp), height = 52.dp, onClick = onMinus)
+            Tile("+", false, Modifier.width(72.dp), height = 52.dp, onClick = onPlus)
         }
     }
 }

@@ -93,9 +93,9 @@ fun OffRoadScreen(inclinometer: Inclinometer) {
             Glass(pad = 6) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text("Drive", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 4.dp))
-                    Tile("Eco", m?.operationMode == 1, Modifier.width(84.dp), height = 44.dp) { write("Eco") { Vehicle.modes.setDrive(1) } }
-                    Tile("Normal", m?.operationMode == 3, Modifier.width(92.dp), height = 44.dp) { write("Normal") { Vehicle.modes.setDrive(3) } }
-                    Tile("Sport", m?.operationMode == 2, Modifier.width(84.dp), height = 44.dp) { write("Sport") { Vehicle.modes.setDrive(2) } }
+                    Tile("Eco", m?.operationMode == 1, Modifier.width(90.dp), height = 52.dp) { write("Eco") { Vehicle.modes.setDrive(1) } }
+                    Tile("Normal", m?.operationMode == 3, Modifier.width(100.dp), height = 52.dp) { write("Normal") { Vehicle.modes.setDrive(3) } }
+                    Tile("Sport", m?.operationMode == 2, Modifier.width(90.dp), height = 52.dp) { write("Sport") { Vehicle.modes.setDrive(2) } }
                 }
             }
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {

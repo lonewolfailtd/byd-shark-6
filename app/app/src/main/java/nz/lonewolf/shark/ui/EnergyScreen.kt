@@ -68,9 +68,9 @@ fun EnergyScreen() {
                         Line("Stock tank", "60 L")
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text("Extra tank", color = Shark.muted, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                            Tile("−", false, Modifier.width(52.dp), height = 40.dp) { extended = (extended - 5).coerceAtLeast(0); f.extendedLitres = extended; bump++ }
+                            Tile("−", false, Modifier.width(52.dp), height = 52.dp) { extended = (extended - 5).coerceAtLeast(0); f.extendedLitres = extended; bump++ }
                             Text("$extended L", color = Shark.text, fontSize = 16.sp, modifier = Modifier.width(54.dp))
-                            Tile("+", false, Modifier.width(52.dp), height = 40.dp) { extended = (extended + 5).coerceAtMost(120); f.extendedLitres = extended; bump++ }
+                            Tile("+", false, Modifier.width(52.dp), height = 52.dp) { extended = (extended + 5).coerceAtMost(120); f.extendedLitres = extended; bump++ }
                         }
                     }
                     Glass(Modifier.weight(1f)) {
@@ -90,17 +90,17 @@ fun EnergyScreen() {
                     Glass(Modifier.weight(1.3f)) {
                         Head("Add fuel")
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Tile("−5", false, Modifier.width(60.dp), height = 48.dp) { add = (add - 5).coerceAtLeast(0) }
-                            Tile("−1", false, Modifier.width(60.dp), height = 48.dp) { add = (add - 1).coerceAtLeast(0) }
+                            Tile("−5", false, Modifier.width(60.dp), height = 52.dp) { add = (add - 5).coerceAtLeast(0) }
+                            Tile("−1", false, Modifier.width(60.dp), height = 52.dp) { add = (add - 1).coerceAtLeast(0) }
                             Text("$add L", color = Shark.text, fontSize = 26.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(80.dp))
-                            Tile("+1", false, Modifier.width(60.dp), height = 48.dp) { add = (add + 1).coerceAtMost(total) }
-                            Tile("+5", false, Modifier.width(60.dp), height = 48.dp) { add = (add + 5).coerceAtMost(total) }
+                            Tile("+1", false, Modifier.width(60.dp), height = 52.dp) { add = (add + 1).coerceAtMost(total) }
+                            Tile("+5", false, Modifier.width(60.dp), height = 52.dp) { add = (add + 5).coerceAtMost(total) }
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 6.dp)) {
-                            Tile("Add to tank", add > 0, Modifier.weight(1f), height = 48.dp) {
+                            Tile("Add to tank", add > 0, Modifier.weight(1f), height = 52.dp) {
                                 if (add > 0) { f.addToTank(add.toDouble(), left, t?.odometerKm, t?.evMileageKm, t?.fuelPercent); status = "$add L added"; add = 0; bump++ }
                             }
-                            Tile("Filled to full", false, Modifier.weight(1f), height = 48.dp) {
+                            Tile("Filled to full", false, Modifier.weight(1f), height = 52.dp) {
                                 f.fillTank(t?.odometerKm, t?.evMileageKm, t?.fuelPercent); status = "Full tank logged at ${fmt(t?.odometerKm, " km")}"; bump++
                             }
                         }
@@ -122,9 +122,9 @@ fun EnergyScreen() {
                     Glass(Modifier.weight(2f)) {
                         Head("Gauge calibration")
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Tile("−", false, Modifier.width(60.dp), height = 46.dp) { cal = (cal - 1).coerceAtLeast(-20); f.calibrationPct = cal; bump++ }
+                            Tile("−", false, Modifier.width(60.dp), height = 52.dp) { cal = (cal - 1).coerceAtLeast(-20); f.calibrationPct = cal; bump++ }
                             Text("${if (cal > 0) "+" else ""}$cal%", color = Shark.text, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.width(80.dp))
-                            Tile("+", false, Modifier.width(60.dp), height = 46.dp) { cal = (cal + 1).coerceAtMost(20); f.calibrationPct = cal; bump++ }
+                            Tile("+", false, Modifier.width(60.dp), height = 52.dp) { cal = (cal + 1).coerceAtMost(20); f.calibrationPct = cal; bump++ }
                             Text("Nudges the litres worked out from the factory gauge. Fill up, compare with the pump, then adjust until they agree.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.weight(1f))
                         }
                     }
@@ -132,7 +132,7 @@ fun EnergyScreen() {
                         Tile(if (confirmReset) "Tap again to reset" else "Reset fuel data", false, Modifier.fillMaxWidth(), height = 52.dp) {
                             if (!confirmReset) confirmReset = true else { confirmReset = false; f.reset(); status = "Fuel data reset"; bump++ }
                         }
-                        Tile("Undo last fill", false, Modifier.fillMaxWidth().padding(top = 6.dp), height = 44.dp) { f.deleteLast(); status = "Last fill removed"; bump++ }
+                        Tile("Undo last fill", false, Modifier.fillMaxWidth().padding(top = 6.dp), height = 52.dp) { f.deleteLast(); status = "Last fill removed"; bump++ }
                     }
                 }
                 if (status.isNotBlank()) Text(status, color = Color(0xFFFFD54F), fontSize = 14.sp)
@@ -143,7 +143,7 @@ fun EnergyScreen() {
                         Head("V2L and camping")
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
                             Text("Run time " + (if (hrs != null) "%.0f h".format(hrs) else "--"), color = Shark.text, fontSize = 15.sp, modifier = Modifier.width(120.dp))
-                            listOf(5, 8, 12, 24).forEach { h -> Tile("$h h", hrs != null && kotlin.math.abs(hrs - h) < 0.5, Modifier.width(72.dp), height = 44.dp) {
+                            listOf(5, 8, 12, 24).forEach { h -> Tile("$h h", hrs != null && kotlin.math.abs(hrs - h) < 0.5, Modifier.width(72.dp), height = 52.dp) {
                                 scope.launch { status = withContext(Dispatchers.IO) { val r = Vehicle.energy.setDischargeHours(h); runCatching { VehicleService.energy.value = Vehicle.energy.read() }; if (r.ok) "V2L run time set to $h h" else "V2L run time: ${r.detail}" } }
                             } }
                         }

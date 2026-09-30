@@ -88,7 +88,7 @@ fun Tile(label: String, active: Boolean = false, modifier: Modifier = Modifier, 
     val line = if (active) Shark.accent else Shark.accent.copy(alpha = 0.35f)
     Column(
         modifier
-            .height(height)
+            .height(if (height < 48.dp) 48.dp else height)   // nothing smaller than a fingertip at arm's length
             .clip(RoundedCornerShape(14.dp))
             .background(bgc)
             .border(1.5.dp, line, RoundedCornerShape(14.dp))
