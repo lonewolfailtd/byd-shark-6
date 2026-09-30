@@ -33,10 +33,10 @@ fun GaugesScreen() {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.Bottom) {
             FlowRow(Modifier.width(330.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Gauge("Engine", if ((t?.engineRpm ?: 0) <= 0 && t?.engineRpm != null) "Off" else fmt(t?.engineRpm), t?.engineRpm?.let { it / 6000f }, unit = "rpm", colour = Shark.warm)
-                Gauge("HV battery", fmt(t?.soc, "%"), t?.soc?.let { it / 100f }, colour = Shark.accent)
-                Gauge("12 V", fmt(t?.battery12v, " V"), t?.battery12v?.let { ((it - 10) / 6).toFloat() }, colour = if ((t?.battery12v ?: 13.0) < 12.2) Shark.bad else Shark.accent)
-                Gauge("Speed", fmt(t?.speedKmh), t?.speedKmh?.let { it / 180f }, unit = "km/h", colour = Shark.cool)
+                Gauge("Engine", if ((t?.engineRpm ?: 0) <= 0 && t?.engineRpm != null) "Off" else fmt(t?.engineRpm), t?.engineRpm?.let { it / 6000f }, unit = "rpm", colour = Shark.warm, scale = listOf("0", "2", "4", "6"))
+                Gauge("HV battery", fmt(t?.soc, "%"), t?.soc?.let { it / 100f }, colour = Shark.accent, scale = listOf("0", "25", "50", "75", "100"))
+                Gauge("12 V", fmt(t?.battery12v, " V"), t?.battery12v?.let { ((it - 10) / 6).toFloat() }, colour = if ((t?.battery12v ?: 13.0) < 12.2) Shark.bad else Shark.accent, scale = listOf("10", "12", "14", "16"))
+                Gauge("Speed", fmt(t?.speedKmh), t?.speedKmh?.let { it / 180f }, unit = "km/h", colour = Shark.cool, scale = listOf("0", "60", "120", "180"))
             }
             Row(Modifier.weight(1f).padding(horizontal = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Glass(Modifier.weight(1f)) {
@@ -47,10 +47,10 @@ fun GaugesScreen() {
                 Glass(Modifier.weight(1f)) { Text("MODE", color = Shark.muted, fontSize = 12.sp); Text(modeShort(t?.operationMode), color = Shark.text, fontSize = 28.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold) }
             }
             FlowRow(Modifier.width(330.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Gauge("Fuel", fmt(t?.fuelPercent, "%"), t?.fuelPercent?.let { it / 100f }, colour = Shark.warm)
-                Gauge("EV range", fmt(t?.evRangeKm), t?.evRangeKm?.let { it / 100f }, unit = "km")
-                Gauge("Fuel range", fmt(t?.fuelRangeKm), t?.fuelRangeKm?.let { it / 800f }, unit = "km", colour = Shark.warm)
-                Gauge("Combined", fmt(t?.combinedRangeKm), t?.combinedRangeKm?.let { it / 900f }, unit = "km", colour = Shark.cool)
+                Gauge("Fuel", fmt(t?.fuelPercent, "%"), t?.fuelPercent?.let { it / 100f }, colour = Shark.warm, scale = listOf("0", "25", "50", "75", "100"))
+                Gauge("EV range", fmt(t?.evRangeKm), t?.evRangeKm?.let { it / 100f }, unit = "km", scale = listOf("0", "25", "50", "75", "100"))
+                Gauge("Fuel range", fmt(t?.fuelRangeKm), t?.fuelRangeKm?.let { it / 800f }, unit = "km", colour = Shark.warm, scale = listOf("0", "200", "400", "600", "800"))
+                Gauge("Combined", fmt(t?.combinedRangeKm), t?.combinedRangeKm?.let { it / 900f }, unit = "km", colour = Shark.cool, scale = listOf("0", "300", "600", "900"))
             }
         }
         Panel("More") {

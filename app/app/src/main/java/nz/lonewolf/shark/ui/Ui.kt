@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -125,7 +126,7 @@ fun RoundButton(text: String, onClick: () -> Unit) {
 
 /** Arc gauge. `fraction` in 0..1; null draws an empty arc with a dash. */
 @Composable
-fun Gauge(label: String, value: String, fraction: Float?, modifier: Modifier = Modifier, colour: Color = Shark.accent, unit: String = "") {
+fun Gauge(label: String, value: String, fraction: Float?, modifier: Modifier = Modifier, colour: Color = Shark.accent, unit: String = "", scale: List<String> = emptyList()) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.size(150.dp), contentAlignment = Alignment.Center) {
             Canvas(Modifier.size(150.dp)) {
@@ -143,6 +144,22 @@ fun Gauge(label: String, value: String, fraction: Float?, modifier: Modifier = M
                     drawArc(colour, 135f, 270f * fraction.coerceIn(0f, 1f), false, Offset(inset, inset), rect, style = stroke)
                 }
                 drawCircle(colour.copy(alpha = 0.5f), size.minDimension / 2 - 1.dp.toPx(), style = Stroke(1.5.dp.toPx()))
+                // Scale numbers sit just inside the ring; a bright dot marks where the value is.
+                val r = size.minDimension / 2 - inset - 26.dp.toPx()
+                if (scale.isNotEmpty()) {
+                    val paint = android.graphics.Paint().apply { color = 0xFFC9D6E8.toInt(); textSize = 10.sp.toPx(); textAlign = android.graphics.Paint.Align.CENTER; isAntiAlias = true }
+                    scale.forEachIndexed { i, s ->
+                        val a = Math.toRadians((135.0 + 270.0 * i / (scale.size - 1)))
+                        drawContext.canvas.nativeCanvas.drawText(s, mid.x + (r * Math.cos(a)).toFloat(), mid.y + (r * Math.sin(a)).toFloat() + 4.dp.toPx(), paint)
+                    }
+                }
+                if (fraction != null) {
+                    val a = Math.toRadians(135.0 + 270.0 * fraction.coerceIn(0f, 1f))
+                    val rr = size.minDimension / 2 - inset
+                    val p = Offset(mid.x + (rr * Math.cos(a)).toFloat(), mid.y + (rr * Math.sin(a)).toFloat())
+                    drawCircle(Color.White.copy(alpha = 0.35f), 9.dp.toPx(), p)
+                    drawCircle(Color.White, 5.dp.toPx(), p)
+                }
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(value, color = if (fraction == null) Shark.muted else Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)

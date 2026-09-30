@@ -123,7 +123,7 @@ fun HomeScreen(onOpenTab: (String) -> Unit) {
     Backdrop("bg_home", wash = 0.2f) {
         Column(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Column(Modifier.width(310.dp).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(Modifier.width(270.dp).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Glass(Modifier.weight(1f).fillMaxHeight()) {
                             Label("Battery"); Big(fmt(t?.soc, "%")); Bar(t?.soc?.let { it / 100f }, Shark.accent)
@@ -135,14 +135,14 @@ fun HomeScreen(onOpenTab: (String) -> Unit) {
                         }
                     }
                     Glass(Modifier.weight(1f).fillMaxWidth()) {
-                        Label("Total range"); Big("${fmt(t?.combinedRangeKm)} km", 44); Bar(t?.combinedRangeKm?.let { it / 900f }, Shark.cool)
+                        Label("Total range"); Big("${fmt(t?.combinedRangeKm)} km", 38); Bar(t?.combinedRangeKm?.let { it / 900f }, Shark.cool)
                         Small("Odometer ${fmt(t?.odometerKm, " km")}")
                     }
                 }
                 Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.TopCenter) {
                     Text(if (status.isNotBlank()) status else "", color = Shark.bad, fontSize = 13.sp)
                 }
-                Column(Modifier.width(340.dp).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(Modifier.width(300.dp).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(Modifier.weight(1.2f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Glass(Modifier.weight(1f).fillMaxHeight()) { Label("Outside"); Big(fmt(c?.outsideTemp, "°")) }
                         Glass(Modifier.weight(1f).fillMaxHeight()) {
@@ -251,7 +251,7 @@ fun Glass(modifier: Modifier = Modifier, pad: Int = 12, content: @Composable and
 }
 
 @Composable private fun Label(text: String) = Text(text.uppercase(), color = Shark.accent, fontSize = 12.sp, letterSpacing = 1.6.sp, fontWeight = FontWeight.Bold)
-@Composable private fun Big(text: String, size: Int = 38, colour: Color = Color.White) = Text(text, color = colour, fontSize = size.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+@Composable private fun Big(text: String, size: Int = 32, colour: Color = Color.White) = Text(text, color = colour, fontSize = size.sp, fontWeight = FontWeight.Bold, maxLines = 1)
 @Composable private fun Small(text: String) = Text(text, color = Shark.muted, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
 
 @Composable
