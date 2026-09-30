@@ -85,6 +85,7 @@ private fun Shell(inclinometer: Inclinometer) {
     var clock by remember { mutableStateOf("") }
     LaunchedEffect(Unit) { val f = java.text.SimpleDateFormat("h:mm a", java.util.Locale.US); while (true) { clock = f.format(java.util.Date()); kotlinx.coroutines.delay(5000) } }
     if (intro) { Intro { intro = false }; return }
+    if (PetMode.active) { PetNotice(PetMode.temp, PetMode.message, PetMode.phone) { PetMode.active = false }; return }
     Column(Modifier.fillMaxSize().background(Shark.bg)) {
         Row(Modifier.fillMaxWidth().height(40.dp).background(Color(0xFF070B14)).padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("LONEWOLF", color = Shark.text, fontSize = 16.sp, fontWeight = FontWeight.Bold, letterSpacing = 3.sp)

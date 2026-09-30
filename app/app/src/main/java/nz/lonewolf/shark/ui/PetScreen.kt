@@ -36,6 +36,14 @@ import kotlinx.coroutines.withContext
 import nz.lonewolf.shark.core.byd.Vehicle
 import nz.lonewolf.shark.service.VehicleService
 
+/** Pet mode state shared by the climate panel and the app shell, so the notice can cover everything. */
+object PetMode {
+    var active by androidx.compose.runtime.mutableStateOf(false)
+    var temp = 21
+    var message = ""
+    var phone = ""
+}
+
 /** The full screen notice for people walking past. Lives on the climate page under Pet mode. */
 @Composable
 fun PetNotice(temp: Int, message: String, phone: String, onOff: () -> Unit) {

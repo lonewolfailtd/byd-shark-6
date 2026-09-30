@@ -114,8 +114,6 @@ private fun PetPanel(write: (String, () -> CommandResult) -> Unit) {
     var temp by remember { androidx.compose.runtime.mutableIntStateOf(prefs.petTemp) }
     var message by remember { mutableStateOf(prefs.petMessage) }
     var phone by remember { mutableStateOf(prefs.petPhone) }
-    var active by remember { mutableStateOf(false) }
-    if (active) { PetNotice(temp, message, phone) { active = false }; return }
     Panel {
         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Column(Modifier.width(190.dp)) {
@@ -133,7 +131,7 @@ private fun PetPanel(write: (String, () -> CommandResult) -> Unit) {
                     Vehicle.climate.setSynced(true); Vehicle.climate.setDriverTemp(temp); Vehicle.climate.setCompressor(true); Vehicle.climate.setRecirc(false)
                     r
                 }
-                active = true
+                PetMode.temp = temp; PetMode.message = message; PetMode.phone = phone; PetMode.active = true
             }
         }
     }

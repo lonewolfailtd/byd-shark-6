@@ -135,7 +135,7 @@ private fun TiltDial(label: String, angle: Float, side: Boolean) {
                 drawLine(Color(0xFF3A4B66), Offset(cx - rad * 0.85f, cy + 34.dp.toPx()), Offset(cx + rad * 0.85f, cy + 34.dp.toPx()), 2.dp.toPx(), StrokeCap.Round)
                 if (ute != null) {
                     val iw = rad * (if (side) 1.5f else 0.95f); val ih = iw * ute.height / ute.width
-                    rotate(if (side) -angle else angle, Offset(cx, cy)) {
+                    rotate(-angle, Offset(cx, cy)) {
                         drawImage(ute, dstOffset = androidx.compose.ui.unit.IntOffset((cx - iw / 2).toInt(), (cy + 34.dp.toPx() - ih).toInt()), dstSize = androidx.compose.ui.unit.IntSize(iw.toInt(), ih.toInt()))
                         drawLine(if (warn) bad else accent, Offset(cx - rad * 0.8f, cy + 34.dp.toPx()), Offset(cx + rad * 0.8f, cy + 34.dp.toPx()), 3.dp.toPx(), StrokeCap.Round)
                     }
