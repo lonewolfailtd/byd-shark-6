@@ -88,7 +88,7 @@ fun ClimateScreen() {
                     Tile("Auto", c?.auto == true, Modifier.width(100.dp), height = 60.dp) { write("Auto") { cl.setAuto(c?.auto != true) } }
                     Tile("A/C", c?.compressorOn == true, Modifier.width(100.dp), height = 60.dp) { write("A/C") { cl.setCompressor(c?.compressorOn != true) } }
                     Tile("Recirc", c?.recirc == true, Modifier.width(110.dp), height = 60.dp) { write("Recirc") { cl.setRecirc(c?.recirc != true) } }
-                    Tile("Sync", c?.synced == true, Modifier.width(100.dp), height = 60.dp) { write("Sync") { cl.setSynced(c?.synced != true) } }
+                    Tile("Dual", c?.synced == false, Modifier.width(100.dp), height = 60.dp) { write("Dual") { cl.setSynced(c?.synced == false) } }
                     Tile("Demist", c?.frontDemist == true, Modifier.width(110.dp), height = 60.dp) { write("Demist") { cl.setFrontDemist(c?.frontDemist != true) } }
                     Tile("Rear heat", c?.rearHeat == true, Modifier.width(120.dp), height = 60.dp) { write("Rear heat") { cl.setRearHeat(c?.rearHeat != true) } }
                 }

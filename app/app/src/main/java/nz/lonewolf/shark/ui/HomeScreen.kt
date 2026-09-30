@@ -183,7 +183,7 @@ fun HomeScreen(onOpenTab: (String) -> Unit) {
                         Column(Modifier.width(60.dp), horizontalAlignment = Alignment.CenterHorizontally) { Small("Fan"); Text(fmt(c?.fan), color = Shark.text, fontSize = 26.sp, fontWeight = FontWeight.Bold) }
                         Tile("+", false, Modifier.width(56.dp), height = 64.dp) { write("Fan") { Vehicle.climate.nudgeFan(+1) } }
                         Tile("A/C", c?.compressorOn == true, Modifier.weight(1f), height = 64.dp) { write("A/C") { Vehicle.climate.setCompressor(c?.compressorOn != true) } }
-                        Tile("Sync", c?.synced == true, Modifier.weight(1f), height = 64.dp) { write("Sync") { Vehicle.climate.setSynced(c?.synced != true) } }
+                        Tile("Dual", c?.synced == false, Modifier.weight(1f), height = 64.dp) { write("Dual") { Vehicle.climate.setSynced(c?.synced == false) } }
                         Tile("Recirc", c?.recirc == true, Modifier.weight(1f), height = 64.dp) { write("Recirc") { Vehicle.climate.setRecirc(c?.recirc != true) } }
                     }
                 }

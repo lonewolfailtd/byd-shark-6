@@ -35,6 +35,7 @@ class VehicleService : Service() {
     private var screenOffAt = 0L
     private val screenWatcher = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == StartReceiver.ACC_ON) { screenOffAt = 0; StartReceiver.open(context); return }
             if (intent.action == Intent.ACTION_SCREEN_OFF) screenOffAt = System.currentTimeMillis()
             // Only after a real stop, not a quick screen blank.
             else if (screenOffAt > 0 && System.currentTimeMillis() - screenOffAt > 120_000) { screenOffAt = 0; StartReceiver.open(context) }
@@ -49,7 +50,7 @@ class VehicleService : Service() {
         instance = this
         startForeground(NOTIFICATION_ID, notification())
         running.value = true
-        runCatching { registerReceiver(screenWatcher, android.content.IntentFilter().apply { addAction(Intent.ACTION_SCREEN_ON); addAction(Intent.ACTION_SCREEN_OFF) }) }
+        runCatching { registerReceiver(screenWatcher, android.content.IntentFilter().apply { addAction(Intent.ACTION_SCREEN_ON); addAction(Intent.ACTION_SCREEN_OFF); addAction(StartReceiver.ACC_ON) }) }
         scope.launch { poll() }
         if (Vehicle.prefs.floatingPanel) android.os.Handler(mainLooper).post { quickPanel.show() }
     }

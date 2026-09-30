@@ -18,6 +18,8 @@ class StartReceiver : BroadcastReceiver() {
     }
 
     companion object {
+        /** BYD's ignition on broadcast, spelt this way by BYD. Seen on the ute 1 Oct 2026. */
+        const val ACC_ON = "andoirdauto.acc.on"
         @Volatile private var lastOpen = 0L
 
         fun open(context: Context) {
