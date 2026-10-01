@@ -69,7 +69,7 @@ fun ClimateScreen() {
     val on = c?.powerOn == true
 
     Backdrop("bg_climate", coloured = false, wash = 0.35f) {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    SectionPager({ Column(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.Center) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Panel("Passenger", Modifier.width(220.dp)) {
                 SeatCard(s?.passenger, onHeat = { write("Passenger heat") { st.setHeat(SeatBridge.PASSENGER, it) } }, onVent = { write("Passenger vent") { st.setVent(SeatBridge.PASSENGER, it) } })
@@ -105,8 +105,9 @@ fun ClimateScreen() {
                 SeatCard(s?.driver, onHeat = { write("Driver heat") { st.setHeat(SeatBridge.DRIVER, it) } }, onVent = { write("Driver vent") { st.setVent(SeatBridge.DRIVER, it) } }, ventFirst = true)
             }
         }
+    } }, { Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center) {
         PetPanel(write = { label, block -> write(label, block) })
-    }
+    } })
     }
 }
 

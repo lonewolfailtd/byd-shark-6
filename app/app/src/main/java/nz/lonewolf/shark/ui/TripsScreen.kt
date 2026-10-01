@@ -55,8 +55,17 @@ fun TripsScreen() {
             }
             Panel("Logbook", Modifier.weight(1f)) {
                 Tile("Export CSV", false, Modifier.fillMaxWidth(), sub = "for the mileage claim") { status = "Saved ${Vehicle.trips.exportCsv().path}" }
-                Text("Trips start when you leave Park and end a minute after you park. Tap a trip to mark it business.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
-                if (cur != null) Text("Trip in progress: ${cur.km} km so far", color = Shark.accent, fontSize = 14.sp)
+                Text("Trips start when the ute moves and end a minute after you park. The app must be open or running in the background. Tap a trip to mark it business.", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+                val live by VehicleService.telemetry.collectAsStateWithLifecycle()
+                var tick by remember { androidx.compose.runtime.mutableIntStateOf(0) }
+                androidx.compose.runtime.LaunchedEffect(Unit) { while (true) { kotlinx.coroutines.delay(2000); tick++ } }
+                @Suppress("UNUSED_EXPRESSION") tick
+                val now = Vehicle.trips.current
+                if (now == null) Tile("Start a trip", false, Modifier.fillMaxWidth().padding(top = 8.dp), sub = "if it did not start by itself") { Vehicle.trips.startNow(live); tick++ }
+                else {
+                    Text("Trip in progress: ${now.km} km so far", color = Shark.accent, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
+                    Tile("End trip", true, Modifier.fillMaxWidth(), sub = "saves it to the log") { Vehicle.trips.finish(); tick++ }
+                }
             }
         }
         Panel("Trips") {

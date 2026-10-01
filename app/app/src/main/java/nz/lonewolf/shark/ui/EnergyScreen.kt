@@ -60,9 +60,14 @@ fun EnergyScreen() {
 
     Backdrop("bg_fuel", wash = 0.3f) {
         Row(Modifier.fillMaxSize().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Spacer(Modifier.weight(0.75f))
-            Column(Modifier.weight(2f).fillMaxHeight().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            var sec by remember { mutableStateOf("Fuel") }
+            Column(Modifier.width(190.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("Fuel" to "tank, fills, range", "V2L" to "power out, run time", "Battery" to "charge and health").forEach { (name, sub) ->
+                    Tile(name, sec == name, Modifier.fillMaxWidth(), height = 72.dp, sub = sub) { sec = name }
+                }
+            }
+            Column(Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (sec == "Fuel") Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Glass(Modifier.weight(1f)) {
                         Head("Total tank size"); Number("$total L")
                         Line("Stock tank", "60 L")
@@ -86,7 +91,7 @@ fun EnergyScreen() {
                         Line("Full tank", "${(total / use * 100).toInt()} km")
                     }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (sec == "Fuel") Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Glass(Modifier.weight(1.3f)) {
                         Head("Add fuel")
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -118,7 +123,7 @@ fun EnergyScreen() {
                         }
                     }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (sec == "Fuel") Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Glass(Modifier.weight(2f)) {
                         Head("Gauge calibration")
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -139,7 +144,7 @@ fun EnergyScreen() {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     val v = e?.v2l
                     val hrs = v?.timeHours
-                    Glass(Modifier.weight(1f)) {
+                    if (sec == "V2L") Glass(Modifier.weight(1f)) {
                         Head("V2L and camping")
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
                             Text("Run time " + (if (hrs != null) "%.0f h".format(hrs) else "--"), color = Shark.text, fontSize = 15.sp, modifier = Modifier.width(120.dp))
@@ -153,7 +158,7 @@ fun EnergyScreen() {
                         Line("Stops at", fmt(v?.limitPercent, "%"))
                         Line("Time remaining", v?.remainMin?.let { "${it / 60} h ${it % 60} min" } ?: "--")
                     }
-                    Glass(Modifier.weight(1f)) {
+                    if (sec == "Battery") Glass(Modifier.weight(1f)) {
                         Head("Battery"); Number(fmt(t?.soc, "%"), Shark.accent)
                         Bar(t?.soc?.let { it / 100f }, Shark.accent)
                         Line("Health", fmt(t?.soh, "%"))
@@ -163,7 +168,7 @@ fun EnergyScreen() {
                         Line("Charging", if (t?.chargingState == null) "--" else if (t?.chargingState == 0) "not charging" else "state ${t?.chargingState}")
                     }
                 }
-                Glass(Modifier.fillMaxWidth()) {
+                if (sec == "Fuel") Glass(Modifier.fillMaxWidth()) {
                     Head("How this works")
                     Text(
                         if (extended == 0) "With the stock tank the litres come straight from the factory gauge. Set an extra tank size if you have fitted a long range tank."

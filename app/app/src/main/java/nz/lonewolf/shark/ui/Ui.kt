@@ -35,6 +35,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.fillMaxSize
+import kotlinx.coroutines.launch
 
 /** Shared look for every page: dark, large touch targets, one accent. */
 object Shark {
@@ -53,7 +55,7 @@ object Shark {
     var theme by mutableStateOf(Theme.CYAN)
     /** Glowing edge and dark glass fill shared by every card. */
     val edge get() = androidx.compose.ui.graphics.Brush.verticalGradient(listOf(accent.copy(alpha = 0.75f), accent.copy(alpha = 0.18f)))
-    val glass get() = androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color(0xD9122038), Color(0xEB060B16)))
+    val glass get() = androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color(0xB8122038), Color(0xCC060B16)))
     val accent get() = theme.accent
     val accentDim get() = theme.dim
     val warm = Color(0xFFFF7043)
@@ -83,7 +85,7 @@ fun Panel(title: String? = null, modifier: Modifier = Modifier, content: @Compos
 
 /** A big toggle or action tile sized for a finger while driving. */
 @Composable
-fun Tile(label: String, active: Boolean = false, modifier: Modifier = Modifier, sub: String? = null, height: Dp = 72.dp, onClick: () -> Unit) {
+fun Tile(label: String, active: Boolean = false, modifier: Modifier = Modifier, sub: String? = null, height: Dp = 64.dp, onClick: () -> Unit) {
     val bgc = if (active) androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Shark.accent.copy(alpha = 0.85f), Shark.accentDim)) else androidx.compose.ui.graphics.Brush.verticalGradient(listOf(Color(0xE61A2A47), Color(0xE60C1424)))
     val line = if (active) Shark.accent else Shark.accent.copy(alpha = 0.35f)
     Column(
@@ -184,3 +186,28 @@ fun StatRow(label: String, value: String, ok: Boolean? = null) {
 
 fun fmt(v: Int?, unit: String = "") = if (v == null) "--" else "$v$unit"
 fun fmt(v: Double?, unit: String = "", digits: Int = 1) = if (v == null) "--" else "%.${digits}f%s".format(v, unit)
+
+
+/**
+ * A page made of full screen sections. Each section fills the screen; swipe up for the next.
+ * Dots on the right show where you are and can be tapped.
+ */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+@Composable
+fun SectionPager(vararg sections: @Composable () -> Unit) {
+    val state = androidx.compose.foundation.pager.rememberPagerState(pageCount = { sections.size })
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    Box(Modifier.fillMaxSize()) {
+        androidx.compose.foundation.pager.VerticalPager(state, Modifier.fillMaxSize(), beyondViewportPageCount = 1) { i ->
+            Box(Modifier.fillMaxSize()) { sections[i]() }
+        }
+        if (sections.size > 1) Column(Modifier.align(Alignment.CenterEnd).padding(end = 4.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            repeat(sections.size) { i ->
+                val on = state.currentPage == i
+                Box(Modifier.size(width = 6.dp, height = if (on) 26.dp else 10.dp).clip(RoundedCornerShape(3.dp))
+                    .background(if (on) Shark.accent else Shark.muted.copy(alpha = 0.5f))
+                    .clickable { scope.launch { state.animateScrollToPage(i) } })
+            }
+        }
+    }
+}

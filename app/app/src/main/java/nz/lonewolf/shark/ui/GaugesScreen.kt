@@ -30,7 +30,7 @@ fun GaugesScreen() {
     val tyreUnit = t?.tyres?.unit ?: "kPa"
 
     Backdrop("bg_gauges", wash = 0.15f) {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    SectionPager({ Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.Center) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.Bottom) {
             FlowRow(Modifier.width(330.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Gauge("Engine", if ((t?.engineRpm ?: 0) <= 0 && t?.engineRpm != null) "Off" else fmt(t?.engineRpm), t?.engineRpm?.let { it / 6000f }, unit = "rpm", colour = Shark.warm, scale = listOf("0", "2", "4", "6"))
@@ -53,6 +53,7 @@ fun GaugesScreen() {
                 Gauge("Combined", fmt(t?.combinedRangeKm), t?.combinedRangeKm?.let { it / 900f }, unit = "km", colour = Shark.cool, scale = listOf("0", "300", "600", "900"))
             }
         }
+    } }, { Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp, androidx.compose.ui.Alignment.CenterVertically)) {
         Panel("More") {
             FlowRow(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
                 Gauge("Battery health", fmt(t?.soh, "%"), t?.soh?.let { it / 100f })
@@ -89,7 +90,7 @@ fun GaugesScreen() {
                 StatRow("Charging", if (t?.chargingState == null) "--" else if (t?.chargingState == 0) "not charging" else "state ${t?.chargingState}", t?.chargingState != null)
             }
         }
-    }
+    } })
     }
 }
 

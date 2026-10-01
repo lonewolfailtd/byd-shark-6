@@ -63,7 +63,7 @@ fun Backdrop(name: String, coloured: Boolean = true, wash: Float = 0.35f, align:
     val img = if (Art.plain) null else rememberArt(name, coloured)
     Box(Modifier.fillMaxSize().background(if (Art.plain) Color(0xFF05080F) else Shark.bg)) {
         if (img != null) Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop, alignment = align)
-        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = wash * 0.6f + 0.12f), Color.Black.copy(alpha = wash * 0.15f), Color.Black.copy(alpha = wash * 0.6f + 0.18f)))))
+        Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = wash * 0.45f + 0.08f), Color.Transparent, Color.Black.copy(alpha = wash * 0.45f + 0.12f)))))
         content()
     }
 }

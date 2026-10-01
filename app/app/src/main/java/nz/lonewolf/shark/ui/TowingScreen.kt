@@ -38,8 +38,8 @@ fun TowingScreen() {
     }
     val unit = t?.tyres?.unit ?: "kPa"
     Backdrop("bg_towing", wash = 0.15f, align = androidx.compose.ui.Alignment.BottomCenter) {
-    var more by remember { mutableStateOf(false) }
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+    SectionPager({ Column(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("TOWING", color = Shark.text, fontSize = 30.sp, letterSpacing = 4.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
@@ -56,7 +56,7 @@ fun TowingScreen() {
             if (status.isNotBlank()) status else if (tr?.active == true) "Tow mode on. Trailer ${tr?.sizeName ?: "--"}. Locks Normal mode and disables 10 driver aids." else "Tow mode off. It arms itself 15 s after the 7 pin plug goes in.",
             color = if (status.isNotBlank()) androidx.compose.ui.graphics.Color(0xFFFFD54F) else Shark.muted, fontSize = 12.sp, modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
-        androidx.compose.foundation.layout.Spacer(Modifier.height(250.dp))
+        androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TowStat("Combined range", fmt(t?.combinedRangeKm, " km"), t?.combinedRangeKm?.let { it / 900f }, Shark.cool, Modifier.weight(1f))
             TowStat("Fuel range", fmt(t?.fuelRangeKm, " km"), t?.fuelRangeKm?.let { it / 800f }, Shark.warm, Modifier.weight(1f))
@@ -68,8 +68,9 @@ fun TowingScreen() {
                 Text("RL ${fmt(t?.tyres?.rl, " psi", 1)}  RR ${fmt(t?.tyres?.rr, " psi", 1)}", color = Shark.text, fontSize = 15.sp)
             }
         }
-        Tile(if (more) "Hide checklist" else "Checklist and limits", more, Modifier.width(220.dp), height = 44.dp) { more = !more }
-        if (more) Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text("Swipe up for the checklist and limits", color = Shark.muted, fontSize = 12.sp, modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+    } }, { Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.Center) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Panel("Limits (Premium)", Modifier.weight(1f)) {
                 StatRow("Braked trailer", "2,500 kg"); StatRow("Unbraked trailer", "750 kg"); StatRow("Tow ball", "250 kg"); StatRow("GVM", "3,500 kg"); StatRow("Payload", "790 kg")
                 StatRow("Trailer lights check", when (tr?.lightCheck) { null -> "--"; 0 -> "not run"; 1 -> "passed"; else -> "state ${tr?.lightCheck}" })
@@ -83,7 +84,7 @@ fun TowingScreen() {
                 Text("Towing roughly halves range. Plan fuel stops from the fuel figure, not combined.", color = Shark.muted, fontSize = 12.sp)
             }
         }
-    }
+    } })
     }
 }
 

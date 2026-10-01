@@ -50,13 +50,27 @@ class TripLog(private val context: Context) {
         }) } }.toString())
     }
 
+    /** Start a trip by hand, for when the app was opened after leaving. */
+    @Synchronized
+    fun startNow(t: TelemetryBridge.Snapshot?) {
+        if (current != null) return
+        val odo = t?.odometerKm ?: return
+        val ev = t.evMileageKm ?: 0
+        current = Trip(System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), odo, odo, ev, ev, t.soc, t.soc, t.fuelPercent, t.fuelPercent)
+        parkedTicks = 0
+        manual = true
+    }
+
+    @Volatile private var manual = false
+
     /** Call once a second from the service. */
     @Synchronized
     fun tick(t: TelemetryBridge.Snapshot?) {
         val gear = t?.gear ?: return
         val odo = t.odometerKm ?: return
         val ev = t.evMileageKm ?: 0
-        val driving = gear != 1
+        // Moving or out of Park counts as driving; either is enough, so a misread gear never loses a trip.
+        val driving = gear != 1 || (t.speedKmh ?: 0) > 3
         val cur = current
         if (cur == null) {
             if (driving) { current = Trip(System.currentTimeMillis(), System.currentTimeMillis(), System.currentTimeMillis(), odo, odo, ev, ev, t.soc, t.soc, t.fuelPercent, t.fuelPercent); parkedTicks = 0 }
@@ -65,7 +79,7 @@ class TripLog(private val context: Context) {
         cur.odoEnd = odo; cur.evEnd = ev; cur.socEnd = t.soc; cur.fuelEnd = t.fuelPercent
         if (driving) { parkedTicks = 0; cur.end = System.currentTimeMillis(); return }
         parkedTicks++
-        if (parkedTicks >= 60) finish()
+        if (!manual && parkedTicks >= 60) finish()
     }
 
     @Synchronized
@@ -73,6 +87,8 @@ class TripLog(private val context: Context) {
         val cur = current ?: return
         current = null
         parkedTicks = 0
+        manual = false
+        cur.end = System.currentTimeMillis()
         if (cur.km >= 1) { _trips.value = (_trips.value + cur).takeLast(1000); persist() }
     }
 
